@@ -1,16 +1,14 @@
-import Footer from "./components/Footer"
-import Nav from "./components/Nav"
-import Home from "./pages/Home"
+import Footer from "./components/Footer";
+import Nav from "./components/Nav";
+import Home from "./pages/Home";
+import Unauthenticated from "./pages/Unauthenticated";
 
 function App() {
-
   return (
     <>
-      <Nav />
-      <Home />
-      <Footer />
+      <Unauthenticated />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
