@@ -31,7 +31,6 @@ const EventCard = ({ event, registered }) => {
 
   return (
     <div
-      id="event-card"
       role="button"
       aria-expanded={expanded}
       tabIndex={0}
