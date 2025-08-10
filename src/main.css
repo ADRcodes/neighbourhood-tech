@@ -4,3 +4,20 @@
   @apply px-4 py-2 text-white rounded hover:bg-blue-600;
   background-color: cadetblue;
 }
+
+.phone-frame {
+  display: flex;
+  width: 375px;
+  height: 812px;
+  margin: 50px auto 50px;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  border-radius: 20px;
+  overflow: hidden;
+  background-color: #fff;
+  font-family: Arial, sans-serif;
+  align-items: center;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
