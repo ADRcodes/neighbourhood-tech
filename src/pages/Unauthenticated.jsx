@@ -1,9 +1,56 @@
-import React from "react";
+import React, { useState } from "react";
 import "./Unauthenticated.css";
 import NetworkingStock from "../assets/NetworkingStock.jpg";
 import NTlogo from "../assets/NTlogo.png";
 
 const Unauthenticated = () => {
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleLogin = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+      const result = await response.text();
+      alert(result);
+    } catch (err) {
+      console.error("Login error:", err);
+    }
+  };
+
+  const handleRegister = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const result = await response.text();
+      alert(result);
+
+      if (result.toLowerCase().includes("success")) {
+        setFormData({ name: "", email: "", password: "" });
+        setIsRegistering(false);
+      }
+    } catch (err) {
+      console.error("Registration error:", err);
+    }
+  };
+
   return (
     <div className="phone-frame tiled-background">
       <div className="unauth-container">
@@ -18,15 +65,64 @@ const Unauthenticated = () => {
         />
 
         <div className="form-section">
-          <input type="text" placeholder="Username" className="input-field" />
+          {isRegistering && (
+            <input
+              type="text"
+              name="name"
+              placeholder="Enter desired username"
+              className="input-field"
+              value={formData.name}
+              onChange={handleChange}
+            />
+          )}
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            className="input-field"
+            value={formData.email}
+            onChange={handleChange}
+          />
           <input
             type="password"
+            name="password"
             placeholder="Password"
             className="input-field"
+            value={formData.password}
+            onChange={handleChange}
           />
 
-          <button className="auth-button login-button">Log In</button>
-          <button className="auth-button register-button">Register</button>
+          {isRegistering ? (
+            <>
+              <button
+                className="auth-button register-button"
+                onClick={handleRegister}
+              >
+                Register
+              </button>
+              <button
+                className="auth-button login-button px-3 py-1 text-sm !px-3 !py-1 !text-sm"
+                onClick={() => setIsRegistering(false)}
+              >
+                Back to Login
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="auth-button login-button"
+                onClick={handleLogin}
+              >
+                Log In
+              </button>
+              <button
+                className="auth-button register-button"
+                onClick={() => setIsRegistering(true)}
+              >
+                Register
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>
