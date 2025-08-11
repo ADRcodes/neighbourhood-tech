@@ -29,24 +29,30 @@ const PriceTag = ({ price }) => {
 };
 
 const MetaRow = ({ venue, date }) => {
-  const dt = useMemo(() => new Date(date), [date]);
+  const dt = useMemo(() => (date ? new Date(date) : null), [date]);
   const dateStr = useMemo(
-    () => dt.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+    () =>
+      dt
+        ? dt.toLocaleDateString(undefined, { month: "short", day: "numeric" })
+        : "TBD",
     [dt]
   );
   const timeStr = useMemo(
-    () => dt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }),
+    () =>
+      dt
+        ? dt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
+        : "",
     [dt]
   );
   return (
     <div className="flex w-fit items-center justify-between gap-3 text-xs text-gray-700">
       <div className="flex items-center gap-1">
         <p>📍</p>
-        <p>{venue?.name}</p>
+        <p>{venue?.name || "Venue"}</p>
       </div>
       <div className="flex flex-col w-fit items-center gap-1">
         <p className="font-semibold">{dateStr}</p>
-        <p>{timeStr}</p>
+        {timeStr && <p>{timeStr}</p>}
       </div>
     </div>
   );
@@ -57,7 +63,7 @@ const TagPills = ({ tags }) =>
     <div className="flex flex-wrap h-min items-start gap-1">
       {tags.map((tag) => (
         <span
-          key={tag}
+          key={String(tag)}
           className="h-min text-xs bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200"
         >
           {tag}
@@ -81,13 +87,14 @@ const EventListItem = ({
   const contentRef = useRef(null);
   const [maxHeight, setMaxHeight] = useState(0);
 
+  // image fallback (stable per event)
+  const imgSrc =
+    event.image || `https://picsum.photos/seed/${event.id || "event"}/300/200`;
+
   useEffect(() => {
     if (!contentRef.current) return;
     const el = contentRef.current;
-    const measure = () => {
-      // add a tiny cushion to avoid sub-pixel clipping during transition
-      setMaxHeight(el.scrollHeight + 4);
-    };
+    const measure = () => setMaxHeight(el.scrollHeight + 4);
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
@@ -105,8 +112,9 @@ const EventListItem = ({
     >
       <div
         aria-hidden
-        className={`absolute right-2 top-1 transition-transform duration-300 select-none ${expanded ? "rotate-180" : "rotate-0"
-          }`}
+        className={`absolute right-2 top-1 transition-transform duration-300 select-none ${
+          expanded ? "rotate-180" : "rotate-0"
+        }`}
       >
         ▾
       </div>
@@ -114,13 +122,18 @@ const EventListItem = ({
       {/* Header row */}
       <div className="flex items-start gap-3 relative">
         <img
-          src={event.image}
-          alt={event.title}
+          src={imgSrc}
+          alt={event.title || "Event image"}
+          onError={(e) => {
+            e.currentTarget.src = `https://picsum.photos/seed/${event.id || "fallback"}/300/200`;
+          }}
           className="w-24 aspect-[4/3] object-cover rounded-md shrink-0"
         />
 
         <div>
-          <h3 className="text-sm font-semibold truncate">{event.title}</h3>
+          <h3 className="text-sm font-semibold truncate">
+            {event.title || "Untitled Event"}
+          </h3>
           <MetaRow venue={event.venue} date={event.date} />
           <div className="mt-1 flex items-center justify-between gap-3">
             <PriceTag price={event.price} />
@@ -141,11 +154,12 @@ const EventListItem = ({
           style={{ maxHeight: expanded ? maxHeight : 0 }}
           aria-hidden={!expanded}
         >
-          {/* padding prevents margin-collapsing from clipping top/bottom */}
+             {/* padding prevents margin-collapsing from clipping top/bottom */}
           <div
             ref={contentRef}
-            className={`transition-all duration-500 pt-2 ${expanded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
-              }`}
+            className={`transition-all duration-500 pt-2 ${
+              expanded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+            }`}
           >
             <div className="flex w-fit gap-3 items-start">
               <div className="text-sm text-gray-600 space-y-1">
