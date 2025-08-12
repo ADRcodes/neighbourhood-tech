@@ -26,6 +26,18 @@ const RegisterEventForm = () => {
       .catch((err) => console.error("Error fetching venues:", err));
   }, []);
 
+  const [organizers, setOrganizers] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:8080/api/organizers")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch organizers");
+        return res.json();
+      })
+      .then((data) => setOrganizers(data))
+      .catch((err) => console.error("Error fetching organizers:", err));
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -41,7 +53,7 @@ const RegisterEventForm = () => {
       description: formData.description,
       price: parseFloat(formData.price),
       capacity: parseInt(formData.capacity),
-      // TODO: Add organizer: { id: currentUserId } once session/auth is integrated
+      organizer: { id: parseInt(formData.organizerId) },
       venue: { id: parseInt(formData.venueId) },
       tags: formData.tags
         ? formData.tags.split(",").map((tag) => tag.trim())
@@ -134,6 +146,21 @@ const RegisterEventForm = () => {
             min="1"
             required
           />
+
+          <select
+            className="input-field"
+            name="organizerId"
+            value={formData.organizerId}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Organizer</option>
+            {organizers.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.name}
+              </option>
+            ))}
+          </select>
 
           <select
             className="input-field"
