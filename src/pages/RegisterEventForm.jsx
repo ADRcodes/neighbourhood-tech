@@ -9,7 +9,7 @@ const RegisterEventForm = () => {
     description: "",
     price: "",
     capacity: "",
-    // organizerId removed for now - will auto-assign later
+    organizerId: "",
     venueId: "",
     tags: "",
   });
