@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./RegisterEventForm.css";
+import { useNavigate } from "react-router-dom";
 
 const RegisterEventForm = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ const RegisterEventForm = () => {
   });
 
   const [venues, setVenues] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://localhost:8080/api/venues")
@@ -73,6 +75,7 @@ const RegisterEventForm = () => {
       })
       .then((data) => {
         console.log("Event created:", data);
+        alert("Successfully created event!");
         setFormData({
           company: "",
           title: "",
@@ -83,6 +86,7 @@ const RegisterEventForm = () => {
           venueId: "",
           tags: "",
         });
+        navigate("/home");
       })
       .catch((err) => console.error("Error creating event:", err));
   };
@@ -187,6 +191,13 @@ const RegisterEventForm = () => {
 
           <button type="submit" className="auth-button register-button">
             Create Event
+          </button>
+          <button
+            type="button"
+            className="auth-button login-button"
+            onClick={() => navigate("/home")}
+          >
+            Back to Home
           </button>
         </form>
       </div>

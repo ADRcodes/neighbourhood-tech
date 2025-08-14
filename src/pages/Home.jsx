@@ -423,15 +423,15 @@ const Home = () => {
         <div className="w-full flex justify-center mt-2">
           <div className="w-[340px] max-w-[92%] flex items-center justify-between">
             <h2 className="text-lg font-semibold">Upcoming events</h2>
-            <button
+            {/* <button
               onClick={handleViewAll}
               className="text-sm text-indigo-600 hover:underline"
             >
               View all
-            </button>
+            </button> */}
             <button
               onClick={() => navigate("/register")}
-              className="text-sm text-indigo-600 hover:underline"
+              className="auth-button register-button"
             >
               Create New Event
             </button>

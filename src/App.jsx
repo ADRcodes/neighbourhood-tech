@@ -8,14 +8,12 @@ import RegisterEventForm from "./pages/RegisterEventForm";
 function App() {
   return (
     <Router>
-      <Nav />
       <Routes>
         <Route path="/" element={<Unauthenticated />} />
         <Route path="home" element={<Home />} />
         <Route path="/unauthenticated" element={<Unauthenticated />} />
         <Route path="/register" element={<RegisterEventForm />} />
       </Routes>
-      <Footer />
     </Router>
   );
 }
