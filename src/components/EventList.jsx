@@ -1,49 +1,19 @@
-import React, { useEffect, useState } from "react";
+// src/components/EventList.jsx
+import { useState } from "react";
 import EventListItem from "./EventListItem";
 
 /**
- * EventList
+ * EventList (pure render + accordion; data already fetched/normalized upstream)
  * Props:
- *  - events: Array<{ id, ...; registered?: [] }>
+ *  - events: Array<Event>
  *  - accordion?: boolean (default true)
  *  - onRegister?: (event) => void
  */
 const EventList = ({ events = [], accordion = true, onRegister = () => {} }) => {
-  // accordion state
   const [openIds, setOpenIds] = useState(() => new Set());
 
-  // API state
-  const [state, setState] = useState({ loading: true, error: null, data: [] });
-  const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8080";
-
-  // fetch events from backend
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        setState(s => ({ ...s, loading: true, error: null }));
-        const res = await fetch(`${API_BASE}/api/events`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (alive) {
-          setState({
-            loading: false,
-            error: null,
-            data: Array.isArray(data) ? data : [],
-          });
-        }
-      } catch (e) {
-        if (alive) setState({ loading: false, error: String(e), data: [] });
-      }
-    })();
-    return () => { alive = false; };
-  }, [API_BASE]);
-
-  // Use API data if available, otherwise fallback to props
-  const listToRender = state.data.length ? state.data : events;
-
   const toggle = (id) => {
-    setOpenIds(prev => {
+    setOpenIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else {
@@ -54,14 +24,11 @@ const EventList = ({ events = [], accordion = true, onRegister = () => {} }) => 
     });
   };
 
-  // Status UI
-  if (state.loading && !events.length) return <div className="p-4">Loading events…</div>;
-  if (state.error && !listToRender.length) return <div className="p-4 text-red-600">Error: {state.error}</div>;
-  if (!listToRender.length) return <div className="p-4">No events yet.</div>;
+  if (!events.length) return <div className="p-4 text-sm">No events yet.</div>;
 
   return (
     <div className="space-y-3">
-      {listToRender.map((event) => {
+      {events.map((event) => {
         const id = event.id ?? event.eventId;
         return (
           <EventListItem

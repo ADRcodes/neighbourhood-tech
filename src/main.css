@@ -21,3 +21,35 @@
   background-position: center;
   background-repeat: no-repeat;
 }
+
+/* ---- Stylish horizontal scrollbar for the chip row ---- */
+.chip-scroll {
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(99,102,241,.85) transparent; /* thumb / track */
+}
+
+/* WebKit (Chrome, Edge, Safari) */
+.chip-scroll::-webkit-scrollbar {
+  height: 8px; /* thickness of the horizontal bar */
+}
+.chip-scroll::-webkit-scrollbar-track {
+  background: transparent;
+  margin-inline: 14px; /* trims the track so the thumb doesn't touch corners */
+}
+.chip-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%); /* indigo → purple */
+  border-radius: 9999px;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.6); /* subtle ring */
+}
+.chip-scroll:hover::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #4f46e5, #7c3aed);
+}
+
+/* Faded edges so the scroll feels “masked” like native apps */
+.mask-fade-x {
+  -webkit-mask-image: linear-gradient(to right,
+    transparent, black 16px, black calc(100% - 16px), transparent);
+          mask-image: linear-gradient(to right,
+    transparent, black 16px, black calc(100% - 16px), transparent);
+}
