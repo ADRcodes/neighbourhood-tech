@@ -54,13 +54,17 @@ const Unauthenticated = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-      const result = await response.text();
-      alert(result);
 
-      if (result.toLowerCase().includes("success")) {
-        setFormData({ name: "", email: "", password: "" });
-        setIsRegistering(false);
+      if (!response.ok) {
+        const msg = await response.text();
+        alert(msg || "Registration failed");
+        return;
       }
+
+      const user = await response.json();
+      alert(`Registration successful! Welcome, ${user.name}!`);
+      setFormData({ name: "", email: "", password: "" });
+      setIsRegistering(false);
     } catch (err) {
       console.error("Registration error:", err);
     }
