@@ -1,0 +1,63 @@
+name: Deploy Frontend to S3
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # for OIDC
+  contents: read
+
+concurrency:
+  group: deploy-frontend
+  cancel-in-progress: true
+
+env:
+  AWS_REGION: us-east-1
+  S3_BUCKET: neighbourhood-tech
+  # Set this in repo Settings → Variables → Actions
+  VITE_API_URL: ${{ vars.VITE_API_URL }}
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build (Vite)
+        run: |
+          echo "VITE_API_URL=${VITE_API_URL}" >> $GITHUB_ENV
+          npm run build
+
+      - name: Configure AWS (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::149536497339:role/GithubActions-OIDC-S3Deploy
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Ensure AWS CLI
+        run: |
+          aws --version || (sudo apt-get update -y && sudo apt-get install -y awscli)
+
+      - name: Sync dist/ to S3
+        run: |
+          aws s3 sync dist "s3://${S3_BUCKET}" --delete --only-show-errors
+
+      - name: Make index.html uncacheable (SPA)
+        run: |
+          aws s3 cp "s3://${S3_BUCKET}/index.html" "s3://${S3_BUCKET}/index.html" \
+            --metadata-directive REPLACE \
+            --cache-control "no-cache, no-store, must-revalidate" \
+            --content-type "text/html" \
+            --only-show-errors
