@@ -4,6 +4,7 @@ import Nav from "./components/Nav";
 import Home from "./pages/Home";
 import Unauthenticated from "./pages/Unauthenticated";
 import RegisterEventForm from "./pages/RegisterEventForm";
+import EventCarousel from "./components/EventCarousel";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
       </Routes>
       <Footer />
     </Router>
+  
   );
 }
 

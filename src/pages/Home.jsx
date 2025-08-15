@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState, forwardRef } from "react";
 import EventCard from "../components/EventCard";
 import EventList from "../components/EventList";
+import EventCarousel from "../components/EventCarousel";
 
 /* ----------------------------- Config ----------------------------- */
 // Flip this to false to run with the inline MOCK_EVENTS below.
@@ -347,33 +348,54 @@ const Home = () => {
               </div>
             </div>
           </div>
+      
         )}
 
-        {/* Tag chip rail (what “View all” scrolls to) */}
-        <FilterChips
-          ref={chipsRef}
-          items={CHIPS}
-          activeKeys={activeChips}
-          onToggle={toggleChip}
-        />
-
-        {/* Status / list */}
-        {error && !loading && (
-          <div className="py-6 text-sm text-red-600">Error: {error}</div>
-        )}
-        {loading ? (
-          <div className="py-6 text-sm">Loading…</div>
-        ) : filteredEvents.length > 0 ? (
-          <EventList
-            events={filteredEvents}
-            accordion={true}
-            onRegister={(ev) => console.log("register", ev.id)}
-          />
-        ) : (
-          <div className="w-[340px] max-w-[92%] text-center text-sm text-gray-500 py-6">
-            No events match your selection.
           </div>
-        )}
+    
+{/* Events Carousel Section - FULL WIDTH, OUTSIDE CONSTRAINTS */}
+      <section className="w-full py-12 bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="w-full px-4">
+          <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
+            Featured Events
+          </h2>
+          <EventCarousel 
+            apiUrl="http://localhost:8080/api/events"
+            autoPlayMs={6000}
+            loop={true}
+          />
+        </div>
+      </section>
+
+      {/* Bottom section with filters and list - constrained again */}
+      <div className="phone-frame relative overflow-hidden flex flex-col">
+        <div className="w-full flex flex-col gap-5 items-center pb-8">
+          {/* Tag chip rail (what "View all" scrolls to) */}
+          <FilterChips
+            ref={chipsRef}
+            items={CHIPS}
+            activeKeys={activeChips}
+            onToggle={toggleChip}
+          />
+
+          {/* Status / list */}
+          {error && !loading && (
+            <div className="py-6 text-sm text-red-600">Error: {error}</div>
+          )}
+          {loading ? (
+            <div className="py-6 text-sm">Loading…</div>
+          ) : filteredEvents.length > 0 ? (
+            <EventList
+              events={filteredEvents}
+              accordion={true}
+              onRegister={(ev) => console.log("register", ev.id)}
+            />
+          ) : (
+            <div className="w-[340px] max-w-[92%] text-center text-sm text-gray-500 py-6">
+              No events match your selection.
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
