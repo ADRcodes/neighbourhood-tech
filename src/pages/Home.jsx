@@ -14,6 +14,14 @@ import {
 
 const Home = () => {
   const [activeChips, setActiveChips] = useState([]);
+import { useNavigate } from "react-router-dom";
+
+/* -------------------------------- Page ---------------------------- */
+const Home = () => {
+  const navigate = useNavigate();
+
+  const [activeChips, setActiveChips] = useState([]); // none selected
+
   const [events, setEvents] = useState(USE_API ? [] : MOCK_EVENTS);
   const [loading, setLoading] = useState(USE_API);
   const [error, setError] = useState(null);
@@ -36,7 +44,9 @@ const Home = () => {
         if (alive) setLoading(false);
       }
     })();
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const recommended = useMemo(() => recommendedOf(events, 3), [events]);
@@ -44,6 +54,7 @@ const Home = () => {
     () => filterEvents(events, activeChips),
     [events, activeChips]
   );
+
 
   const toggleChip = (key) =>
     setActiveChips((prev) =>
@@ -60,8 +71,17 @@ const Home = () => {
         <div className="w-full flex justify-center mt-2">
           <div className="w-[340px] max-w-[92%] flex items-center justify-between">
             <h2 className="text-lg font-semibold">Upcoming events</h2>
-            <button onClick={handleViewAll} className="text-sm text-indigo-600 hover:underline">
+            {/* <button
+              onClick={handleViewAll}
+              className="text-sm text-indigo-600 hover:underline"
+            >
               View all
+            </button> */}
+            <button
+              onClick={() => navigate("/register")}
+              className="auth-button register-button"
+            >
+              Create New Event
             </button>
           </div>
         </div>

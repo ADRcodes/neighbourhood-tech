@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import "./Unauthenticated.css";
 import NetworkingStock from "../assets/NetworkingStock.jpg";
 import NTlogo from "../assets/NTlogo.png";
+import { useNavigate } from "react-router-dom";
 
 const Unauthenticated = () => {
+  const navigate = useNavigate();
   const [isRegistering, setIsRegistering] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -25,10 +27,23 @@ const Unauthenticated = () => {
           password: formData.password,
         }),
       });
-      const result = await response.text();
-      alert(result);
+
+      if (!response.ok) {
+        const msg = await response.text();
+        alert(msg || "Login failed");
+        return;
+      }
+
+      const user = await response.json();
+      localStorage.setItem("userId", user.id);
+      localStorage.setItem("userName", user.name || "");
+
+      alert(`Welcome, ${user.name || "user"}!`);
+
+      navigate("/home"); // Redirect to home after login
     } catch (err) {
       console.error("Login error:", err);
+      alert("Login error");
     }
   };
 
@@ -39,13 +54,17 @@ const Unauthenticated = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-      const result = await response.text();
-      alert(result);
 
-      if (result.toLowerCase().includes("success")) {
-        setFormData({ name: "", email: "", password: "" });
-        setIsRegistering(false);
+      if (!response.ok) {
+        const msg = await response.text();
+        alert(msg || "Registration failed");
+        return;
       }
+
+      const user = await response.json();
+      alert(`Registration successful! Welcome, ${user.name}!`);
+      setFormData({ name: "", email: "", password: "" });
+      setIsRegistering(false);
     } catch (err) {
       console.error("Registration error:", err);
     }

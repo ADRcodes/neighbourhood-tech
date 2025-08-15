@@ -1,0 +1,60 @@
+.register-event-container {
+  width: 100%;
+  max-width: 380px;
+  background-color: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.register-event-container h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #3f72ff;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.register-event-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.input-field {
+  padding: 0.6rem;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.input-field:focus {
+  border-color: #3f72ff;
+  box-shadow: 0 0 0 2px rgba(63, 114, 255, 0.2);
+}
+
+textarea.input-field {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.auth-button {
+  padding: 0.6rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s ease;
+}
+
+.register-button {
+  background-color: #3f72ff;
+  color: white;
+}
+
+.register-button:hover {
+  background-color: #345fd1;
+}
