@@ -52,25 +52,25 @@ const Home = () => {
     [events, activeChips]
   );
 
-
   const toggleChip = (key) =>
     setActiveChips((prev) =>
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
     );
 
-
   return (
-    <div className="phone-frame relative overflow-hidden flex flex-col">
+    <div className="phone-frame tiled-background relative overflow-hidden flex flex-col">
       <div className="w-full flex flex-col gap-5 items-center overflow-y-auto max-h-[calc(100vh-6rem)] pb-8">
         {/* Header */}
         <div className="w-full flex justify-center mt-2">
           <div className="w-[340px] max-w-[92%] flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Upcoming events</h2>
+            <h2 className="text-[26px] font-bold text-[#3F72FF] drop-shadow-sm text-center">
+              Upcoming events
+            </h2>
             <button
               onClick={() => navigate("/register")}
               className="auth-button register-button"
             >
-              Create New Event
+              Create Event
             </button>
           </div>
         </div>
@@ -91,14 +91,25 @@ const Home = () => {
         )}
 
         {/* Tags */}
-        <TagFilterBar ref={chipsRef} items={CHIPS} activeKeys={activeChips} onToggle={toggleChip} />
+        <TagFilterBar
+          ref={chipsRef}
+          items={CHIPS}
+          activeKeys={activeChips}
+          onToggle={toggleChip}
+        />
 
         {/* Status / list */}
-        {error && !loading && <div className="py-6 text-sm text-red-600">Error: {error}</div>}
+        {error && !loading && (
+          <div className="py-6 text-sm text-red-600">Error: {error}</div>
+        )}
         {loading ? (
           <div className="py-6 text-sm">Loading…</div>
         ) : filteredEvents.length ? (
-          <EventList events={filteredEvents} accordion={true} onRegister={(ev) => console.log("register", ev.id)} />
+          <EventList
+            events={filteredEvents}
+            accordion={true}
+            onRegister={(ev) => console.log("register", ev.id)}
+          />
         ) : (
           <div className="w-[340px] max-w-[92%] text-center text-sm text-gray-500 py-6">
             No events match your selection.

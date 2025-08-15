@@ -9,7 +9,11 @@ import EventListItem from "./EventListItem";
  *  - accordion?: boolean (default true)
  *  - onRegister?: (event) => void
  */
-const EventList = ({ events = [], accordion = true, onRegister = () => {} }) => {
+const EventList = ({
+  events = [],
+  accordion = true,
+  onRegister = () => {},
+}) => {
   const [openIds, setOpenIds] = useState(() => new Set());
 
   const toggle = (id) => {
@@ -27,7 +31,7 @@ const EventList = ({ events = [], accordion = true, onRegister = () => {} }) => 
   if (!events.length) return <div className="p-4 text-sm">No events yet.</div>;
 
   return (
-    <div className="space-y-3">
+    <div className="p-3 space-y-3">
       {events.map((event) => {
         const id = event.id ?? event.eventId;
         return (
