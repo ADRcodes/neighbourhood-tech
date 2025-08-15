@@ -245,7 +245,8 @@ export function filterEvents(events, activeChips) {
   });
 }
 
-export const recommendedOf = (events, n = 3) => events.slice(4, 4 + n);
+export const recommendedOf = (events, n = 3) =>
+  events.length > 4 ? events.slice(4, 4 + n) : [];
 
 /* ------------------------- Chip bar (UI) ------------------------- */
 export const TagFilterBar = forwardRef(function TagFilterBar(
