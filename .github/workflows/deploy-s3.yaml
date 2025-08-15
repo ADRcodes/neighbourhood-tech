@@ -40,6 +40,13 @@ jobs:
           echo "VITE_API_URL=${VITE_API_URL}" >> $GITHUB_ENV
           npm run build
 
+      - name: Debug OIDC subject
+        run: |
+          echo "repository=${{ github.repository }}"
+          echo "ref=${{ github.ref }}"
+          echo "expected-sub=repo:${{ github.repository }}:ref:${{ github.ref }}"
+
+
       - name: Configure AWS (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
