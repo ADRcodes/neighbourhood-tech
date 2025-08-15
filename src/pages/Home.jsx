@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import EventCard from "../components/EventCard";
 import EventList from "../components/EventList";
+import { useNavigate } from "react-router-dom";
 import {
   USE_API,
   CHIPS,
@@ -11,10 +12,6 @@ import {
   recommendedOf,
   TagFilterBar,
 } from "../components/tags";
-
-const Home = () => {
-  const [activeChips, setActiveChips] = useState([]);
-import { useNavigate } from "react-router-dom";
 
 /* -------------------------------- Page ---------------------------- */
 const Home = () => {
@@ -61,8 +58,6 @@ const Home = () => {
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
     );
 
-  const handleViewAll = () =>
-    chipsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
 
   return (
     <div className="phone-frame relative overflow-hidden flex flex-col">
@@ -71,12 +66,6 @@ const Home = () => {
         <div className="w-full flex justify-center mt-2">
           <div className="w-[340px] max-w-[92%] flex items-center justify-between">
             <h2 className="text-lg font-semibold">Upcoming events</h2>
-            {/* <button
-              onClick={handleViewAll}
-              className="text-sm text-indigo-600 hover:underline"
-            >
-              View all
-            </button> */}
             <button
               onClick={() => navigate("/register")}
               className="auth-button register-button"
