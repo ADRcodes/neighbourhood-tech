@@ -45,7 +45,7 @@ const MetaRow = ({ venue, date }) => {
     [dt]
   );
   return (
-    <div className="flex w-fit items-center justify-between gap-3 text-xs text-gray-700">
+    <div className="flex w-full items-center justify-between gap-3 text-xs text-gray-700">
       <div className="flex items-center gap-1">
         <p>📍</p>
         <p>{venue?.name || "Venue"}</p>
@@ -112,15 +112,14 @@ const EventListItem = ({
     >
       <div
         aria-hidden
-        className={`absolute right-2 top-1 transition-transform duration-300 select-none ${
-          expanded ? "rotate-180" : "rotate-0"
-        }`}
+        className={`absolute right-2 top-1 transition-transform duration-300 select-none ${expanded ? "rotate-180" : "rotate-0"
+          }`}
       >
         ▾
       </div>
 
       {/* Header row */}
-      <div className="flex items-start gap-3 relative">
+      <div className="flex justify-between gap-3 relative">
         <img
           src={imgSrc}
           alt={event.title || "Event image"}
@@ -130,7 +129,7 @@ const EventListItem = ({
           className="w-24 aspect-[4/3] object-cover rounded-md shrink-0"
         />
 
-        <div>
+        <div className="w-full">
           <h3 className="text-sm font-semibold truncate">
             {event.title || "Untitled Event"}
           </h3>
@@ -154,12 +153,11 @@ const EventListItem = ({
           style={{ maxHeight: expanded ? maxHeight : 0 }}
           aria-hidden={!expanded}
         >
-             {/* padding prevents margin-collapsing from clipping top/bottom */}
+          {/* padding prevents margin-collapsing from clipping top/bottom */}
           <div
             ref={contentRef}
-            className={`transition-all duration-500 pt-2 ${
-              expanded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
-            }`}
+            className={`transition-all duration-500 pt-2 ${expanded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+              }`}
           >
             <div className="flex w-fit gap-3 items-start">
               <div className="text-sm text-gray-600 space-y-1">
