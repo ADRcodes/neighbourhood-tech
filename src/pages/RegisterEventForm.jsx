@@ -189,16 +189,18 @@ const RegisterEventForm = () => {
             onChange={handleChange}
           />
 
-          <button type="submit" className="auth-button register-button">
-            Create Event
-          </button>
-          <button
-            type="button"
-            className="auth-button login-button"
-            onClick={() => navigate("/home")}
-          >
-            Back to Home
-          </button>
+          <div className="button-group">
+            <button type="submit" className="auth-button register-button">
+              Create Event
+            </button>
+            <button
+              type="button"
+              className="auth-button login-button"
+              onClick={() => navigate("/home")}
+            >
+              Back to Home
+            </button>
+          </div>
         </form>
       </div>
     </div>
