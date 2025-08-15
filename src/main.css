@@ -26,7 +26,7 @@
 .chip-scroll {
   /* Firefox */
   scrollbar-width: thin;
-  scrollbar-color: rgba(99,102,241,.85) transparent; /* thumb / track */
+  /* scrollbar-color: rgba(99,102,241,.85) transparent; */
 }
 
 /* WebKit (Chrome, Edge, Safari) */

@@ -245,8 +245,17 @@ export function filterEvents(events, activeChips) {
   });
 }
 
-export const recommendedOf = (events, n = 3) =>
-  events.length > 4 ? events.slice(4, 4 + n) : [];
+export const recommendedOf = (events) =>
+  events
+    .filter((ev) => {
+      const date = new Date(ev.date);
+      const now = new Date();
+      const in90Days = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+      return date >= now && date <= in90Days; // within next 90 days
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+
 
 /* ------------------------- Chip bar (UI) ------------------------- */
 export const TagFilterBar = forwardRef(function TagFilterBar(

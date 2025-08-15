@@ -62,13 +62,13 @@ const Home = () => {
       <div className="w-full flex flex-col gap-5 items-center overflow-y-auto max-h-[calc(100vh-6rem)] pb-8">
         {/* Header */}
         <div className="w-full flex justify-center mt-2">
-          <div className="w-[340px] max-w-[92%] flex items-center justify-between">
-            <h2 className="text-[26px] font-bold text-[#3F72FF] drop-shadow-sm text-center">
+          <div className="w-[340px] pt-1 max-w-[92%] flex items-center justify-between">
+            <h2 className="text-[22px] pl-1 font-bold text-[#3F72FF] text-center">
               Upcoming events
             </h2>
             <button
               onClick={() => navigate("/register")}
-              className="auth-button register-button"
+              className="py-1 px-2 rounded-lg bg-[#3F72FF] text-white"
             >
               Create Event
             </button>

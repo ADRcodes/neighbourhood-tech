@@ -36,7 +36,7 @@ const EventCard = ({ event, registered }) => {
       tabIndex={0}
       onClick={toggle}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && toggle()}
-      className="relative w-[260px] flex flex-col gap-2 p-2 rounded-lg shadow-md bg-white cursor-pointer select-none transition-shadow duration-200 hover:shadow-lg"
+      className="relative w-[260px] h-full flex flex-col gap-2 p-2 rounded-lg shadow-md bg-white cursor-pointer select-none transition-shadow duration-200 hover:shadow-lg"
     >
       <img
         className="w-full aspect-[4/2] object-cover rounded-lg"
