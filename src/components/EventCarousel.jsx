@@ -68,8 +68,7 @@ export default function EventCarousel({
     return () => ro.disconnect();
   }, []);
 
-  // Animate to current page properly //
-  useEffect(() => {
+ useEffect(() => {
     if (viewportWidth > 0 && count > 0) {
       const targetX = -pageIndex * viewportWidth;
       animate(x, targetX, {
@@ -145,7 +144,6 @@ export default function EventCarousel({
     setExpandedEventId(prev => prev === eventId ? null : eventId);
   }, []);
 
-  // Proper drag/swipe handling //
   const SWIPE_THRESHOLD = 50;
   const VELOCITY_THRESHOLD = 300;
   
@@ -215,7 +213,7 @@ export default function EventCarousel({
         </div>
       )}
 
-      {/* Carousel - Enhanced */}
+      {/* Carousel */}
       {!loading && !error && count > 0 && (
         <div
           ref={viewportRef}
@@ -227,13 +225,12 @@ export default function EventCarousel({
           onBlur={() => setIsPaused(false)}
           data-testid="carousel-viewport"
         >
-          {/* motion.div with proper x animation */}
-          <motion.div
+            <motion.div
             ref={trackRef}
             className="flex"
             style={{ 
               width: count * viewportWidth,
-              x // This connects the motion value to the element //
+              x // Connects the motion value to the element //
             }}
             drag="x"
             dragConstraints={{
@@ -249,10 +246,10 @@ export default function EventCarousel({
               <div 
                 key={event.id ?? i} 
                 style={{ width: viewportWidth }} 
-                className="shrink-0 flex items-center justify-center p-8"
+                className="shrink-0 flex items-center justify-center px-4"
               >
                 {/* Better card spacing and centering */}
-                <div className="w-full max-w-4xl">
+                <div className="w-full max-w-5xl mx-auto">
                   <EventCardDiv 
                     event={event} 
                     registered={event.registered || registered}
@@ -263,6 +260,7 @@ export default function EventCarousel({
               </div>
             ))}
           </motion.div>
+
 
           {/* Navigation arrows - Enhanced and only show if more than 1 event */}
           {count > 1 && (
@@ -327,7 +325,6 @@ export default function EventCarousel({
   );
 }
 
-// EventCardDiv component with better spacing //
 function EventCardDiv({ event, registered = [], isExpanded = false, onToggle }) {
   const contentRef = useRef(null);
   const [maxHeight, setMaxHeight] = useState(0);
@@ -351,6 +348,7 @@ function EventCardDiv({ event, registered = [], isExpanded = false, onToggle }) 
     () => eventDate.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }),
     [eventDate]
   );
+
 
   const isFree = Number(event.price) === 0 || Number.isNaN(Number(event.price));
 
@@ -410,7 +408,7 @@ function EventCardDiv({ event, registered = [], isExpanded = false, onToggle }) 
           </div>
         </div>
 
-        {/* Avatars */}
+      {/* Avatars */}
         {registered && registered.length > 0 && (
           <div className="flex items-center gap-4">
             <div className="flex -space-x-3">
@@ -436,7 +434,7 @@ function EventCardDiv({ event, registered = [], isExpanded = false, onToggle }) 
         )}
       </div>
 
-      {/*Expandable content using isExpanded prop */}
+      {/* Expandable content using isExpanded prop */}
       <motion.div
         className="overflow-hidden"
         initial={false}
