@@ -7,17 +7,17 @@ export const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
 /* -------------------------- Tag controls ------------------------- */
 export const CHIPS = [
-  { key: "social",     label: "Social",     icon: "☕️" },
+  { key: "social", label: "Social", icon: "☕️" },
   { key: "networking", label: "Networking", icon: "👥" },
-  { key: "design",     label: "Design",     icon: "🧰" },
-  { key: "funding",    label: "Funding",    icon: "💼" },
+  { key: "design", label: "Design", icon: "🧰" },
+  { key: "funding", label: "Funding", icon: "💼" },
 ];
 
 export const CHIP_KEYWORDS = {
-  social:     ["social", "party", "night", "fest", "festival", "showcase"],
+  social: ["social", "party", "night", "fest", "festival", "showcase"],
   networking: ["network", "networking", "meetup", "summit", "conference", "day", "devopsdays", "showcase", "container day", "devops"],
-  design:     ["design", "css", "frontend", "ux", "ui", "react", "frameworks", "routing"],
-  funding:    ["funding", "startup", "pitch", "pitching", "vc", "investor", "grant"],
+  design: ["design", "css", "frontend", "ux", "ui", "react", "frameworks", "routing"],
+  funding: ["funding", "startup", "pitch", "pitching", "vc", "investor", "grant"],
 };
 
 /* ----------------------------- Helpers --------------------------- */
@@ -73,7 +73,7 @@ export const MOCK_EVENTS = [
     tags: ["Social", "Party", "Community"],
     registered: [
       { id: 1, name: "Alex", avatar: "https://picsum.photos/40/40?7" },
-      { id: 2, name: "Sam",  avatar: "https://picsum.photos/40/40?8" },
+      { id: 2, name: "Sam", avatar: "https://picsum.photos/40/40?8" },
       { id: 3, name: "Jess", avatar: "https://picsum.photos/40/40?9" },
     ],
   },
@@ -90,7 +90,7 @@ export const MOCK_EVENTS = [
     organizer: { id: 3, name: "Morgan Li" },
     tags: ["Startup", "Pitching", "Funding"],
     registered: [
-      { id: 1, name: "Ivy",  avatar: "https://picsum.photos/40/40?10" },
+      { id: 1, name: "Ivy", avatar: "https://picsum.photos/40/40?10" },
       { id: 2, name: "Noah", avatar: "https://picsum.photos/40/40?11" },
     ],
   },
@@ -126,9 +126,9 @@ export const MOCK_EVENTS = [
     tags: ["AI", "Machine Learning"],
     registered: [
       { id: 1, name: "Riley", avatar: "https://picsum.photos/40/40?15" },
-      { id: 2, name: "Theo",  avatar: "https://picsum.photos/40/40?16" },
-      { id: 3, name: "Kai",   avatar: "https://picsum.photos/40/40?17" },
-      { id: 4, name: "Remy",  avatar: "https://picsum.photos/40/40?18" },
+      { id: 2, name: "Theo", avatar: "https://picsum.photos/40/40?16" },
+      { id: 3, name: "Kai", avatar: "https://picsum.photos/40/40?17" },
+      { id: 4, name: "Remy", avatar: "https://picsum.photos/40/40?18" },
     ],
   },
   {
@@ -161,7 +161,7 @@ export const MOCK_EVENTS = [
     organizer: { id: 7, name: "Alec Devlin" },
     tags: ["Containers", "Docker", "Kubernetes"],
     registered: [
-      { id: 1, name: "Zoe",  avatar: "https://picsum.photos/40/40?21" },
+      { id: 1, name: "Zoe", avatar: "https://picsum.photos/40/40?21" },
       { id: 2, name: "Milo", avatar: "https://picsum.photos/40/40?22" },
       { id: 3, name: "Elle", avatar: "https://picsum.photos/40/40?23" },
       { id: 4, name: "Nico", avatar: "https://picsum.photos/40/40?24" },
@@ -174,9 +174,9 @@ const coerceEvent = (e) => {
   const rawDate = e.date ?? e.startDate ?? e.start_time ?? null;
   const tags =
     Array.isArray(e.tags) ? e.tags
-    : Array.isArray(e.event_tags) ? e.event_tags.map(t => (typeof t === "string" ? t : t.tag))
-    : Array.isArray(e.tagsList) ? e.tagsList
-    : [];
+      : Array.isArray(e.event_tags) ? e.event_tags.map(t => (typeof t === "string" ? t : t.tag))
+        : Array.isArray(e.tagsList) ? e.tagsList
+          : [];
 
   const venue = e.venue ? {
     id: e.venue.id ?? null,
@@ -196,15 +196,15 @@ const coerceEvent = (e) => {
 
   const regs =
     Array.isArray(e.registered) ? e.registered
-    : Array.isArray(e.registrations)
-      ? e.registrations.map(r => {
+      : Array.isArray(e.registrations)
+        ? e.registrations.map(r => {
           const u = r.user || r.attendee || {};
           const name = u.name ?? "Guest";
           const id = u.id ?? r.userId ?? null;
           const avatar = u.avatar ?? `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(name)}`;
           return { id, name, avatar };
         })
-      : [];
+        : [];
 
   return {
     id: e.id,
@@ -245,7 +245,8 @@ export function filterEvents(events, activeChips) {
   });
 }
 
-export const recommendedOf = (events, n = 3) => events.slice(0, n);
+export const recommendedOf = (events, n = 3) =>
+  events.length > 4 ? events.slice(4, 4 + n) : [];
 
 /* ------------------------- Chip bar (UI) ------------------------- */
 export const TagFilterBar = forwardRef(function TagFilterBar(
@@ -268,8 +269,8 @@ export const TagFilterBar = forwardRef(function TagFilterBar(
                 className={`snap-start shrink-0 inline-flex items-center gap-2 px-4 py-[10px]
                             rounded-full border transition-all duration-200
                             ${on
-                              ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-200"
-                              : "bg-white/85 text-gray-900 border-gray-200 shadow-[0_1px_0_rgba(255,255,255,0.9)_inset,0_6px_16px_rgba(2,6,23,0.06)] hover:bg-gray-50"}`}
+                    ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-200"
+                    : "bg-white/85 text-gray-900 border-gray-200 shadow-[0_1px_0_rgba(255,255,255,0.9)_inset,0_6px_16px_rgba(2,6,23,0.06)] hover:bg-gray-50"}`}
               >
                 <span className="text-lg">{c.icon}</span>
                 <span className="text-base font-semibold">{c.label}</span>
