@@ -9,7 +9,7 @@
   display: flex;
   width: 375px;
   height: 812px;
-  margin: 50px auto 50px;
+  margin: 50px auto 100px;
   border: 1px solid #ccc;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   border-radius: 20px;
@@ -20,6 +20,7 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  overflow: hidden; /* Ensure no overflow from the phone frame */
 }
 
 /* ---- Stylish horizontal scrollbar for the chip row ---- */
