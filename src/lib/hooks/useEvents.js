@@ -55,7 +55,7 @@ export function useEvents({ useApi = DEFAULT_USE_API, fallbackToMocks = true, in
   }, []);
 
   const filtered = useMemo(() => filterEvents(events, chips), [events, chips]);
-  const recommended = useMemo(() => recommendedOf(events, 3), [events]);
+  const recommended = useMemo(() => recommendedOf(events, 6), [events]);
 
   return {
     data: events,

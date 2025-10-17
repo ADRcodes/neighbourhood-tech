@@ -1,33 +1,71 @@
+// EventCard.jsx
 import { useEffect, useRef, useState, useMemo } from "react";
 
-const EventCard = ({ event, registered }) => {
+export default function EventCard({
+  event,
+  registered = [],
+  onBodyResize,           // (h:number) => void
+  forcedBodyHeight,       // number | undefined
+}) {
   const [expanded, setExpanded] = useState(false);
+  const toggle = () => setExpanded((e) => !e);
 
-  const contentRef = useRef(null);
-  const [maxHeight, setMaxHeight] = useState(0);
+  // --- SUMMARY (measured & equalized when collapsed) ---
+  const bodyRef = useRef(null);
 
+  // Measure only when collapsed (so expansion never affects equalized height)
   useEffect(() => {
-    if (!contentRef.current) return;
-    const el = contentRef.current;
-    const measure = () => setMaxHeight(el.scrollHeight);
+    if (!bodyRef.current || expanded) return;
+    const el = bodyRef.current;
+    const report = () => onBodyResize?.(el.scrollHeight);
+    report();
+    const ro = new ResizeObserver(report);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [
+    expanded,                    // re-run when returning to collapsed
+    onBodyResize,
+    event.title, event.image,
+    event?.venue?.name,
+    event.price, registered.length,
+  ]);
+
+  // Image load can change summary height (report only if collapsed)
+  const imgRef = useRef(null);
+  useEffect(() => {
+    const img = imgRef.current;
+    if (!img) return;
+    const onLoad = () => {
+      if (bodyRef.current && !expanded) onBodyResize?.(bodyRef.current.scrollHeight);
+    };
+    img.addEventListener("load", onLoad);
+    return () => img.removeEventListener("load", onLoad);
+  }, [expanded, onBodyResize, event.image]);
+
+  // --- DETAILS (expandable) ---
+  const detailsRef = useRef(null);
+  const [detailsMax, setDetailsMax] = useState(0);
+  useEffect(() => {
+    if (!detailsRef.current) return;
+    const el = detailsRef.current;
+    const measure = () => setDetailsMax(el.scrollHeight);
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [event.description, event.title, event.company, event.capacity, event?.venue?.address, event?.tags?.length]);
+  }, [event.description, event.company, event?.venue?.address, event?.tags?.length]);
 
-  const eventDate = useMemo(() => new Date(event.date), [event.date]);
-  const formattedDate = useMemo(
-    () => eventDate.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
-    [eventDate]
+  // Date/time
+  const dt = useMemo(() => new Date(event.date), [event.date]);
+  const dateStr = useMemo(
+    () => dt.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+    [dt]
   );
-  const formattedTime = useMemo(
-    () => eventDate.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }),
-    [eventDate]
+  const timeStr = useMemo(
+    () => dt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }),
+    [dt]
   );
-
   const isFree = Number(event.price) === 0 || Number.isNaN(Number(event.price));
-  const toggle = () => setExpanded((e) => !e);
 
   return (
     <div
@@ -36,57 +74,80 @@ const EventCard = ({ event, registered }) => {
       tabIndex={0}
       onClick={toggle}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && toggle()}
-      className="relative w-[260px] flex flex-col gap-2 p-2 rounded-lg shadow-md bg-white cursor-pointer select-none transition-shadow duration-200 hover:shadow-lg"
+      className="relative flex flex-col p-2 rounded-lg shadow-md bg-white cursor-pointer select-none transition-shadow duration-200 hover:shadow-lg"
     >
-      <img
-        className="w-full aspect-[4/2] object-cover rounded-lg"
-        src={event.image}
-        alt="Event"
-      />
+      {/* SUMMARY: always clamped; height forced only when collapsed */}
+      <div
+        ref={bodyRef}
+        data-card-body
+        style={!expanded && forcedBodyHeight ? { height: forcedBodyHeight } : undefined}
+        className={`flex flex-col gap-2 ${!expanded && forcedBodyHeight ? "overflow-hidden" : ""}`}
+      >
+        <img
+          ref={imgRef}
+          className="w-full aspect-[4/2] object-cover rounded-lg"
+          src={event.image}
+          alt={event.title || "Event"}
+        />
 
-      <h2 className="text-xl font-bold">{event.title}</h2>
+        {/* Title: clamp to 2 lines in summary */}
+        <h2 className="text-xl font-bold leading-tight line-clamp-2">
+          {event.title}
+        </h2>
 
-      <div className="flex justify-between text-sm">
-        <p>📍{event?.venue?.name}</p>
-        <p>🗓️{formattedDate} - {formattedTime}</p>
-      </div>
+        <div className="flex justify-between text-sm gap-2">
+          {/* Location: clamp to 2 lines in summary */}
+          <div className="flex gap-1 items-center min-w-0">
+            <p>📍</p>
+            <p className="line-clamp-2 min-w-0">{event?.venue?.name}</p>
+          </div>
+          <div className="flex gap-1 items-center">
+            <p>🗓️</p>
+            <div className="w-fit">
+              <p>{dateStr}</p>
+              <p className="w-max">{timeStr}</p>
+            </div>
+          </div>
+        </div>
 
-      <div className="flex items-center justify-between">
-        {/* Price (or Free) */}
-        <p className="text-base">
-          {isFree ? "Free" : `$${event.price}`}
-          {!isFree && <span className="text-sm text-gray-500">/ticket</span>}
-        </p>
-
-        {/* Avatars */}
-        <div className="ml-2">
-          {registered.slice(0, 5).map((user) => (
-            <img
-              key={user.id}
-              src={user.avatar}
-              alt={user.name}
-              className="inline-block w-6 h-6 -ml-[10px] border-2 border-white rounded-full"
-            />
-          ))}
-          {registered.length > 5 && (
-            <span className="align-middle text-sm inline-flex items-center justify-center w-6 h-6 -ml-[10px] border-2 border-white bg-green-500 text-white rounded-full">
-              {registered.length - 5}
-            </span>
-          )}
+        {/* Price row pinned to bottom of summary */}
+        <div className="mt-auto flex items-center justify-between">
+          <p className="text-base">
+            {isFree ? "Free" : `$${event.price}`}
+            {!isFree && <span className="text-sm text-gray-500">/ticket</span>}
+          </p>
+          <div className="ml-2">
+            {registered.slice(0, 5).map((user) => (
+              <img
+                key={user.id}
+                src={user.avatar}
+                alt={user.name}
+                className="inline-block w-6 h-6 -ml-[10px] border-2 border-white rounded-full"
+              />
+            ))}
+            {registered.length > 5 && (
+              <span className="align-middle text-sm inline-flex items-center justify-center w-6 h-6 -ml-[10px] border-2 border-white bg-green-500 text-white rounded-full">
+                {registered.length - 5}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Sliding panel */}
+      {/* DETAILS: show full title/location here so summary can stay clamped */}
       <div
-        ref={contentRef}
         className="overflow-hidden transition-[max-height] duration-500 ease-out"
-        style={{ maxHeight: expanded ? maxHeight : 0 }}
+        style={{ maxHeight: expanded ? detailsMax : 0 }}
         aria-hidden={!expanded}
       >
         <div
-          className={`flex flex-col gap-2 transition-all duration-500 ${expanded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+          ref={detailsRef}
+          className={`mt-2 flex flex-col gap-2 transition-all duration-500 ${expanded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
             }`}
         >
+          {/* Full title & location (unclamped) */}
+
+          {/* Tags */}
           {Array.isArray(event.tags) && event.tags.length > 0 && (
             <div className="flex flex-wrap gap-1">
               {event.tags.map((tag) => (
@@ -99,19 +160,23 @@ const EventCard = ({ event, registered }) => {
               ))}
             </div>
           )}
-          <div>
-            <p className="text-sm text-gray-500">{event.company}</p>
-            <p className="text-sm text-gray-500">{event?.venue?.address}</p>
-            <p className="text-sm text-gray-500">Hosted by {event?.organizer?.name ?? "Organizer"}</p>
-            <p className="my-2">{event.description}</p>
+
+          {/* Meta & description */}
+          <div className="text-sm text-gray-600 space-y-1">
+            <p className="text-gray-500">{event.company}</p>
+            <p className="text-gray-500">{event?.venue?.address}</p>
+            <p className="text-gray-500">
+              Hosted by {event?.organizer?.name ?? "Organizer"}
+            </p>
           </div>
 
+          <p className="my-2">{event.description}</p>
 
           <button
-            className="bg-blue-500 text-white py-1 px-2 rounded"
+            className="bg-blue-500 text-white py-1 px-2 mb-2 rounded self-end"
             onClick={(e) => {
               e.stopPropagation();
-              // handle register action here
+              // handle register action
             }}
           >
             Register
@@ -120,6 +185,4 @@ const EventCard = ({ event, registered }) => {
       </div>
     </div>
   );
-};
-
-export default EventCard;
+}

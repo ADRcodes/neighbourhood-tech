@@ -28,31 +28,33 @@ const PriceTag = ({ price }) => {
   );
 };
 
-const MetaRow = ({ venue, date }) => {
-  const dt = useMemo(() => (date ? new Date(date) : null), [date]);
+const MetaRow = ({ venue, date, expanded = false }) => {
+  const dt = useMemo(() => new Date(date), [date]);
   const dateStr = useMemo(
-    () =>
-      dt
-        ? dt.toLocaleDateString(undefined, { month: "short", day: "numeric" })
-        : "TBD",
+    () => dt.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
     [dt]
   );
   const timeStr = useMemo(
-    () =>
-      dt
-        ? dt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
-        : "",
+    () => dt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }),
     [dt]
   );
+
   return (
-    <div className="flex w-full items-center justify-between gap-3 text-xs text-gray-700">
-      <div className="flex items-center gap-1">
-        <p>📍</p>
-        <p>{venue?.name || "Venue"}</p>
-      </div>
-      <div className="flex flex-col w-fit items-center gap-1">
-        <p className="font-semibold">{dateStr}</p>
-        {timeStr && <p>{timeStr}</p>}
+    <div className="flex items-start justify-between gap-2">
+      {/* location: 2 lines when collapsed, full when expanded */}
+      <p className="text-xs text-gray-700 flex-1 min-w-0 leading-snug">
+        <span
+          className={`${expanded ? "" : "line-clamp-2"} break-words align-top`}
+          title={venue?.name}
+        >
+          📍 {venue?.name || "TBA"}
+        </span>
+      </p>
+
+      {/* date/time */}
+      <div className="flex flex-col items-end shrink-0 text-xs">
+        <span className="font-semibold">{dateStr}</span>
+        <span>{timeStr}</span>
       </div>
     </div>
   );
@@ -130,10 +132,11 @@ const EventListItem = ({
         />
 
         <div className="w-full">
-          <h3 className="text-sm font-semibold truncate">
+          <h3 className={`text-sm font-semibold leading-snug ${expanded ? "" : "line-clamp-1"
+            }`}>
             {event.title || "Untitled Event"}
           </h3>
-          <MetaRow venue={event.venue} date={event.date} />
+          <MetaRow venue={event.venue} date={event.date} expanded={expanded} />
           <div className="mt-1 flex items-center justify-between gap-3">
             <PriceTag price={event.price} />
             <AvatarStack users={registered} />
@@ -156,23 +159,24 @@ const EventListItem = ({
           {/* padding prevents margin-collapsing from clipping top/bottom */}
           <div
             ref={contentRef}
-            className={`transition-all duration-500 pt-2 ${expanded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+            className={`transition-all duration-500 space-y-2 pt-2 ${expanded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
               }`}
           >
-            <div className="flex w-fit gap-3 items-start">
-              <div className="text-sm text-gray-600 space-y-1">
-                <p className="text-gray-500">{event.company}</p>
-                <p className="text-gray-500">{event?.venue?.address}</p>
-                <p className="text-gray-500">
-                  Hosted by {event?.organizer?.name ?? "Organizer"}
-                </p>
-              </div>
-              <TagPills tags={event.tags} />
+            <TagPills tags={event.tags} />
+            <div className="text-sm">
+              <p className="flex flex-wrap text-gray-500">
+                <span className="w-fit">{event.company},{'\u00A0'}</span>
+                <span className="w-fit">{event?.venue?.address}</span>
+              </p>
+              <p className="text-gray-500">
+                Hosted by {event?.organizer?.name ?? "Organizer"}
+              </p>
             </div>
 
-            <p className="mt-2 text-gray-800">{event.description}</p>
 
-            <div className="mt-2 flex items-center justify-end gap-3">
+            <p className="text-gray-800">{event.description}</p>
+
+            <div className="flex items-center justify-end gap-3">
               {spotsLeft !== null && (
                 <span className="text-xs text-gray-500">
                   {spotsLeft} spot{spotsLeft === 1 ? "" : "s"} left

@@ -1,20 +1,29 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-// import Footer from "./components/Footer";
-// import Nav from "./components/Nav";
+import MobileShell from "./layouts/MobileShell";
 import Home from "./pages/Home";
-import Unauthenticated from "./pages/Unauthenticated";
+import Explore from "./pages/Explore";
+import Saved from "./pages/Saved";
+import Profile from "./pages/Profile";
 import RegisterEventForm from "./pages/RegisterEventForm";
-import Home2 from "./pages/Home2";
+import Unauthenticated from "./pages/Unauthenticated";
+import HomeShell from "./pages/HomeShell";
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* unauthenticated route sits outside the shell */}
         <Route path="/" element={<Unauthenticated />} />
-        <Route path="home" element={<Home />} />
-        <Route path="home2" element={<Home2 />} />
-        <Route path="/unauthenticated" element={<Unauthenticated />} />
-        <Route path="/register" element={<RegisterEventForm />} />
+
+        {/* all “tabbed” pages share the shell + bottom nav */}
+        <Route element={<MobileShell />}>
+          <Route path="/home" element={<Home />} />
+          <Route path="/home2" element={<HomeShell />} />
+          <Route path="/explore" element={<Explore />} />
+          <Route path="/saved" element={<Saved />} />
+          <Route path="/me" element={<Profile />} />
+          <Route path="/register" element={<RegisterEventForm />} />
+        </Route>
       </Routes>
     </Router>
   );

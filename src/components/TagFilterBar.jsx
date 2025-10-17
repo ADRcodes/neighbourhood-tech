@@ -1,4 +1,9 @@
+// src/components/TagFilterBar.jsx
 import { forwardRef } from "react";
+
+// utility so we don't repeat the long string
+const HIDE_SCROLLBAR =
+  "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']";
 
 const TagFilterBar = forwardRef(function TagFilterBar(
   { items = [], activeKeys = [], onToggle },
@@ -8,8 +13,8 @@ const TagFilterBar = forwardRef(function TagFilterBar(
     <div ref={ref} className="w-full flex justify-center">
       <div className="w-[340px] max-w-[92%]">
         <div
-          className="chip-scroll mask-fade-x flex gap-3 overflow-x-auto py-2
-                     scroll-smooth snap-x snap-mandatory"
+          className={`mask-fade-x flex gap-3 overflow-x-auto py-2
+                      scroll-smooth snap-x snap-mandatory ${HIDE_SCROLLBAR}`}
         >
           {items.map((c) => {
             const on = activeKeys.includes(c.key);
@@ -22,8 +27,8 @@ const TagFilterBar = forwardRef(function TagFilterBar(
                 className={`snap-start shrink-0 inline-flex items-center gap-2 px-4 py-[10px]
                             rounded-full border transition-all duration-200
                             ${on
-                    ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-200"
-                    : "bg-white/85 text-gray-900 border-gray-200 shadow-[0_1px_0_rgba(255,255,255,0.9)_inset,0_6px_16px_rgba(2,6,23,0.06)] hover:bg-gray-50"
+                    ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200"
+                    : "bg-white/85 text-gray-900 border-gray-200 shadow-md shadow-gray-200 hover:bg-gray-50"
                   }`}
               >
                 <span className="text-lg">{c.icon}</span>

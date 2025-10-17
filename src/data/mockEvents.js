@@ -75,14 +75,14 @@ export const MOCK_EVENTS = [
   },
   {
     id: 5,
-    company: "DataPros",
-    title: "AI in Production",
+    company: "DataPros with AI and Friends hanging out",
+    title: "AI in Production and Safety Measures - Mocky mock mock",
     date: "2025-09-10T10:00:00",
     description: "Deploying ML at scale with observability and safety.",
     price: 199.0,
     capacity: 40,
     image: "https://picsum.photos/id/1005/600/400",
-    venue: { id: 5, name: "Tech Campus Auditorium", address: "789 Tech Blvd, Capital City", capacity: 300 },
+    venue: { id: 5, name: "Tech Campus Auditorium building place", address: "789 Tech Blvd, Capital City", capacity: 300 },
     organizer: { id: 5, name: "Carol Martinez" },
     tags: ["AI", "Machine Learning"],
     registered: [

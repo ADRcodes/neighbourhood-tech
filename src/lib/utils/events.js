@@ -14,5 +14,8 @@ export function filterEvents(events, activeChips) {
   });
 }
 
-export const recommendedOf = (events, n = 3) =>
-  events.length > 4 ? events.slice(4, 4 + n) : [];
+export const recommendedOf = (events, n = 4) =>
+  events.length > 4 ? events.slice(2, 2 + n) : [];
+
+export const recommendedOfSpecific = (events, ids) =>
+  events.filter((ev) => ids.includes(ev.id));
