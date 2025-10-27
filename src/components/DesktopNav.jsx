@@ -61,6 +61,7 @@ export default function DesktopNav() {
             <Tab to="/home2">Home</Tab>
             <Tab to="/explore">Explore</Tab>
             <Tab to="/saved">Saved</Tab>
+            <Tab to="/about">About</Tab>
           </nav>
 
           {/* Right: Search + Actions */}

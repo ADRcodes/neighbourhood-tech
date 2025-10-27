@@ -1,7 +1,7 @@
 // src/pages/HomeShell.jsx
 
 import { useEvents } from "../lib/hooks/useEvents";
-import Home2 from "./Home2";
+import HomeMobile from "./HomeMobile";
 import HomeDesktop from "./HomeDesktop";
 
 export default function HomeShell() {
@@ -33,7 +33,7 @@ export default function HomeShell() {
   return (
     <>
       <div className="md:hidden">
-        <Home2 {...props} />
+        <HomeMobile {...props} />
       </div>
       <div className="hidden md:block">
         <HomeDesktop {...props} />

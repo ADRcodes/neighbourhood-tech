@@ -15,11 +15,13 @@ export default function HomeDesktop({
   return (
     <div className="mx-auto w-full text-text">
       {/* Desktop hero */}
-      <Hero
-        showSearch={false}
-        title="Neighbourhood tech, all in one place"
-        subtitle="Discover meetups, workshops, and socials — or host your own."
-      />
+      <div className="hidden md:block ">
+        <Hero
+          showSearch={false}
+          title="Neighbourhood tech, all in one place"
+          subtitle="Discover meetups, workshops, and socials — or host your own."
+        />
+      </div>
 
       {/* Heading + CTA */}
       <div className="flex items-end justify-between gap-4 px-[32px] py-6">
