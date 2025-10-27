@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import MobileShell from "./layouts/MobileShell";
 import Explore from "./pages/Explore";
 import Saved from "./pages/Saved";
