@@ -86,7 +86,7 @@ const RegisterEventForm = () => {
           venueId: "",
           tags: "",
         });
-        navigate("/home");
+        navigate("/");
       })
       .catch((err) => console.error("Error creating event:", err));
   };
@@ -196,7 +196,7 @@ const RegisterEventForm = () => {
             <button
               type="button"
               className="auth-button login-button"
-              onClick={() => navigate("/home")}
+              onClick={() => navigate("/")}
             >
               Back to Home
             </button>

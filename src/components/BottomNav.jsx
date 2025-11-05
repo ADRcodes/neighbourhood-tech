@@ -40,7 +40,7 @@ export default function BottomNav() {
       <div className="relative mx-auto w-full max-w-screen-sm px-4 pb-[max(env(safe-area-inset-bottom),12px)]">
         <div className="relative h-16 rounded-2xl bg-white/95 backdrop-blur shadow-lg border border-gray-200">
           <div className="grid grid-cols-5 h-full">
-            <NavItem to="/home2" label="Home" icon={<Icons.Home />} />
+            <NavItem to="/" label="Home" icon={<Icons.Home />} />
             <NavItem to="/explore" label="Explore" icon={<Icons.Search />} />
             <div className="relative">
               <NavLink

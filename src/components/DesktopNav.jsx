@@ -49,7 +49,7 @@ export default function DesktopNav() {
       <div className="mx-auto max-w-7xl px-6">
         <div className="h-16 flex items-center justify-between">
           {/* Left: Logo / brand */}
-          <NavLink to="/home2" className="flex items-center gap-2 group">
+          <NavLink to="/" className="flex items-center gap-2 group">
             <div className="h-8 w-8 rounded-xl bg-indigo-600 text-white grid place-items-center font-bold">NT</div>
             <span className="text-lg font-semibold text-gray-800 group-hover:text-gray-900">
               Neighbourhood Tech
@@ -58,7 +58,7 @@ export default function DesktopNav() {
 
           {/* Center: Tabs */}
           <nav aria-label="Primary" className="flex items-center gap-1">
-            <Tab to="/home2">Home</Tab>
+            <Tab to="/">Home</Tab>
             <Tab to="/explore">Explore</Tab>
             <Tab to="/saved">Saved</Tab>
             <Tab to="/about">About</Tab>

@@ -12,16 +12,16 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* unauthenticated route sits outside the shell */}
-        <Route path="/" element={<Unauthenticated />} />
+        {/* auth screen is optional; homepage stays public */}
+        <Route path="/auth" element={<Unauthenticated />} />
         {/* all “tabbed” pages share the shell + bottom nav */}
-        <Route element={<MobileShell />}>
-          <Route path="/home" element={<HomeShell />} />
-          <Route path="/explore" element={<Explore />} />
-          <Route path="/saved" element={<Saved />} />
-          <Route path="/me" element={<Profile />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/register" element={<RegisterEventForm />} />
+        <Route path="/" element={<MobileShell />}>
+          <Route index element={<HomeShell />} />
+          <Route path="explore" element={<Explore />} />
+          <Route path="saved" element={<Saved />} />
+          <Route path="me" element={<Profile />} />
+          <Route path="about" element={<About />} />
+          <Route path="register" element={<RegisterEventForm />} />
         </Route>
       </Routes>
     </Router>

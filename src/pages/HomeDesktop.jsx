@@ -15,17 +15,17 @@ export default function HomeDesktop({
   return (
     <div className="mx-auto w-full text-text">
       {/* Desktop hero */}
-      <div className="hidden md:block ">
+      {/* <div className="hidden md:block ">
         <Hero
           showSearch={false}
           title="Neighbourhood tech, all in one place"
           subtitle="Discover meetups, workshops, and socials — or host your own."
         />
-      </div>
+      </div> */}
 
       {/* Heading + CTA */}
-      <div className="flex items-end justify-between gap-4 px-[32px] py-6">
-        <div>
+      {/* <div className="flex flex-col gap-4 px-[32px] py-6 lg:flex-row lg:items-end lg:justify-between">
+        <div className="max-w-xl">
           <h1 className="text-2xl lg:text-3xl font-bold">Discover events</h1>
           <p className="text-text-muted">
             Browse by tags, venue, and date. Host your own in minutes.
@@ -37,15 +37,51 @@ export default function HomeDesktop({
         >
           ＋ Create event
         </a>
-      </div>
+      </div> */}
 
-      {/* 3-rail grid */}
-      <div className="
-        px-[32px]
-        grid grid-cols-1 gap-6 items-start 
-        lg:grid-cols-[280px_1fr_300px]">
-        {/* Left rail (sticky filters) */}
-        <aside className="sticky top-24 self-start z-10">
+      {/* Responsive grid */}
+      <div
+        className="
+          px-[32px] pt-4
+          grid grid-cols-1 gap-6 items-start
+          lg:grid-cols-[280px_1fr_300px]
+          lg:[grid-template-areas:'featured_featured_featured''filters_main_aside']
+        "
+      >
+        {featured.length > 0 && (
+          <section
+            className="
+              lg:[grid-area:featured]
+              rounded-3xl border border-brand-200 bg-brand-300 shadow-sm p-5 lg:p-6
+            "
+          >
+            <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between mb-4">
+              <div>
+                <h2 className="text-xl font-semibold">Featured highlights</h2>
+                <p className="text-sm text-text-muted">
+                  Curated standouts to catch before they sell out.
+                </p>
+              </div>
+              <a
+                href="/explore"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:opacity-90 transition"
+              >
+                Browse all
+                <span aria-hidden>→</span>
+              </a>
+            </div>
+            <FeaturedGrid items={featured} />
+          </section>
+        )}
+
+        {/* Left rail (filters) */}
+        <aside
+          className="
+            self-start z-10
+            lg:sticky lg:top-24
+            lg:[grid-area:filters]
+          "
+        >
           <div className="rounded-2xl border shadow-sm bg-surface border-brand-200 p-3">
             <h3 className="text-sm font-semibold mb-2">Filters</h3>
 
@@ -76,14 +112,12 @@ export default function HomeDesktop({
         </aside>
 
         {/* Main */}
-        <main className="min-w-0">
-          {featured.length > 0 && (
-            <section className="mb-8">
-              <h2 className="text-base font-semibold mb-3">Featured</h2>
-              <FeaturedGrid items={featured} />
-            </section>
-          )}
-
+        <main
+          className="
+            min-w-0
+            lg:[grid-area:main]
+          "
+        >
           {(warning || (error && !loading)) && (
             <div className="p-4 mb-6 mt-2 rounded-2xl bg-primary/10 border border-brand-100 text-sm">
               {warning && <div className="py-1 text-warning">{warning}</div>}
@@ -109,7 +143,7 @@ export default function HomeDesktop({
         </main>
 
         {/* Right rail */}
-        <aside className="hidden lg:block sticky top-24 self-start z-10">
+        <aside className="hidden lg:block lg:sticky lg:top-24 self-start z-10 lg:[grid-area:aside]">
           <div className="space-y-4">
             <section className="rounded-2xl border shadow-sm p-3 bg-surface border-brand-200">
               <h3 className="text-sm font-semibold mb-2">Happening soon</h3>

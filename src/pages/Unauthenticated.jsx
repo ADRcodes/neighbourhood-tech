@@ -40,7 +40,7 @@ const Unauthenticated = () => {
 
       alert(`Welcome, ${user.name || "user"}!`);
 
-      navigate("/home"); // Redirect to home after login
+      navigate("/"); // Redirect to home after login
     } catch (err) {
       console.error("Login error:", err);
       alert("Login error");
