@@ -1,4 +1,4 @@
-import { NavLink, useNavigate, useSearchParams } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import ColorPaletteModalPro from "./ColorPalettePopover";
 
 
@@ -10,10 +10,10 @@ function Tab({ to, children }) {
       to={to}
       className={({ isActive }) =>
         cx(
-          "px-3 py-2 text-sm font-medium rounded-md transition-colors",
+          "px-4 py-2 text-sm font-semibold rounded-full transition-all duration-200",
           isActive
-            ? "text-indigo-600"
-            : "text-gray-600 hover:text-gray-900"
+            ? "bg-primary text-onprimary shadow-md shadow-primary/40"
+            : "text-text-muted hover:text-text"
         )
       }
       end
@@ -21,8 +21,8 @@ function Tab({ to, children }) {
       {({ isActive }) => (
         <span
           className={cx(
-            "relative",
-            isActive && "after:absolute after:-bottom-2 after:left-0 after:right-0 after:h-0.5 after:bg-indigo-600"
+            "relative flex items-center gap-1",
+            isActive && "translate-y-[-1px]"
           )}
         >
           {children}
@@ -33,63 +33,53 @@ function Tab({ to, children }) {
 }
 
 export default function DesktopNav() {
-  const navigate = useNavigate();
-  const [params] = useSearchParams();
-
-  // optional tiny search that routes to /explore?q=...
-  const onSearchKey = (e) => {
-    if (e.key === "Enter") {
-      const q = e.currentTarget.value.trim();
-      navigate(q ? `/explore?q=${encodeURIComponent(q)}` : "/explore");
-    }
-  };
-
   return (
-    <header className="hidden md:block sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-200">
+    <header className="hidden md:block sticky top-0 z-50 pt-4">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="h-16 flex items-center justify-between">
+        <div className="flex items-center justify-between gap-6 rounded-full border border-brand-200/70 bg-surface/85 backdrop-blur-xl shadow-[0_18px_40px_-24px_rgba(16,24,40,0.55)] px-6 py-3 text-text">
           {/* Left: Logo / brand */}
-          <NavLink to="/" className="flex items-center gap-2 group">
-            <div className="h-8 w-8 rounded-xl bg-indigo-600 text-white grid place-items-center font-bold">NT</div>
-            <span className="text-lg font-semibold text-gray-800 group-hover:text-gray-900">
-              Neighbourhood Tech
-            </span>
+          <NavLink to="/" className="flex items-center gap-3 group">
+            <div className="h-9 w-9 rounded-2xl bg-primary text-onprimary grid place-items-center font-semibold shadow-[0_8px_20px_-12px_rgba(220,73,102,0.9)] transition-transform group-hover:scale-105">
+              NT
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm uppercase tracking-[0.25em] text-text-muted">Neighbourhood</span>
+              <span className="-mt-1 text-lg font-semibold group-hover:text-primary transition-colors">Tech</span>
+            </div>
           </NavLink>
 
           {/* Center: Tabs */}
-          <nav aria-label="Primary" className="flex items-center gap-1">
+          <nav
+            aria-label="Primary"
+            className="hidden lg:flex items-center gap-1 rounded-full border border-brand-200/60 bg-surface/95 px-1 py-1 shadow-inner"
+          >
             <Tab to="/">Home</Tab>
             <Tab to="/explore">Explore</Tab>
             <Tab to="/saved">Saved</Tab>
             <Tab to="/about">About</Tab>
           </nav>
 
-          {/* Right: Search + Actions */}
+          {/* Right: Theme + Actions */}
           <div className="flex items-center gap-3">
-            <ColorPaletteModalPro />
-            <div className="relative">
-              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">⌕</span>
-              <input
-                type="search"
-                defaultValue={params.get("q") || ""}
-                onKeyDown={onSearchKey}
-                placeholder="Search events…"
-                className="w-56 pl-8 pr-3 py-2 text-sm rounded-lg border border-gray-300 bg-white/70 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
-              />
+            <div className="hidden lg:block">
+              <ColorPaletteModalPro />
             </div>
 
             <NavLink
               to="/register"
-              className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold px-4 py-2 shadow-sm hover:bg-indigo-700 active:scale-[0.99] transition"
+              className="inline-flex items-center gap-2 rounded-full bg-primary text-onprimary text-sm font-semibold px-4 py-2 shadow-[0_16px_30px_-18px_rgba(220,73,102,0.9)] hover:shadow-[0_18px_36px_-16px_rgba(220,73,102,1)] hover:translate-y-[-1px] active:translate-y-0 transition-transform"
             >
-              <span>＋</span> Create Event
+              <span className="text-lg">＋</span>
+              <span>Create Event</span>
             </NavLink>
 
             <NavLink
               to="/me"
-              className="ml-1 inline-flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900"
+              className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text transition-colors"
             >
-              <div className="h-8 w-8 rounded-full bg-gray-200 grid place-items-center text-gray-500">👤</div>
+              <div className="h-9 w-9 rounded-full border border-brand-200/70 bg-surface/80 grid place-items-center shadow-[0_10px_24px_-16px_rgba(16,24,40,0.45)]">
+                <span className="text-lg">👤</span>
+              </div>
               <span>Profile</span>
             </NavLink>
           </div>

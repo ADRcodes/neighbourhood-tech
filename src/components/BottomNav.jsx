@@ -17,16 +17,25 @@ function NavItem({ to, label, icon }) {
       to={to}
       className={({ isActive }) =>
         cx(
-          "flex flex-col items-center justify-center gap-0.5 text-[11px] font-medium",
-          isActive ? "text-indigo-600" : "text-gray-500 hover:text-gray-700"
+          "flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors",
+          isActive ? "text-primary" : "text-text-muted hover:text-text"
         )
       }
     >
       {({ isActive }) => (
         <>
-          {cloneElement(icon, {
-            className: cx("h-6 w-6", isActive ? "text-indigo-600" : "text-gray-500"),
-          })}
+          <span
+            className={cx(
+              "grid h-9 w-9 place-items-center rounded-full border transition-all",
+              isActive
+                ? "bg-primary/10 border-primary/30"
+                : "bg-transparent border-transparent"
+            )}
+          >
+            {cloneElement(icon, {
+              className: cx("h-5 w-5", isActive ? "text-primary" : "text-text-muted"),
+            })}
+          </span>
           <span className="leading-none">{label}</span>
         </>
       )}
@@ -38,7 +47,7 @@ export default function BottomNav() {
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50">
       <div className="relative mx-auto w-full max-w-screen-sm px-4 pb-[max(env(safe-area-inset-bottom),12px)]">
-        <div className="relative h-16 rounded-2xl bg-white/95 backdrop-blur shadow-lg border border-gray-200">
+        <div className="relative h-16 rounded-2xl bg-surface/92 backdrop-blur-xl shadow-[0_22px_45px_-26px_rgba(16,24,40,0.65)] border border-brand-200/80 text-text">
           <div className="grid grid-cols-5 h-full">
             <NavItem to="/" label="Home" icon={<Icons.Home />} />
             <NavItem to="/explore" label="Explore" icon={<Icons.Search />} />
@@ -46,7 +55,7 @@ export default function BottomNav() {
               <NavLink
                 to="/register"
                 aria-label="Create event"
-                className="absolute left-1/2 -translate-x-1/2 -top-2 inline-flex h-14 w-14 items-center justify-center rounded-full shadow-xl border bg-indigo-600 text-white border-indigo-600 active:scale-95 transition"
+                className="absolute left-1/2 -translate-x-1/2 -top-2 inline-flex h-14 w-14 items-center justify-center rounded-full shadow-xl border border-primary bg-primary text-onprimary active:scale-95 transition"
               >
                 <Icons.Plus className="h-7 w-7" />
               </NavLink>

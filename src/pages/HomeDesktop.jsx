@@ -12,6 +12,8 @@ export default function HomeDesktop({
   error,
   warning,
 }) {
+  const topFeatured = featured.slice(0, 8);
+
   return (
     <div className="mx-auto w-full text-text">
       {/* Desktop hero */}
@@ -44,20 +46,22 @@ export default function HomeDesktop({
         className="
           px-[32px] pt-4
           grid grid-cols-1 gap-6 items-start
-          lg:grid-cols-[280px_1fr_300px]
-          lg:[grid-template-areas:'featured_featured_featured''filters_main_aside']
+          xl:grid-cols-[280px_1fr_300px]
+          xl:[grid-template-areas:'featured_featured_featured''filters_main_aside']
         "
       >
-        {featured.length > 0 && (
+        {topFeatured.length > 0 && (
           <section
             className="
-              lg:[grid-area:featured]
-              rounded-3xl border border-brand-200 bg-brand-300 shadow-sm p-5 lg:p-6
+              featured-aurora
+              xl:[grid-area:featured]
+              relative rounded-3xl border border-brand-200 shadow-lg
+              px-5 pt-5 pb-0 lg:px-6 lg:pt-6 lg:pb-0
             "
           >
             <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between mb-4">
               <div>
-                <h2 className="text-xl font-semibold">Featured highlights</h2>
+                <h2 className="text-2xl text-invert font-semibold">Featured highlights</h2>
                 <p className="text-sm text-text-muted">
                   Curated standouts to catch before they sell out.
                 </p>
@@ -70,7 +74,7 @@ export default function HomeDesktop({
                 <span aria-hidden>→</span>
               </a>
             </div>
-            <FeaturedGrid items={featured} />
+            <FeaturedGrid items={topFeatured} />
           </section>
         )}
 
@@ -78,8 +82,8 @@ export default function HomeDesktop({
         <aside
           className="
             self-start z-10
-            lg:sticky lg:top-24
-            lg:[grid-area:filters]
+            xl:sticky xl:top-24
+            xl:[grid-area:filters]
           "
         >
           <div className="rounded-2xl border shadow-sm bg-surface border-brand-200 p-3">
@@ -115,7 +119,7 @@ export default function HomeDesktop({
         <main
           className="
             min-w-0
-            lg:[grid-area:main]
+            xl:[grid-area:main]
           "
         >
           {(warning || (error && !loading)) && (
@@ -143,7 +147,7 @@ export default function HomeDesktop({
         </main>
 
         {/* Right rail */}
-        <aside className="hidden lg:block lg:sticky lg:top-24 self-start z-10 lg:[grid-area:aside]">
+        <aside className="hidden xl:block xl:sticky xl:top-24 self-start z-10 xl:[grid-area:aside]">
           <div className="space-y-4">
             <section className="rounded-2xl border shadow-sm p-3 bg-surface border-brand-200">
               <h3 className="text-sm font-semibold mb-2">Happening soon</h3>
@@ -166,6 +170,57 @@ export default function HomeDesktop({
           </div>
         </aside>
       </div>
+
+      <footer className="px-[32px] mt-16">
+        <div className="mx-auto max-w-6xl rounded-3xl border border-brand-200/70 bg-surface/85 backdrop-blur-xl shadow-[0_40px_120px_-60px_rgba(16,24,40,0.75)] overflow-hidden">
+          <div className="relative">
+            <div className="absolute inset-0 opacity-[0.08] pointer-events-none">
+              <div className="absolute -left-20 top-10 h-64 w-64 bg-primary blur-3xl rounded-full" />
+              <div className="absolute right-0 bottom-0 h-48 w-48 bg-accent blur-3xl rounded-full" />
+            </div>
+            <div className="relative px-8 py-10 lg:px-12 grid gap-8 lg:grid-cols-[1.5fr_1fr_1fr] text-sm text-text-muted">
+              <div className="space-y-4">
+                <div className="inline-flex items-center gap-2 rounded-full border border-brand-200/70 bg-surface/80 px-3 py-1 text-xs uppercase tracking-[0.3em] text-primary shadow-inner">
+                  Neighbourhood
+                </div>
+                <p className="text-2xl lg:text-3xl font-semibold text-text">
+                  Tech for humans, by neighbours.
+                </p>
+                <p className="max-w-md">
+                  Weekly happenings, coffee chats, hack nights, and collabs. Plug in, try something new, or host your own — we’ll help you get it seen.
+                </p>
+                <a
+                  href="/register"
+                  className="inline-flex w-fit items-center gap-2 rounded-full bg-primary text-onprimary text-sm font-semibold px-4 py-2 shadow-[0_12px_30px_-16px_rgba(220,73,102,0.9)] hover:shadow-[0_16px_40px_-14px_rgba(220,73,102,0.95)] transition"
+                >
+                  ＋ Submit an event
+                </a>
+              </div>
+              <div className="space-y-3">
+                <p className="font-semibold text-text">Explore</p>
+                <ul className="space-y-2">
+                  <li><a className="hover:text-text transition" href="/explore">Find events</a></li>
+                  <li><a className="hover:text-text transition" href="/register">Host an event</a></li>
+                  <li><a className="hover:text-text transition" href="/about">About</a></li>
+                  <li><a className="hover:text-text transition" href="/explore?q=workshop">Workshops</a></li>
+                </ul>
+              </div>
+              <div className="space-y-3">
+                <p className="font-semibold text-text">Stay in touch</p>
+                <p>hello@neighbourhood.tech</p>
+                <div className="flex gap-3 pt-2">
+                  <a className="text-text-muted hover:text-text transition" href="#linkedin">LinkedIn</a>
+                  <a className="text-text-muted hover:text-text transition" href="#insta">Instagram</a>
+                  <a className="text-text-muted hover:text-text transition" href="#discord">Discord</a>
+                </div>
+                <p className="text-xs text-text-muted/80 pt-4">
+                  © {new Date().getFullYear()} Neighbourhood Tech Collective
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

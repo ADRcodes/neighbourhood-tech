@@ -31,7 +31,7 @@ const EventList = ({
   if (!events.length) return <div className="p-4 text-sm">No events yet.</div>;
 
   return (
-    <div className="p-3 space-y-3">
+    <div className="p-2 md:p-3 lg:p-4 space-y-3">
       {events.map((event) => {
         const id = event.id ?? event.eventId;
         return (

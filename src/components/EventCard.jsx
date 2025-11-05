@@ -6,9 +6,12 @@ export default function EventCard({
   registered = [],
   onBodyResize,           // (h:number) => void
   forcedBodyHeight,       // number | undefined
+  density = "default",    // "default" | "compact"
 }) {
   const [expanded, setExpanded] = useState(false);
   const toggle = () => setExpanded((e) => !e);
+
+  const compact = density === "compact";
 
   // --- SUMMARY (measured & equalized when collapsed) ---
   const bodyRef = useRef(null);
@@ -45,15 +48,36 @@ export default function EventCard({
   // --- DETAILS (expandable) ---
   const detailsRef = useRef(null);
   const [detailsMax, setDetailsMax] = useState(0);
+  const [detailsHeight, setDetailsHeight] = useState(0);
+
   useEffect(() => {
     if (!detailsRef.current) return;
     const el = detailsRef.current;
-    const measure = () => setDetailsMax(el.scrollHeight);
+    const measure = () => {
+      const next = el.scrollHeight;
+      setDetailsMax(next);
+      if (expanded) {
+        setDetailsHeight(next);
+      }
+    };
     measure();
-    const ro = new ResizeObserver(measure);
+    const ro = new ResizeObserver(() => {
+      requestAnimationFrame(measure);
+    });
     ro.observe(el);
     return () => ro.disconnect();
-  }, [event.description, event.company, event?.venue?.address, event?.tags?.length]);
+  }, [expanded, event.description, event.company, event?.venue?.address, event?.tags?.length]);
+
+  useEffect(() => {
+    const el = detailsRef.current;
+    if (!el) return;
+    if (expanded) {
+      const target = el.scrollHeight;
+      requestAnimationFrame(() => setDetailsHeight(target));
+    } else {
+      setDetailsHeight(0);
+    }
+  }, [expanded, detailsMax]);
 
   // Date/time
   const dt = useMemo(() => new Date(event.date), [event.date]);
@@ -74,32 +98,42 @@ export default function EventCard({
       tabIndex={0}
       onClick={toggle}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && toggle()}
-      className="relative flex flex-col p-2 rounded-lg shadow-md bg-white cursor-pointer select-none transition-shadow duration-200 hover:shadow-lg"
+      className={`relative flex flex-col rounded-lg shadow-md bg-white cursor-pointer select-none transition-shadow duration-200 hover:shadow-lg ${
+        compact ? "p-2" : "p-3"
+      }`}
     >
       {/* SUMMARY: always clamped; height forced only when collapsed */}
       <div
         ref={bodyRef}
         data-card-body
-        style={!expanded && forcedBodyHeight ? { height: forcedBodyHeight } : undefined}
-        className={`flex flex-col gap-2 ${!expanded && forcedBodyHeight ? "overflow-hidden" : ""}`}
+        style={
+          !expanded && forcedBodyHeight && !compact
+            ? { height: forcedBodyHeight }
+            : undefined
+        }
+        className={`flex flex-col ${compact ? "gap-1.5" : "gap-2"} ${
+          !expanded && forcedBodyHeight && !compact ? "overflow-hidden" : ""
+        }`}
       >
         <img
           ref={imgRef}
-          className="w-full aspect-[4/2] object-cover rounded-lg"
+          className={`w-full object-cover rounded-lg ${
+            compact ? "aspect-[5/3]" : "aspect-[4/2]"
+          }`}
           src={event.image}
           alt={event.title || "Event"}
         />
 
         {/* Title: clamp to 2 lines in summary */}
-        <h2 className="text-xl font-bold leading-tight line-clamp-2">
+        <h2 className={`${compact ? "text-base" : "text-xl"} font-bold leading-tight ${compact ? "line-clamp-1" : "line-clamp-2"}`}>
           {event.title}
         </h2>
 
-        <div className="flex justify-between text-sm gap-2">
+        <div className={`flex justify-between ${compact ? "text-xs" : "text-sm"} gap-2`}>
           {/* Location: clamp to 2 lines in summary */}
           <div className="flex gap-1 items-center min-w-0">
             <p>📍</p>
-            <p className="line-clamp-2 min-w-0">{event?.venue?.name}</p>
+            <p className={`${compact ? "line-clamp-1" : "line-clamp-2"} min-w-0`}>{event?.venue?.name}</p>
           </div>
           <div className="flex gap-1 items-center">
             <p>🗓️</p>
@@ -112,32 +146,34 @@ export default function EventCard({
 
         {/* Price row pinned to bottom of summary */}
         <div className="mt-auto flex items-center justify-between">
-          <p className="text-base">
+          <p className={compact ? "text-xs font-semibold" : "text-base"}>
             {isFree ? "Free" : `$${event.price}`}
-            {!isFree && <span className="text-sm text-gray-500">/ticket</span>}
+            {!isFree && <span className={`${compact ? "text-[11px]" : "text-sm"} text-gray-500`}>/ticket</span>}
           </p>
-          <div className="ml-2">
-            {registered.slice(0, 5).map((user) => (
-              <img
-                key={user.id}
-                src={user.avatar}
-                alt={user.name}
-                className="inline-block w-6 h-6 -ml-[10px] border-2 border-white rounded-full"
-              />
-            ))}
-            {registered.length > 5 && (
-              <span className="align-middle text-sm inline-flex items-center justify-center w-6 h-6 -ml-[10px] border-2 border-white bg-green-500 text-white rounded-full">
-                {registered.length - 5}
-              </span>
-            )}
-          </div>
+          {!compact && (
+            <div className="ml-2">
+              {registered.slice(0, 5).map((user) => (
+                <img
+                  key={user.id}
+                  src={user.avatar}
+                  alt={user.name}
+                  className="inline-block w-6 h-6 -ml-[10px] border-2 border-white rounded-full"
+                />
+              ))}
+              {registered.length > 5 && (
+                <span className="align-middle text-sm inline-flex items-center justify-center w-6 h-6 -ml-[10px] border-2 border-white bg-green-500 text-white rounded-full">
+                  {registered.length - 5}
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
       {/* DETAILS: show full title/location here so summary can stay clamped */}
       <div
-        className="overflow-hidden transition-[max-height] duration-500 ease-out"
-        style={{ maxHeight: expanded ? detailsMax : 0 }}
+        className="overflow-hidden transition-[max-height] duration-500 ease-in-out"
+        style={{ maxHeight: detailsHeight, willChange: "max-height" }}
         aria-hidden={!expanded}
       >
         <div

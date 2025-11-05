@@ -11,7 +11,7 @@ const AvatarStack = ({ users = [] }) => (
       />
     ))}
     {users.length > 5 && (
-      <span className="align-middle text-sm inline-flex items-center justify-center w-6 h-6 -ml-[10px] border-2 border-white bg-green-500 text-white rounded-full">
+      <span className="align-middle text-[11px] inline-flex items-center justify-center w-6 h-6 -ml-[10px] border-2 border-white bg-success/80 text-onprimary rounded-full">
         {users.length - 5}
       </span>
     )}
@@ -21,9 +21,9 @@ const AvatarStack = ({ users = [] }) => (
 const PriceTag = ({ price }) => {
   const isFree = Number(price) === 0 || Number.isNaN(Number(price));
   return (
-    <p className="text-sm">
+    <p className="text-sm md:text-base font-medium text-text">
       {isFree ? "Free" : `$${Number(price).toFixed(2)}`}
-      {!isFree && <span className="text-xs text-gray-500"> /Person</span>}
+      {!isFree && <span className="text-xs md:text-sm text-text-muted"> /Person</span>}
     </p>
   );
 };
@@ -40,9 +40,9 @@ const MetaRow = ({ venue, date, expanded = false }) => {
   );
 
   return (
-    <div className="flex items-start justify-between gap-2">
+    <div className="flex items-start justify-between gap-2 md:gap-4">
       {/* location: 2 lines when collapsed, full when expanded */}
-      <p className="text-xs text-gray-700 flex-1 min-w-0 leading-snug">
+      <p className="text-xs md:text-sm text-text-muted flex-1 min-w-0 leading-snug">
         <span
           className={`${expanded ? "" : "line-clamp-2"} break-words align-top`}
           title={venue?.name}
@@ -52,8 +52,8 @@ const MetaRow = ({ venue, date, expanded = false }) => {
       </p>
 
       {/* date/time */}
-      <div className="flex flex-col items-end shrink-0 text-xs">
-        <span className="font-semibold">{dateStr}</span>
+      <div className="flex flex-col items-end shrink-0 text-xs md:text-sm text-text">
+        <span className="font-semibold text-primary">{dateStr}</span>
         <span>{timeStr}</span>
       </div>
     </div>
@@ -66,7 +66,7 @@ const TagPills = ({ tags }) =>
       {tags.map((tag) => (
         <span
           key={String(tag)}
-          className="h-min text-xs bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200"
+          className="h-min text-xs md:text-sm bg-primary/10 text-primary px-2.5 py-0.5 rounded-full border border-primary/20"
         >
           {tag}
         </span>
@@ -110,34 +110,34 @@ const EventListItem = ({
       aria-expanded={expanded}
       onClick={onToggle}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onToggle()}
-      className="relative w-full bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow flex flex-col p-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300"
+      className="relative w-full bg-surface rounded-2xl border border-brand-200/70 shadow-[0_15px_40px_-28px_rgba(16,24,40,0.65)] hover:shadow-[0_20px_45px_-25px_rgba(16,24,40,0.58)] transition-shadow flex flex-col p-3 md:p-4 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30"
     >
       <div
         aria-hidden
-        className={`absolute right-2 top-1 transition-transform duration-300 select-none ${expanded ? "rotate-180" : "rotate-0"
+        className={`absolute right-3 top-2 text-text-muted transition-transform duration-300 select-none ${expanded ? "rotate-180" : "rotate-0"
           }`}
       >
         ▾
       </div>
 
       {/* Header row */}
-      <div className="flex justify-between gap-3 relative">
+      <div className="flex justify-between gap-3 md:gap-5 relative">
         <img
           src={imgSrc}
           alt={event.title || "Event image"}
           onError={(e) => {
             e.currentTarget.src = `https://picsum.photos/seed/${event.id || "fallback"}/300/200`;
           }}
-          className="w-24 aspect-[4/3] object-cover rounded-md shrink-0"
+          className="w-24 sm:w-28 md:w-32 lg:w-36 xl:w-40 aspect-[4/3] object-cover rounded-xl shrink-0 shadow-[0_10px_24px_-20px_rgba(16,24,40,0.6)]"
         />
 
-        <div className="w-full">
-          <h3 className={`text-sm font-semibold leading-snug ${expanded ? "" : "line-clamp-1"
+        <div className="w-full flex-1">
+          <h3 className={`text-sm sm:text-base md:text-lg xl:text-xl font-semibold leading-snug text-text ${expanded ? "" : "line-clamp-1"
             }`}>
             {event.title || "Untitled Event"}
           </h3>
           <MetaRow venue={event.venue} date={event.date} expanded={expanded} />
-          <div className="mt-1 flex items-center justify-between gap-3">
+          <div className="mt-2 flex items-center justify-between gap-2 md:gap-3">
             <PriceTag price={event.price} />
             <AvatarStack users={registered} />
           </div>
@@ -148,7 +148,7 @@ const EventListItem = ({
       <div className="relative">
         {/* keep gradient inside the panel to avoid overlapping header */}
         {expanded && (
-          <div className="pointer-events-none absolute top-0 left-0 right-0 h-3 bg-gradient-to-b from-white to-transparent rounded-b" />
+          <div className="pointer-events-none absolute top-0 left-0 right-0 h-3 bg-gradient-to-b from-surface to-transparent rounded-b" />
         )}
 
         <div
@@ -163,27 +163,26 @@ const EventListItem = ({
               }`}
           >
             <TagPills tags={event.tags} />
-            <div className="text-sm">
-              <p className="flex flex-wrap text-gray-500">
+            <div className="text-sm md:text-base text-text-muted leading-relaxed">
+              <p className="flex flex-wrap">
                 <span className="w-fit">{event.company},{'\u00A0'}</span>
                 <span className="w-fit">{event?.venue?.address}</span>
               </p>
-              <p className="text-gray-500">
+              <p>
                 Hosted by {event?.organizer?.name ?? "Organizer"}
               </p>
             </div>
 
-
-            <p className="text-gray-800">{event.description}</p>
+            <p className="text-text leading-relaxed text-sm md:text-base">{event.description}</p>
 
             <div className="flex items-center justify-end gap-3">
               {spotsLeft !== null && (
-                <span className="text-xs text-gray-500">
+                <span className="text-xs md:text-sm text-text-muted">
                   {spotsLeft} spot{spotsLeft === 1 ? "" : "s"} left
                 </span>
               )}
               <button
-                className="bg-blue-500 text-white py-1 px-2 rounded"
+                className="inline-flex items-center gap-1 rounded-full bg-primary text-onprimary px-3 py-1.5 text-xs md:text-sm font-semibold shadow-[0_10px_20px_-14px_rgba(220,73,102,0.8)] transition hover:shadow-[0_14px_24px_-12px_rgba(220,73,102,0.95)]"
                 onClick={(e) => {
                   e.stopPropagation();
                   onRegister(event);
