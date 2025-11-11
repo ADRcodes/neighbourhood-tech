@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { formatSourceName, isExplicitlyFreePrice } from "../lib/utils/events";
 
 const AvatarStack = ({ users = [] }) => (
   <div className="ml-2 shrink-0">
@@ -19,25 +20,22 @@ const AvatarStack = ({ users = [] }) => (
 );
 
 const PriceTag = ({ price }) => {
-  const isFree = Number(price) === 0 || Number.isNaN(Number(price));
-  return (
-    <p className="text-sm md:text-base font-medium text-text">
-      {isFree ? "Free" : `$${Number(price).toFixed(2)}`}
-      {!isFree && <span className="text-xs md:text-sm text-text-muted"> /Person</span>}
-    </p>
-  );
+  if (!isExplicitlyFreePrice(price)) return null;
+  return <p className="text-sm md:text-base font-medium text-text">Free</p>;
 };
 
 const MetaRow = ({ venue, date, expanded = false }) => {
-  const dt = useMemo(() => new Date(date), [date]);
+  const dt = useMemo(() => (date ? new Date(date) : null), [date]);
+  const isValidDate = dt && !Number.isNaN(dt.getTime());
   const dateStr = useMemo(
-    () => dt.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
-    [dt]
+    () => (isValidDate ? dt.toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "Date TBA"),
+    [dt, isValidDate]
   );
   const timeStr = useMemo(
-    () => dt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }),
-    [dt]
+    () => (isValidDate ? dt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }) : ""),
+    [dt, isValidDate]
   );
+  const venueName = venue?.name || "Venue TBA";
 
   return (
     <div className="flex items-start justify-between gap-2 md:gap-4">
@@ -45,16 +43,16 @@ const MetaRow = ({ venue, date, expanded = false }) => {
       <p className="text-xs md:text-sm text-text-muted flex-1 min-w-0 leading-snug">
         <span
           className={`${expanded ? "" : "line-clamp-2"} break-words align-top`}
-          title={venue?.name}
+          title={venueName}
         >
-          📍 {venue?.name || "TBA"}
+          📍 {venueName}
         </span>
       </p>
 
       {/* date/time */}
       <div className="flex flex-col items-end shrink-0 text-xs md:text-sm text-text">
         <span className="font-semibold text-primary">{dateStr}</span>
-        <span>{timeStr}</span>
+        {timeStr && <span>{timeStr}</span>}
       </div>
     </div>
   );
@@ -81,10 +79,9 @@ const EventListItem = ({
   onToggle = () => { },
   onRegister = () => { },
 }) => {
-  const spotsLeft =
-    typeof event.capacity === "number"
-      ? Math.max(event.capacity - registered.length, 0)
-      : null;
+  const hasCapacity = typeof event.capacity === "number" && event.capacity > 0;
+  const spotsLeft = hasCapacity ? Math.max(event.capacity - registered.length, 0) : null;
+  const formattedSource = event?.source ? formatSourceName(event.source) : "";
 
   const contentRef = useRef(null);
   const [maxHeight, setMaxHeight] = useState(0);
@@ -125,6 +122,8 @@ const EventListItem = ({
         <img
           src={imgSrc}
           alt={event.title || "Event image"}
+          referrerPolicy="no-referrer"
+          loading="lazy"
           onError={(e) => {
             e.currentTarget.src = `https://picsum.photos/seed/${event.id || "fallback"}/300/200`;
           }}
@@ -164,16 +163,27 @@ const EventListItem = ({
           >
             <TagPills tags={event.tags} />
             <div className="text-sm md:text-base text-text-muted leading-relaxed">
-              <p className="flex flex-wrap">
-                <span className="w-fit">{event.company},{'\u00A0'}</span>
-                <span className="w-fit">{event?.venue?.address}</span>
-              </p>
-              <p>
-                Hosted by {event?.organizer?.name ?? "Organizer"}
-              </p>
+              {(event.company || event?.venue?.address) && (
+                <p className="flex flex-wrap">
+                  {event.company && <span className="w-fit">{event.company}{'\u00A0'}</span>}
+                  {event?.venue?.address && <span className="w-fit">{event.venue.address}</span>}
+                </p>
+              )}
+              {event?.organizer?.name && (
+                <p>
+                  Hosted by {event.organizer.name}
+                </p>
+              )}
+              {formattedSource && (
+                <p>
+                  Source: <span className="text-text">{formattedSource}</span>
+                </p>
+              )}
             </div>
 
-            <p className="text-text leading-relaxed text-sm md:text-base">{event.description}</p>
+            <p className="text-text leading-relaxed text-sm md:text-base">
+              {event.description || "More details coming soon."}
+            </p>
 
             <div className="flex items-center justify-end gap-3">
               {spotsLeft !== null && (
@@ -181,15 +191,20 @@ const EventListItem = ({
                   {spotsLeft} spot{spotsLeft === 1 ? "" : "s"} left
                 </span>
               )}
-              <button
-                className="inline-flex items-center gap-1 rounded-full bg-primary text-onprimary px-3 py-1.5 text-xs md:text-sm font-semibold shadow-[0_10px_20px_-14px_rgba(220,73,102,0.8)] transition hover:shadow-[0_14px_24px_-12px_rgba(220,73,102,0.95)]"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRegister(event);
-                }}
-              >
-                Register
-              </button>
+              {event.url && (
+                <a
+                  href={event.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 rounded-full bg-primary text-onprimary px-3 py-1.5 text-xs md:text-sm font-semibold shadow-[0_10px_20px_-14px_rgba(220,73,102,0.8)] transition hover:shadow-[0_14px_24px_-12px_rgba(220,73,102,0.95)]"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRegister(event);
+                  }}
+                >
+                  Visit Event
+                </a>
+              )}
             </div>
           </div>
         </div>

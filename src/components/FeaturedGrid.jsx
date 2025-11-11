@@ -24,11 +24,20 @@ const PLACEHOLDER_VARIANTS = [
   },
 ];
 
-export default function FeaturedGrid({ items = [], extraHeight = 280 }) {
+export default function FeaturedGrid({ items = [], extraHeight = 340, descriptionClampLines = 4 }) {
   // mirror carousel height sync so cards stay even in the grid
   const heightsRef = useRef(new Map());
   const [heightSnapshot, setHeightSnapshot] = useState({});
   const [columnCount, setColumnCount] = useState(1);
+  const heightUpdateRaf = useRef(null);
+
+  const scheduleHeightSnapshot = useCallback(() => {
+    if (heightUpdateRaf.current !== null) return;
+    heightUpdateRaf.current = requestAnimationFrame(() => {
+      heightUpdateRaf.current = null;
+      setHeightSnapshot(Object.fromEntries(heightsRef.current));
+    });
+  }, []);
 
   const pruneStaleIds = useCallback(
     (nextItems) => {
@@ -42,15 +51,19 @@ export default function FeaturedGrid({ items = [], extraHeight = 280 }) {
         }
       });
       if (changed) {
-        setHeightSnapshot(Object.fromEntries(map));
+        scheduleHeightSnapshot();
       }
     },
-    []
+    [scheduleHeightSnapshot]
   );
 
   useEffect(() => {
     if (!items.length) {
       heightsRef.current.clear();
+      if (heightUpdateRaf.current !== null) {
+        cancelAnimationFrame(heightUpdateRaf.current);
+        heightUpdateRaf.current = null;
+      }
       setHeightSnapshot({});
       return;
     }
@@ -78,7 +91,15 @@ export default function FeaturedGrid({ items = [], extraHeight = 280 }) {
     const prev = map.get(id) ?? 0;
     if (Math.abs(prev - h) <= 0.5) return;
     map.set(id, h);
-    setHeightSnapshot(Object.fromEntries(map));
+    scheduleHeightSnapshot();
+  }, [scheduleHeightSnapshot]);
+
+  useEffect(() => {
+    return () => {
+      if (heightUpdateRaf.current !== null) {
+        cancelAnimationFrame(heightUpdateRaf.current);
+      }
+    };
   }, []);
 
   const visibleItems = useMemo(() => items.slice(0, 12), [items]);
@@ -110,17 +131,11 @@ export default function FeaturedGrid({ items = [], extraHeight = 280 }) {
 
   const rowGap = 16;
   const columnGap = 20;
-  const maxCardWidth = 300;
+  const maxCardWidth = 320;
   const defaultCollapsedHeight = 220;
   const additionalHeight = extraHeight;
 
-  const placeholderHeight = useMemo(() => {
-    const values = Object.values(heightSnapshot);
-    if (values.length) {
-      return values.reduce((sum, value) => sum + value, 0) / values.length;
-    }
-    return defaultCollapsedHeight;
-  }, [heightSnapshot, defaultCollapsedHeight]);
+  const placeholderHeight = 300;
 
   const columnHeights = useMemo(() => {
     return columns.map((columnItems) => {
@@ -183,6 +198,7 @@ export default function FeaturedGrid({ items = [], extraHeight = 280 }) {
                 registered={ev.data.registered}
                 onBodyResize={(h) => updateHeight(ev.data.id, h)}
                 density="default"
+                descriptionClampLines={descriptionClampLines}
               />
             );
           })}

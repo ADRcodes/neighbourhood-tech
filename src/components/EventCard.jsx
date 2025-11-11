@@ -1,5 +1,6 @@
 // EventCard.jsx
 import { useEffect, useRef, useState, useMemo } from "react";
+import { formatSourceName, isExplicitlyFreePrice } from "../lib/utils/events";
 
 export default function EventCard({
   event,
@@ -7,6 +8,7 @@ export default function EventCard({
   onBodyResize,           // (h:number) => void
   forcedBodyHeight,       // number | undefined
   density = "default",    // "default" | "compact"
+  descriptionClampLines = null,
 }) {
   const [expanded, setExpanded] = useState(false);
   const toggle = () => setExpanded((e) => !e);
@@ -80,16 +82,35 @@ export default function EventCard({
   }, [expanded, detailsMax]);
 
   // Date/time
-  const dt = useMemo(() => new Date(event.date), [event.date]);
-  const dateStr = useMemo(
-    () => dt.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
-    [dt]
+  const dt = useMemo(() => (event?.date ? new Date(event.date) : null), [event?.date]);
+  const dateStr = useMemo(() => {
+    if (!dt || Number.isNaN(dt.getTime())) return "Date TBA";
+    return dt.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  }, [dt]);
+  const timeStr = useMemo(() => {
+    if (!dt || Number.isNaN(dt.getTime())) return "";
+    return dt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+  }, [dt]);
+  const priceValue = event?.price;
+  const showPrice = isExplicitlyFreePrice(priceValue);
+  const visibleTags = useMemo(
+    () => (Array.isArray(event?.tags) ? event.tags.slice(0, 8) : []),
+    [event?.tags]
   );
-  const timeStr = useMemo(
-    () => dt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }),
-    [dt]
-  );
-  const isFree = Number(event.price) === 0 || Number.isNaN(Number(event.price));
+  const venueName = event?.venue?.name || "Venue TBA";
+  const venueAddress = event?.venue?.address || "";
+  const organizerName = event?.organizer?.name?.trim?.() ? event.organizer.name : "";
+  const descriptionText = event?.description || "More details coming soon.";
+  const formattedSource = event?.source ? formatSourceName(event.source) : "";
+  const descriptionClampStyle = useMemo(() => {
+    if (!descriptionClampLines || descriptionClampLines <= 0) return undefined;
+    return {
+      display: "-webkit-box",
+      WebkitBoxOrient: "vertical",
+      WebkitLineClamp: descriptionClampLines,
+      overflow: "hidden",
+    };
+  }, [descriptionClampLines]);
 
   return (
     <div
@@ -98,9 +119,8 @@ export default function EventCard({
       tabIndex={0}
       onClick={toggle}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && toggle()}
-      className={`relative flex flex-col rounded-lg shadow-md bg-white cursor-pointer select-none transition-shadow duration-200 hover:shadow-lg ${
-        compact ? "p-2" : "p-3"
-      }`}
+      className={`relative flex flex-col rounded-lg shadow-md bg-white cursor-pointer select-none transition-shadow duration-200 hover:shadow-lg ${compact ? "p-2" : "p-3"
+        }`}
     >
       {/* SUMMARY: always clamped; height forced only when collapsed */}
       <div
@@ -111,16 +131,19 @@ export default function EventCard({
             ? { height: forcedBodyHeight }
             : undefined
         }
-        className={`flex flex-col ${compact ? "gap-1.5" : "gap-2"} ${
-          !expanded && forcedBodyHeight && !compact ? "overflow-hidden" : ""
-        }`}
+        className={`flex flex-col ${compact ? "gap-1.5" : "gap-2"} ${!expanded && forcedBodyHeight && !compact ? "overflow-hidden" : ""
+          }`}
       >
         <img
           ref={imgRef}
-          className={`w-full object-cover rounded-lg ${
-            compact ? "aspect-[5/3]" : "aspect-[4/2]"
-          }`}
+          className={`w-full object-cover rounded-lg ${compact ? "aspect-[5/3]" : "aspect-[4/2]"
+            }`}
           src={event.image}
+          referrerPolicy="no-referrer"
+          onError={(e) => {
+            e.currentTarget.src = `https://picsum.photos/seed/${event.id || "event-card"}/600/400`;
+          }}
+          loading="lazy"
           alt={event.title || "Event"}
         />
 
@@ -133,41 +156,25 @@ export default function EventCard({
           {/* Location: clamp to 2 lines in summary */}
           <div className="flex gap-1 items-center min-w-0">
             <p>📍</p>
-            <p className={`${compact ? "line-clamp-1" : "line-clamp-2"} min-w-0`}>{event?.venue?.name}</p>
+            <p className={`${compact ? "line-clamp-1" : "line-clamp-2"} min-w-0`}>{venueName}</p>
           </div>
           <div className="flex gap-1 items-center">
             <p>🗓️</p>
             <div className="w-fit">
               <p>{dateStr}</p>
-              <p className="w-max">{timeStr}</p>
+              {timeStr && <p className="w-max">{timeStr}</p>}
             </div>
           </div>
         </div>
 
         {/* Price row pinned to bottom of summary */}
-        <div className="mt-auto flex items-center justify-between">
-          <p className={compact ? "text-xs font-semibold" : "text-base"}>
-            {isFree ? "Free" : `$${event.price}`}
-            {!isFree && <span className={`${compact ? "text-[11px]" : "text-sm"} text-gray-500`}>/ticket</span>}
-          </p>
-          {!compact && (
-            <div className="ml-2">
-              {registered.slice(0, 5).map((user) => (
-                <img
-                  key={user.id}
-                  src={user.avatar}
-                  alt={user.name}
-                  className="inline-block w-6 h-6 -ml-[10px] border-2 border-white rounded-full"
-                />
-              ))}
-              {registered.length > 5 && (
-                <span className="align-middle text-sm inline-flex items-center justify-center w-6 h-6 -ml-[10px] border-2 border-white bg-green-500 text-white rounded-full">
-                  {registered.length - 5}
-                </span>
-              )}
-            </div>
-          )}
-        </div>
+        {showPrice && (
+          <div className="mt-auto flex items-center justify-between">
+            <p className={compact ? "text-xs font-semibold" : "text-base"}>
+              Free
+            </p>
+          </div>
+        )}
       </div>
 
       {/* DETAILS: show full title/location here so summary can stay clamped */}
@@ -184,9 +191,9 @@ export default function EventCard({
           {/* Full title & location (unclamped) */}
 
           {/* Tags */}
-          {Array.isArray(event.tags) && event.tags.length > 0 && (
+          {visibleTags.length > 0 && (
             <div className="flex flex-wrap gap-1">
-              {event.tags.map((tag) => (
+              {visibleTags.map((tag) => (
                 <span
                   key={tag}
                   className="text-xs bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200"
@@ -199,24 +206,29 @@ export default function EventCard({
 
           {/* Meta & description */}
           <div className="text-sm text-gray-600 space-y-1">
-            <p className="text-gray-500">{event.company}</p>
-            <p className="text-gray-500">{event?.venue?.address}</p>
-            <p className="text-gray-500">
-              Hosted by {event?.organizer?.name ?? "Organizer"}
-            </p>
+            {event.company && <p className="text-gray-500">{event.company}</p>}
+            {venueAddress && <p className="text-gray-500">{venueAddress}</p>}
+            {organizerName && (
+              <p className="text-gray-500">Hosted by {organizerName}</p>
+            )}
+            {formattedSource && (
+              <p className="text-text-muted">Source: <span className="text-text">{formattedSource}</span></p>
+            )}
           </div>
 
-          <p className="my-2">{event.description}</p>
+          <p className="my-2" style={descriptionClampStyle}>{descriptionText}</p>
 
-          <button
-            className="bg-blue-500 text-white py-1 px-2 mb-2 rounded self-end"
-            onClick={(e) => {
-              e.stopPropagation();
-              // handle register action
-            }}
-          >
-            Register
-          </button>
+          {event.url && (
+            <a
+              href={event.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-primary text-onprimary py-1.5 px-3 mb-2 rounded-full self-end text-sm font-semibold shadow-[0_10px_20px_-14px_rgba(220,73,102,0.8)] hover:shadow-[0_14px_24px_-12px_rgba(220,73,102,0.95)]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Register
+            </a>
+          )}
         </div>
       </div>
     </div>

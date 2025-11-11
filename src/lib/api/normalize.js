@@ -7,6 +7,22 @@ export const normalizeDate = (d) => {
   return /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}(:\d{2})?$/.test(s) ? s.replace(" ", "T") : s;
 };
 
+const FREE_STRINGS = new Set(["free", "$0", "0", "0.00", "zero"]);
+
+function normalizePriceValue(value) {
+  if (value == null) return null;
+  if (typeof value === "number") {
+    return Number.isFinite(value) && value === 0 ? 0 : null;
+  }
+
+  const text = String(value).trim();
+  if (!text) return null;
+  const lower = text.toLowerCase();
+  if (FREE_STRINGS.has(lower)) return 0;
+  if (lower.includes("free")) return 0;
+  return null;
+}
+
 export function coerceEvent(e) {
   const rawDate = e.date ?? e.startDate ?? e.start_time ?? null;
 
@@ -49,18 +65,26 @@ export function coerceEvent(e) {
       })
       : [];
 
+  const capacityRaw =
+    typeof e.capacity === "number" ? e.capacity : Number(e.capacity ?? 0) || 0;
+  const capacity = Number.isFinite(capacityRaw) && capacityRaw > 0 ? capacityRaw : null;
+
   return {
     id: e.id,
     company: e.company ?? "",
     title: e.title ?? e.name ?? "",
     date: normalizeDate(rawDate),
     description: e.description ?? "",
-    price: typeof e.price === "number" ? e.price : Number(e.price ?? e.cost ?? 0) || 0,
-    capacity: typeof e.capacity === "number" ? e.capacity : Number(e.capacity ?? 0) || 0,
-    image: e.image ?? e.coverImageUrl ?? `https://picsum.photos/seed/${e.id || Math.random()}/600/400`,
+    price: normalizePriceValue(e.price ?? e.cost ?? e.ticket_price),
+    capacity,
+    image:
+      e.image ??
+      e.coverImageUrl ??
+      `https://picsum.photos/seed/${e.id || Math.random()}/600/400`,
     venue,
     organizer,
     tags,
+    url: e.url ?? e.link ?? null,
     registered: regs,
   };
 }

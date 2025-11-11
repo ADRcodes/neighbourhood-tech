@@ -1,7 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { setBrandBase, setBrandByClockContinuous } from "../theme/Contrast.js";
 import useHexFromElementRef from "../lib/hooks/useHexFromElementRef.js";
+
+const BRAND_STORAGE_KEY = "nt:brand-base";
 
 
 /* ---------- atoms ---------- */
@@ -24,12 +26,87 @@ function Swatch({ label, className, textClass = "" }) {
 }
 
 /* ---------- main modal ---------- */
-export default function ColorPaletteModalPro() {
+function ColorPaletteModalPro() {
   const [open, setOpen] = useState(false);
+  const [customBrandActive, setCustomBrandActive] = useState(false);
   const primaryProbeRef = useRef(null);
   const hexPrimary = useHexFromElementRef(primaryProbeRef);
+  const pendingBrandRaf = useRef(null);
+
+  const applyBrandBase = useCallback((value, { persist = false } = {}) => {
+    if (!value || typeof window === "undefined") return;
+
+    if (pendingBrandRaf.current !== null) {
+      cancelAnimationFrame(pendingBrandRaf.current);
+    }
+
+    pendingBrandRaf.current = requestAnimationFrame(() => {
+      pendingBrandRaf.current = null;
+      setBrandBase(value);
+      if (persist) {
+        try {
+          window.localStorage.setItem(BRAND_STORAGE_KEY, value);
+        } catch {
+          // ignore storage failures (private mode, quota exceeded, etc.)
+        }
+      }
+      setCustomBrandActive(true);
+    });
+  }, []);
+
+  const handleColorChange = useCallback(
+    (value) => {
+      if (!value) return;
+      applyBrandBase(value, { persist: true });
+    },
+    [applyBrandBase]
+  );
+
+  useEffect(
+    () => () => {
+      if (pendingBrandRaf.current !== null) {
+        cancelAnimationFrame(pendingBrandRaf.current);
+      }
+    },
+    []
+  );
 
   useEffect(() => {
+    if (typeof window === "undefined") {
+      setBrandByClockContinuous({ l: 0.62, c: 0.14, hueStart: 0 });
+      return;
+    }
+
+    let storedValue = null;
+    try {
+      storedValue = window.localStorage.getItem(BRAND_STORAGE_KEY);
+    } catch {
+      storedValue = null;
+    }
+
+    if (storedValue) {
+      setCustomBrandActive(true);
+      applyBrandBase(storedValue);
+      return;
+    }
+
+    setBrandByClockContinuous({ l: 0.62, c: 0.14, hueStart: 0 });
+    setCustomBrandActive(false);
+  }, [applyBrandBase]);
+
+  const handleReset = useCallback(() => {
+    if (pendingBrandRaf.current !== null) {
+      cancelAnimationFrame(pendingBrandRaf.current);
+      pendingBrandRaf.current = null;
+    }
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.removeItem(BRAND_STORAGE_KEY);
+      } catch {
+        // ignore storage access errors
+      }
+    }
+    setCustomBrandActive(false);
     setBrandByClockContinuous({ l: 0.62, c: 0.14, hueStart: 0 });
   }, []);
 
@@ -41,21 +118,32 @@ export default function ColorPaletteModalPro() {
         className="fixed -left-[9999px] -top-[9999px] w-px h-px bg-primary pointer-events-none"
         aria-hidden
       />
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="px-2 py-1 cursor-pointer text-[var(--color-onprimary)] rounded-full box-border border-2 border-transparent hover:border-accent active:bg-primary-pressed text-2xl"
-        aria-label="Open color palette"
-        title="Open color palette"
-      >
-        🎨
-      </button>
-      <input
-        type="color"
-        className="w-8 h-8 p-0 rounded border border-black/10 cursor-pointer"
-        onChange={(e) => setBrandBase(e.target.value)}
-        aria-label="Pick brand color"
-      />
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="px-2 py-1 cursor-pointer text-[var(--color-onprimary)] rounded-full box-border border-2 border-transparent hover:bg-accent/50 active:bg-primary-pressed text-2xl"
+          aria-label="Open color palette"
+          title="Open color palette"
+        >
+          🎨
+        </button>
+        <input
+          type="color"
+          className="w-8 h-8 p-0 rounded border border-black/10 cursor-pointer"
+          onChange={(e) => handleColorChange(e.target.value)}
+          aria-label="Pick brand color"
+        />
+        {customBrandActive && (
+          <button
+            type="button"
+            onClick={handleReset}
+            className="inline-flex items-center justify-center rounded-full border border-brand-200/70 bg-surface px-2 py-1 text-xs font-semibold text-text-muted hover:text-text hover:border-brand-200 transition-colors"
+          >
+            Reset
+          </button>
+        )}
+      </div>
 
       {/* PORTAL so overlay covers the entire app (not just the nav) */}
       {open &&
@@ -72,7 +160,10 @@ export default function ColorPaletteModalPro() {
             <div className="absolute inset-0 bg-black/40 backdrop-blur" />
 
             {/* Modal panel (flex column) */}
-            <div className="relative h-dvh w-dvw grid place-items-center p-4 sm:p-6">
+            <div
+              className="relative h-dvh w-dvw grid place-items-center p-4 sm:p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="w-full max-w-[900px] rounded-2xl border border-black/10 bg-bg shadow-xl flex flex-col max-h-[90dvh]">
                 {/* Sticky header */}
                 <div className="sticky top-0 z-10 px-4 sm:px-6 pt-4 pb-3 bg-bg/95 backdrop-blur supports-[backdrop-filter]:bg-bg/80 border-b border-black/5 rounded-t-2xl">
@@ -88,12 +179,23 @@ export default function ColorPaletteModalPro() {
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="hidden sm:inline text-sm text-text-muted">Pick brand base</span>
-                      <input
-                        type="color"
-                        className="w-8 h-8 p-0 rounded border border-black/10 cursor-pointer"
-                        onChange={(e) => setBrandBase(e.target.value)}
-                        aria-label="Pick brand color"
-                      />
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          className="w-8 h-8 p-0 rounded border border-black/10 cursor-pointer"
+                          onChange={(e) => handleColorChange(e.target.value)}
+                          aria-label="Pick brand color"
+                        />
+                        {customBrandActive && (
+                          <button
+                            type="button"
+                            onClick={handleReset}
+                            className="inline-flex items-center justify-center rounded-full border border-brand-200/70 bg-surface px-2 py-1 text-xs font-semibold text-text-muted hover:text-text hover:border-brand-200 transition-colors"
+                          >
+                            Reset
+                          </button>
+                        )}
+                      </div>
                       <button
                         type="button"
                         onClick={() => setOpen(false)}
@@ -223,3 +325,5 @@ export default function ColorPaletteModalPro() {
     </div>
   );
 }
+
+export default memo(ColorPaletteModalPro);

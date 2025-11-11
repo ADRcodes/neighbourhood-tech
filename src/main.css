@@ -103,19 +103,28 @@ body {
     color-mix(in oklch, var(--color-brand-complement) 55%, var(--color-onprimary) 45%) 70%,
     color-mix(in oklch, var(--color-primary) 65%, var(--color-surface) 35%) 100%
   );
-  background-size: 400% 400%;
-  animation: featured-aurora-shift 18s ease-in-out infinite;
+  background-size: 320% 320%;
+  animation: none;
+}
+
+.featured-aurora.aurora--active {
+  animation: featured-aurora-shift 28s ease-in-out infinite;
+}
+
+.featured-aurora.aurora--paused {
+  animation-play-state: paused;
 }
 
 .featured-aurora::before,
 .featured-aurora::after {
   content: "";
   position: absolute;
-  inset: -30% -10%;
+  inset: -24% -12%;
   z-index: 0;
-  filter: blur(60px);
-  opacity: 0.55;
+  filter: blur(38px);
+  opacity: 0.45;
   pointer-events: none;
+  animation: none;
 }
 
 .featured-aurora::before {
@@ -124,7 +133,6 @@ body {
     color-mix(in oklch, var(--color-accent) 65%, transparent) 0%,
     transparent 72%
   );
-  animation: featured-aurora-glow 16s ease-in-out infinite;
 }
 
 .featured-aurora::after {
@@ -133,7 +141,19 @@ body {
     color-mix(in oklch, var(--color-brand-complement) 50%, transparent) 0%,
     transparent 78%
   );
-  animation: featured-aurora-glow-alt 22s ease-in-out infinite;
+}
+
+.featured-aurora.aurora--active::before {
+  animation: featured-aurora-glow 32s ease-in-out infinite;
+}
+
+.featured-aurora.aurora--active::after {
+  animation: featured-aurora-glow-alt 40s ease-in-out infinite;
+}
+
+.featured-aurora.aurora--paused::before,
+.featured-aurora.aurora--paused::after {
+  animation-play-state: paused;
 }
 
 .featured-aurora > * {

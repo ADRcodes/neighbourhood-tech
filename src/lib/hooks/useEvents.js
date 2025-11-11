@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { DEFAULT_USE_API } from "../config";
-import { fetchEvents } from "../api/events";
-import { filterEvents, recommendedOf } from "../utils/events";
+import { fetchEvents, fetchLocalEvents } from "../api/events";
+import { filterEvents, recommendedOf, buildTagOptions, buildSourceOptions } from "../utils/events";
 import { MOCK_EVENTS } from "../../data/mockEvents";
 
 /**
@@ -12,16 +12,17 @@ import { MOCK_EVENTS } from "../../data/mockEvents";
  * @param {string[]} opts.initialChips   initial selected chip keys
  */
 export function useEvents({ useApi = DEFAULT_USE_API, fallbackToMocks = true, initialChips = [] } = {}) {
-  const [events, setEvents] = useState(useApi ? [] : MOCK_EVENTS);
+  const [events, setEvents] = useState([]);
   const [chips, setChips] = useState(initialChips);
-  const [loading, setLoading] = useState(useApi);
+  const [sourceFilters, setSourceFilters] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [warning, setWarning] = useState(null);
 
   const abortRef = useRef(null);
 
   const load = useCallback(async () => {
-    if (!useApi) return; // using mocks
     abortRef.current?.abort();
     const ctrl = new AbortController();
     abortRef.current = ctrl;
@@ -31,13 +32,28 @@ export function useEvents({ useApi = DEFAULT_USE_API, fallbackToMocks = true, in
     setWarning(null);
 
     try {
-      const list = await fetchEvents({ signal: ctrl.signal });
+      const list = useApi
+        ? await fetchEvents({ signal: ctrl.signal })
+        : await fetchLocalEvents({ signal: ctrl.signal });
+
+      if (!list.length && fallbackToMocks) {
+        setWarning("No events found — showing mock data.");
+        setEvents(MOCK_EVENTS);
+        return;
+      }
+
       setEvents(list);
     } catch (e) {
       setError(String(e));
       if (fallbackToMocks) {
-        setWarning("API unavailable — showing mock data.");
+        setWarning(
+          useApi
+            ? "API unavailable — showing mock data."
+            : "Local events unavailable — showing mock data."
+        );
         setEvents(MOCK_EVENTS);
+      } else {
+        setEvents([]);
       }
     } finally {
       setLoading(false);
@@ -45,7 +61,7 @@ export function useEvents({ useApi = DEFAULT_USE_API, fallbackToMocks = true, in
   }, [useApi, fallbackToMocks]);
 
   useEffect(() => {
-    if (useApi) load();
+    load();
     // cleanup
     return () => abortRef.current?.abort();
   }, [useApi, load]);
@@ -54,8 +70,17 @@ export function useEvents({ useApi = DEFAULT_USE_API, fallbackToMocks = true, in
     setChips((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
   }, []);
 
-  const filtered = useMemo(() => filterEvents(events, chips), [events, chips]);
+  const toggleSource = useCallback((key) => {
+    setSourceFilters((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
+  }, []);
+
+  const filtered = useMemo(
+    () => filterEvents(events, { tags: chips, sources: sourceFilters, search: searchTerm }),
+    [events, chips, sourceFilters, searchTerm]
+  );
   const recommended = useMemo(() => recommendedOf(events, 12), [events]);
+  const tagOptions = useMemo(() => buildTagOptions(events), [events]);
+  const sourceOptions = useMemo(() => buildSourceOptions(events), [events]);
 
   return {
     data: events,
@@ -64,6 +89,12 @@ export function useEvents({ useApi = DEFAULT_USE_API, fallbackToMocks = true, in
     chips,
     setChips,
     toggleChip,
+    sourceFilters,
+    toggleSource,
+    searchTerm,
+    setSearchTerm,
+    tagOptions,
+    sourceOptions,
     loading,
     error,
     warning,

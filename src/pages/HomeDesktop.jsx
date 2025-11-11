@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import FeaturedGrid from "../components/FeaturedGrid";
 import EventList from "../components/EventList";
 import TagList from "../components/TagList";
@@ -7,12 +8,95 @@ export default function HomeDesktop({
   featured = [],
   events = [],
   activeTags = [],
+  availableTags = [],
   onToggleTag = () => { },
+  activeSources = [],
+  availableSources = [],
+  onToggleSource = () => { },
+  searchTerm = "",
+  onSearchChange = () => { },
   loading,
-  error,
-  warning,
 }) {
   const topFeatured = featured.slice(0, 8);
+  const auroraSectionRef = useRef(null);
+  const [allowAuroraMotion, setAllowAuroraMotion] = useState(true);
+  const [auroraActive, setAuroraActive] = useState(false);
+  const [auroraPaused, setAuroraPaused] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setAllowAuroraMotion(!media.matches);
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    if (!allowAuroraMotion || typeof window === "undefined") return;
+    const node = auroraSectionRef.current;
+    if (!node) return;
+
+    if (typeof window.IntersectionObserver === "undefined") {
+      setAuroraActive(true);
+      return;
+    }
+
+    // kick off animation immediately; observer will pause when off-screen
+    setAuroraActive(true);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setAuroraActive(entry.isIntersecting);
+      },
+      { threshold: 0.24 }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [allowAuroraMotion, topFeatured.length]);
+
+  useEffect(() => {
+    if (!allowAuroraMotion) {
+      setAuroraActive(false);
+      setAuroraPaused(false);
+    }
+  }, [allowAuroraMotion]);
+
+  const handleAuroraPause = () => {
+    if (!allowAuroraMotion || auroraPaused) return;
+    setAuroraPaused(true);
+  };
+
+  const handleAuroraResume = () => {
+    if (!allowAuroraMotion || !auroraPaused) return;
+    setAuroraPaused(false);
+  };
+
+  const handleAuroraBlur = (event) => {
+    if (!allowAuroraMotion) return;
+    if (
+      event.relatedTarget &&
+      auroraSectionRef.current?.contains(event.relatedTarget)
+    ) {
+      return;
+    }
+    handleAuroraResume();
+  };
+
+  const auroraSectionClasses = [
+    "featured-aurora",
+    "xl:[grid-area:featured]",
+    "relative rounded-3xl border border-brand-200 shadow-lg",
+    "px-5 pt-5 pb-0 lg:px-6 lg:pt-6 lg:pb-0",
+  ];
+
+  if (allowAuroraMotion && auroraActive) {
+    auroraSectionClasses.push("aurora--active");
+  }
+  if (auroraPaused) {
+    auroraSectionClasses.push("aurora--paused");
+  }
 
   return (
     <div className="mx-auto w-full text-text">
@@ -52,12 +136,12 @@ export default function HomeDesktop({
       >
         {topFeatured.length > 0 && (
           <section
-            className="
-              featured-aurora
-              xl:[grid-area:featured]
-              relative rounded-3xl border border-brand-200 shadow-lg
-              px-5 pt-5 pb-0 lg:px-6 lg:pt-6 lg:pb-0
-            "
+            ref={auroraSectionRef}
+            onPointerEnter={handleAuroraPause}
+            onPointerLeave={handleAuroraResume}
+            onFocusCapture={handleAuroraPause}
+            onBlurCapture={handleAuroraBlur}
+            className={auroraSectionClasses.join(" ")}
           >
             <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between mb-4">
               <div>
@@ -87,7 +171,6 @@ export default function HomeDesktop({
           "
         >
           <div className="rounded-2xl border shadow-sm bg-surface border-brand-200 p-3">
-            <h3 className="text-sm font-semibold mb-2">Filters</h3>
 
             {/* (presentational for now) */}
             <div className="mb-3">
@@ -97,21 +180,29 @@ export default function HomeDesktop({
                   type="search"
                   placeholder="Search…"
                   className="w-full pl-8 pr-3 py-2 rounded-lg text-sm bg-white border border-brand-100 focus:ring-2 focus:ring-focus outline-none"
+                  value={searchTerm}
+                  onChange={(e) => onSearchChange?.(e.target.value)}
                 />
               </div>
             </div>
 
-            <TagList
-              title="Tags"
-              items={[
-                { key: "social", label: "Social", icon: "☕️" },
-                { key: "networking", label: "Networking", icon: "👥" },
-                { key: "design", label: "Design", icon: "🧰" },
-                { key: "funding", label: "Funding", icon: "💼" },
-              ]}
-              activeKeys={activeTags}
-              onToggle={onToggleTag}
-            />
+            <div className="space-y-4">
+              <TagList
+                title="Sources"
+                items={availableSources}
+                activeKeys={activeSources}
+                onToggle={onToggleSource}
+                emptyLabel="Sources will appear once events load."
+              />
+
+              <TagList
+                title="Tags"
+                items={availableTags}
+                activeKeys={activeTags}
+                onToggle={onToggleTag}
+                emptyLabel="Tags will appear once events load."
+              />
+            </div>
           </div>
         </aside>
 
@@ -122,13 +213,6 @@ export default function HomeDesktop({
             xl:[grid-area:main]
           "
         >
-          {(warning || (error && !loading)) && (
-            <div className="p-4 mb-6 mt-2 rounded-2xl bg-primary/10 border border-brand-100 text-sm">
-              {warning && <div className="py-1 text-warning">{warning}</div>}
-              {error && !loading && <div className="py-1 text-danger">{String(error)}</div>}
-            </div>
-          )}
-
           {loading ? (
             <div className="py-6 text-sm">Loading…</div>
           ) : events.length ? (
