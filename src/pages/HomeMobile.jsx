@@ -15,6 +15,8 @@ export default function HomeMobile({
   loading = false,
   error,
   warning,
+  eventPreferences = {},
+  onSelectPreference = () => {},
 }) {
   return (
     <div className="tiled-background relative flex flex-col min-w-0">
@@ -55,6 +57,8 @@ export default function HomeMobile({
           <EventList
             events={events}
             accordion
+            eventPreferences={eventPreferences}
+            onSelectPreference={onSelectPreference}
             onRegister={(ev) => console.log("register", ev.id)}
           />
         ) : (

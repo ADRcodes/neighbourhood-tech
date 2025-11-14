@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
 import ColorPaletteModalPro from "./ColorPalettePopover";
-
+import { useSupabaseSession, signOut } from "../lib/auth/supabase.jsx";
+import { supabase } from "../lib/supabase/client";
 
 const cx = (...xs) => xs.filter(Boolean).join(" ");
 
 const LINKS = [
   { to: "/", label: "Home" },
-  { to: "/explore", label: "Explore" },
+  { to: "/me", label: "Profile" },
   { to: "/saved", label: "Saved" },
   { to: "/about", label: "About" },
 ];
@@ -95,6 +96,21 @@ export default function DesktopNav() {
   const compactTriggerRef = useRef(null);
   const compactMenuRef = useRef(null);
   const compactMenuId = "desktop-nav-compact-menu";
+  const { user, ready } = useSupabaseSession();
+  const [signingOut, setSigningOut] = useState(false);
+  const hasSupabase = Boolean(supabase);
+
+  const handleSignOut = async () => {
+    if (!hasSupabase || signingOut) return;
+    setSigningOut(true);
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Failed to sign out", error);
+    } finally {
+      setSigningOut(false);
+    }
+  };
 
   useEffect(() => {
     const handleClick = (event) => {
@@ -123,7 +139,7 @@ export default function DesktopNav() {
   }, []);
 
   useEffect(() => {
-    const tabThreshold = window.matchMedia("(min-width: 1100px)");
+    const tabThreshold = window.matchMedia("(min-width: 1150px)");
 
     const syncTabs = (event) => setShowTabs(event.matches);
 
@@ -242,18 +258,46 @@ export default function DesktopNav() {
               className="inline-flex items-center gap-2 rounded-full bg-primary text-onprimary text-sm font-semibold px-4 py-2 shadow-[0_16px_30px_-18px_rgba(220,73,102,0.9)] hover:shadow-[0_18px_36px_-16px_rgba(220,73,102,1)] hover:translate-y-[-1px] active:translate-y-0 transition-transform will-change-transform"
             >
               <span className="text-lg">＋</span>
-              <span>Create Event</span>
+              <span className="text-nowrap">Create Event</span>
             </NavLink>
 
-            <NavLink
-              to="/me"
-              className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text transition-colors"
-            >
-              <div className="h-9 w-9 rounded-full border border-brand-200/70 bg-surface/80 grid place-items-center shadow-[0_10px_24px_-16px_rgba(16,24,40,0.45)]">
-                <span className="text-lg">👤</span>
-              </div>
-              <span>Profile</span>
-            </NavLink>
+            {!hasSupabase ? (
+              <NavLink
+                to="/auth"
+                className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text transition-colors"
+              >
+                <div className="h-9 w-9 rounded-full border border-brand-200/70 bg-surface/80 grid place-items-center shadow-[0_10px_24px_-16px_rgba(16,24,40,0.45)]">
+                  <span className="text-lg">👤</span>
+                </div>
+                <span>Sign in</span>
+              </NavLink>
+            ) : !ready ? (
+              <div className="text-xs font-semibold text-text-muted px-3">Checking session…</div>
+            ) : user ? (
+              <button
+                type="button"
+                onClick={handleSignOut}
+                disabled={signingOut}
+                className="inline-flex items-center gap-3 rounded-full border border-brand-200/70 bg-surface px-3 py-2 text-left shadow-[0_10px_24px_-20px_rgba(16,24,40,0.6)] hover:border-primary/60 hover:text-primary transition"
+              >
+                <div className="h-9 w-9 rounded-full bg-primary/15 text-primary grid place-items-center font-semibold">
+                  {(user.user_metadata?.full_name || user.email || "U").charAt(0).toUpperCase()}
+                </div>
+                <span className="text-xs text-primary font-semibold text-nowrap">
+                  {signingOut ? "Signing out…" : "Sign out"}
+                </span>
+              </button>
+            ) : (
+              <NavLink
+                to="/auth"
+                className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text transition-colors"
+              >
+                <div className="h-9 w-9 rounded-full border border-brand-200/70 bg-surface/80 grid place-items-center shadow-[0_10px_24px_-16px_rgba(16,24,40,0.45)]">
+                  <span className="text-lg">👤</span>
+                </div>
+                <span>Sign in</span>
+              </NavLink>
+            )}
           </div>
         </div>
       </div>

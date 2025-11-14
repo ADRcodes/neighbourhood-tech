@@ -1,5 +1,7 @@
-import React, { cloneElement } from "react";
+import React, { cloneElement, useState } from "react";
 import { NavLink } from "react-router-dom";
+import { useSupabaseSession, signOut } from "../lib/auth/supabase.jsx";
+import { supabase } from "../lib/supabase/client";
 const cx = (...xs) => xs.filter(Boolean).join(" ");
 
 const Icons = {
@@ -43,14 +45,56 @@ function NavItem({ to, label, icon }) {
   );
 }
 
+function NavButton({ label, icon, onClick, disabled, active }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={cx(
+        "flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors w-full",
+        disabled ? "text-text-muted/70" : active ? "text-primary" : "text-text-muted hover:text-text"
+      )}
+    >
+      <span
+        className={cx(
+          "grid h-9 w-9 place-items-center rounded-full border transition-all",
+          active ? "bg-primary/10 border-primary/30" : "bg-transparent border-transparent"
+        )}
+      >
+        {cloneElement(icon, {
+          className: cx("h-5 w-5", active ? "text-primary" : "text-text-muted"),
+        })}
+      </span>
+      <span className="leading-none">{label}</span>
+    </button>
+  );
+}
+
 export default function BottomNav() {
+  const hasSupabase = Boolean(supabase);
+  const { user, ready } = useSupabaseSession();
+  const [signingOut, setSigningOut] = useState(false);
+
+  const handleSignOut = async () => {
+    if (!hasSupabase || signingOut) return;
+    setSigningOut(true);
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Failed to sign out", error);
+    } finally {
+      setSigningOut(false);
+    }
+  };
+
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50">
       <div className="relative mx-auto w-full max-w-screen-sm px-4 pb-[max(env(safe-area-inset-bottom),12px)]">
         <div className="relative h-16 rounded-2xl bg-surface/92 backdrop-blur-xl shadow-[0_22px_45px_-26px_rgba(16,24,40,0.65)] border border-brand-200/80 text-text">
           <div className="grid grid-cols-5 h-full">
             <NavItem to="/" label="Home" icon={<Icons.Home />} />
-            <NavItem to="/explore" label="Explore" icon={<Icons.Search />} />
+            <NavItem to="/me" label="Profile" icon={<Icons.User />} />
             <div className="relative">
               <NavLink
                 to="/register"
@@ -62,7 +106,21 @@ export default function BottomNav() {
             </div>
             {/* <NavItem to="/saved" label="Saved" icon={<Icons.Saved />} /> */}
             <NavItem to="/about" label="About" icon={<Icons.Info />} />
-            <NavItem to="/me" label="Profile" icon={<Icons.User />} />
+            {!hasSupabase ? (
+              <NavItem to="/auth" label="Sign in" icon={<Icons.User />} />
+            ) : !ready ? (
+              <NavButton label="Loading" icon={<Icons.User />} disabled onClick={() => { }} />
+            ) : user ? (
+              <NavButton
+                label={signingOut ? "Signing out…" : "Sign out"}
+                icon={<Icons.User />}
+                active
+                disabled={signingOut}
+                onClick={handleSignOut}
+              />
+            ) : (
+              <NavItem to="/auth" label="Sign in" icon={<Icons.User />} />
+            )}
           </div>
         </div>
       </div>

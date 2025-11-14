@@ -1,6 +1,6 @@
 // EventCard.jsx
 import { useEffect, useRef, useState, useMemo } from "react";
-import { formatSourceName, isExplicitlyFreePrice } from "../lib/utils/events";
+import { formatSourceName, formatPriceDisplay } from "../lib/utils/events";
 
 export default function EventCard({
   event,
@@ -92,7 +92,7 @@ export default function EventCard({
     return dt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
   }, [dt]);
   const priceValue = event?.price;
-  const showPrice = isExplicitlyFreePrice(priceValue);
+  const priceLabel = formatPriceDisplay(priceValue);
   const visibleTags = useMemo(
     () => (Array.isArray(event?.tags) ? event.tags.slice(0, 8) : []),
     [event?.tags]
@@ -168,10 +168,10 @@ export default function EventCard({
         </div>
 
         {/* Price row pinned to bottom of summary */}
-        {showPrice && (
+        {priceLabel && (
           <div className="mt-auto flex items-center justify-between">
             <p className={compact ? "text-xs font-semibold" : "text-base"}>
-              Free
+              {priceLabel}
             </p>
           </div>
         )}

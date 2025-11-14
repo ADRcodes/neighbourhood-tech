@@ -1,10 +1,17 @@
 import { API_BASE } from "../config";
 import { httpGetJson } from "./client";
 import { coerceEvent } from "./normalize";
+import { listEvents as listSupabaseEvents } from "./supabase";
+import { supabase } from "../supabase/client";
 
 const LOCAL_EVENTS_URL = "/data/events.json";
 
 export async function fetchEvents({ signal } = {}) {
+  if (supabase) {
+    const rows = await listSupabaseEvents({ signal });
+    return rows.map(mapSupabaseEvent).map(coerceEvent);
+  }
+
   const data = await httpGetJson(`${API_BASE}/api/events`, { signal });
   const rows = Array.isArray(data) ? data : data?.content ?? [];
   return rows.map(coerceEvent);
@@ -80,15 +87,11 @@ function transformLocalRow(row, index) {
 
 function derivePrice(raw) {
   if (raw == null) return null;
-  if (typeof raw === "number") {
-    return raw === 0 ? 0 : null;
+  if (typeof raw === "number" && Number.isFinite(raw)) {
+    return raw;
   }
   const text = String(raw).trim();
-  if (!text) return null;
-  const lower = text.toLowerCase();
-  if (lower.includes("free")) return 0;
-  if (lower === "0" || lower === "0.00" || lower === "$0") return 0;
-  return null;
+  return text || null;
 }
 
 function normalizeTags(value) {
@@ -154,4 +157,21 @@ function inferDateFromSlug(value) {
   const hourStr = String(hours).padStart(2, "0");
   const minuteStr = String(minutes).padStart(2, "0");
   return `${year}-${month}-${day}T${hourStr}:${minuteStr}:00`;
+}
+
+export function mapSupabaseEvent(row) {
+  const tags =
+    Array.isArray(row?.event_tags) && row.event_tags.length
+      ? row.event_tags
+          .map((et) => et?.tag?.name || et?.tag?.label || et?.tag?.tag || "")
+          .filter(Boolean)
+      : [];
+
+  return {
+    ...row,
+    image: row.image_url ?? row.image ?? null,
+    venue: row.venue ?? null,
+    organizer: row.organizer ?? null,
+    tags,
+  };
 }

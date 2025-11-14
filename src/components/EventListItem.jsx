@@ -1,5 +1,11 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { formatSourceName, isExplicitlyFreePrice } from "../lib/utils/events";
+import { useEffect, useRef, useState } from "react";
+import { formatSourceName, formatPriceDisplay } from "../lib/utils/events";
+
+const PriceTag = ({ price }) => {
+  const label = formatPriceDisplay(price);
+  if (!label) return null;
+  return <p className="text-sm md:text-base font-medium text-text">{label}</p>;
+};
 
 const AvatarStack = ({ users = [] }) => (
   <div className="ml-2 shrink-0">
@@ -19,42 +25,14 @@ const AvatarStack = ({ users = [] }) => (
   </div>
 );
 
-const PriceTag = ({ price }) => {
-  if (!isExplicitlyFreePrice(price)) return null;
-  return <p className="text-sm md:text-base font-medium text-text">Free</p>;
-};
-
-const MetaRow = ({ venue, date, expanded = false }) => {
-  const dt = useMemo(() => (date ? new Date(date) : null), [date]);
-  const isValidDate = dt && !Number.isNaN(dt.getTime());
-  const dateStr = useMemo(
-    () => (isValidDate ? dt.toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "Date TBA"),
-    [dt, isValidDate]
-  );
-  const timeStr = useMemo(
-    () => (isValidDate ? dt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }) : ""),
-    [dt, isValidDate]
-  );
+const LocationRow = ({ venue, expanded }) => {
   const venueName = venue?.name || "Venue TBA";
-
   return (
-    <div className="flex items-start justify-between gap-2 md:gap-4">
-      {/* location: 2 lines when collapsed, full when expanded */}
-      <p className="text-xs md:text-sm text-text-muted flex-1 min-w-0 leading-snug">
-        <span
-          className={`${expanded ? "" : "line-clamp-2"} break-words align-top`}
-          title={venueName}
-        >
-          📍 {venueName}
-        </span>
-      </p>
-
-      {/* date/time */}
-      <div className="flex flex-col items-end shrink-0 text-xs md:text-sm text-text">
-        <span className="font-semibold text-primary">{dateStr}</span>
-        {timeStr && <span>{timeStr}</span>}
-      </div>
-    </div>
+    <p className="text-xs md:text-sm text-text-muted flex-1 min-w-0 leading-snug">
+      <span className={`${expanded ? "" : "line-clamp-1"} break-words align-top`} title={venueName}>
+        📍 {venueName}
+      </span>
+    </p>
   );
 };
 
@@ -72,15 +50,34 @@ const TagPills = ({ tags }) =>
     </div>
   ) : null;
 
+const preferenceOptions = [
+  { value: "interested", label: "Interested" },
+  { value: "going", label: "Going" },
+];
+
 const EventListItem = ({
   event,
   registered = [],
   expanded = false,
   onToggle = () => { },
   onRegister = () => { },
+  preference = null,
+  onSelectPreference = () => { },
 }) => {
-  const hasCapacity = typeof event.capacity === "number" && event.capacity > 0;
-  const spotsLeft = hasCapacity ? Math.max(event.capacity - registered.length, 0) : null;
+  const [pendingStatus, setPendingStatus] = useState(null);
+  const isNotInterested = preference === "not_interested";
+  const handlePreference = async (status) => {
+    try {
+      setPendingStatus(status || "remove");
+      const result = onSelectPreference?.(status);
+      if (result && typeof result.then === "function") {
+        await result;
+      }
+    } finally {
+      setPendingStatus(null);
+    }
+  };
+
   const formattedSource = event?.source ? formatSourceName(event.source) : "";
 
   const contentRef = useRef(null);
@@ -100,6 +97,15 @@ const EventListItem = ({
     return () => ro.disconnect();
   }, [event.description, event.company, event?.venue?.address, event?.tags?.length]);
 
+  const dateObj = event?.date ? new Date(event.date) : null;
+  const hasDate = dateObj && !Number.isNaN(dateObj.getTime());
+  const dateStr = hasDate
+    ? dateObj.toLocaleDateString(undefined, { month: "short", day: "numeric" })
+    : "Date TBA";
+  const timeStr = hasDate
+    ? dateObj.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
+    : "";
+
   return (
     <div
       role="button"
@@ -107,17 +113,15 @@ const EventListItem = ({
       aria-expanded={expanded}
       onClick={onToggle}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onToggle()}
-      className="relative w-full bg-surface rounded-2xl border border-brand-200/70 shadow-[0_15px_40px_-28px_rgba(16,24,40,0.65)] hover:shadow-[0_20px_45px_-25px_rgba(16,24,40,0.58)] transition-shadow flex flex-col p-3 md:p-4 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30"
+      className={`relative w-full bg-surface rounded-2xl border border-brand-200/70 shadow-[0_15px_40px_-28px_rgba(16,24,40,0.65)] hover:shadow-[0_20px_45px_-25px_rgba(16,24,40,0.58)] transition-shadow flex flex-col p-3 md:p-4 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 ${
+        isNotInterested ? "opacity-60 grayscale" : ""
+      }`}
     >
-      <div
-        aria-hidden
-        className={`absolute right-3 top-2 text-text-muted transition-transform duration-300 select-none ${expanded ? "rotate-180" : "rotate-0"
-          }`}
-      >
-        ▾
-      </div>
-
-      {/* Header row */}
+      {isNotInterested && (
+        <span className="absolute left-3 top-3 z-10 rounded-full bg-text/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-onprimary">
+          Not interested
+        </span>
+      )}
       <div className="flex justify-between gap-3 md:gap-5 relative">
         <img
           src={imgSrc}
@@ -130,14 +134,42 @@ const EventListItem = ({
           className="w-24 sm:w-28 md:w-32 lg:w-36 xl:w-40 aspect-[4/3] object-cover rounded-xl shrink-0 shadow-[0_10px_24px_-20px_rgba(16,24,40,0.6)]"
         />
 
-        <div className="w-full flex-1">
-          <h3 className={`text-sm sm:text-base md:text-lg xl:text-xl font-semibold leading-snug text-text ${expanded ? "" : "line-clamp-1"
-            }`}>
-            {event.title || "Untitled Event"}
-          </h3>
-          <MetaRow venue={event.venue} date={event.date} expanded={expanded} />
-          <div className="mt-2 flex items-center justify-between gap-2 md:gap-3">
-            <PriceTag price={event.price} />
+        <div className="w-full flex-1 flex flex-col gap-1 min-w-0">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <h3 className={`text-base md:text-lg font-semibold leading-snug text-text ${expanded ? "" : "line-clamp-1"}`}>
+                {event.title || "Untitled Event"}
+              </h3>
+              <LocationRow venue={event.venue} expanded={expanded} />
+            </div>
+            <div className="flex flex-col items-end gap-2 w-12 shrink-0">
+              <button
+                type="button"
+                aria-label="Not interested"
+                className={`inline-flex h-7 w-7 items-center justify-center rounded-full border text-sm font-semibold transition ${preference === "not_interested"
+                  ? "border-danger/60 text-danger bg-danger/10"
+                  : "border-brand-200/70 text-text-muted hover:text-danger hover:border-danger/30"
+                  }`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePreference("not_interested");
+                }}
+                disabled={pendingStatus === "not_interested"}
+              >
+                ×
+              </button>
+            </div>
+          </div>
+          <div className="flex items-center justify-between gap-2 md:gap-4">
+            <div>
+              <PriceTag price={event.price} />
+            </div>
+            <div className="text-right text-xs md:text-sm text-text">
+              <span className="block font-semibold text-nowrap text-primary">{dateStr}</span>
+              {timeStr && <span className="block text-nowrap">{timeStr}</span>}
+            </div>
+          </div>
+          <div className="mt-2 flex justify-end">
             <AvatarStack users={registered} />
           </div>
         </div>
@@ -145,11 +177,9 @@ const EventListItem = ({
 
       {/* Expandable panel */}
       <div className="relative">
-        {/* keep gradient inside the panel to avoid overlapping header */}
         {expanded && (
           <div className="pointer-events-none absolute top-0 left-0 right-0 h-3 bg-gradient-to-b from-surface to-transparent rounded-b" />
         )}
-
         <div
           className="overflow-hidden transition-[max-height] duration-500 ease-out"
           style={{ maxHeight: expanded ? maxHeight : 0 }}
@@ -185,30 +215,55 @@ const EventListItem = ({
               {event.description || "More details coming soon."}
             </p>
 
-            <div className="flex items-center justify-end gap-3">
-              {spotsLeft !== null && (
-                <span className="text-xs md:text-sm text-text-muted">
-                  {spotsLeft} spot{spotsLeft === 1 ? "" : "s"} left
-                </span>
-              )}
-              {event.url && (
-                <a
-                  href={event.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 rounded-full bg-primary text-onprimary px-3 py-1.5 text-xs md:text-sm font-semibold shadow-[0_10px_20px_-14px_rgba(220,73,102,0.8)] transition hover:shadow-[0_14px_24px_-12px_rgba(220,73,102,0.95)]"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRegister(event);
-                  }}
-                >
-                  Visit Event
-                </a>
-              )}
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                {preferenceOptions.map((opt) => {
+                  const active = preference === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${active
+                        ? "bg-primary text-onprimary border-primary"
+                        : "bg-surface text-text border-brand-200/80 hover:bg-primary/10"
+                        }`}
+                      disabled={pendingStatus === opt.value}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePreference(opt.value);
+                      }}
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                })}
+                {event.url && (
+                  <a
+                    href={event.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 rounded-full bg-primary text-onprimary px-3 py-1.5 text-xs md:text-sm font-semibold shadow-[0_10px_20px_-14px_rgba(220,73,102,0.8)] transition hover:shadow-[0_14px_24px_-12px_rgba(220,73,102,0.95)]"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRegister(event);
+                    }}
+                  >
+                    Visit Event
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      <span
+        aria-hidden
+        className={`pointer-events-none absolute left-1/2 -translate-x-1/2  text-text-muted text-sm transition-transform duration-300 ${expanded ? "rotate-180 -bottom-[6px]" : "rotate-0 bottom-2"
+          }`}
+      >
+        ▾
+      </span>
     </div>
   );
 };

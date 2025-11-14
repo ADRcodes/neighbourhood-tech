@@ -9,13 +9,15 @@ export default function HomeDesktop({
   events = [],
   activeTags = [],
   availableTags = [],
-  onToggleTag = () => { },
+  onToggleTag = () => {},
   activeSources = [],
   availableSources = [],
-  onToggleSource = () => { },
+  onToggleSource = () => {},
   searchTerm = "",
-  onSearchChange = () => { },
+  onSearchChange = () => {},
   loading,
+  eventPreferences = {},
+  onSelectPreference = () => {},
 }) {
   const topFeatured = featured.slice(0, 8);
   const auroraSectionRef = useRef(null);
@@ -221,6 +223,8 @@ export default function HomeDesktop({
               accordion
               density="comfortable"
               columns={{ base: 1, lg: 2 }}
+              eventPreferences={eventPreferences}
+              onSelectPreference={onSelectPreference}
               onRegister={(ev) => console.log("register", ev.id)}
             />
           ) : (

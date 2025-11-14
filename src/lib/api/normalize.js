@@ -7,20 +7,13 @@ export const normalizeDate = (d) => {
   return /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}(:\d{2})?$/.test(s) ? s.replace(" ", "T") : s;
 };
 
-const FREE_STRINGS = new Set(["free", "$0", "0", "0.00", "zero"]);
-
 function normalizePriceValue(value) {
   if (value == null) return null;
-  if (typeof value === "number") {
-    return Number.isFinite(value) && value === 0 ? 0 : null;
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
   }
-
   const text = String(value).trim();
-  if (!text) return null;
-  const lower = text.toLowerCase();
-  if (FREE_STRINGS.has(lower)) return 0;
-  if (lower.includes("free")) return 0;
-  return null;
+  return text || null;
 }
 
 export function coerceEvent(e) {

@@ -83,6 +83,21 @@ export function isExplicitlyFreePrice(price) {
   return ZERO_PRICE_STRINGS.has(normalized);
 }
 
+const PRICE_FORMATTER =
+  typeof Intl !== "undefined"
+    ? new Intl.NumberFormat(undefined, { style: "currency", currency: "CAD", maximumFractionDigits: 2 })
+    : null;
+
+export function formatPriceDisplay(price) {
+  if (price == null) return "";
+  if (isExplicitlyFreePrice(price)) return "Free";
+  if (typeof price === "number" && Number.isFinite(price)) {
+    return PRICE_FORMATTER ? PRICE_FORMATTER.format(price) : `$${price}`;
+  }
+  const text = String(price).trim();
+  return text;
+}
+
 export function buildTagOptions(events) {
   const map = new Map();
   events.forEach((ev) => {

@@ -1,6 +1,7 @@
 // src/components/EventList.jsx
 import { useState } from "react";
 import EventListItem from "./EventListItem";
+import { normalizeEventId } from "../lib/utils/ids";
 
 /**
  * EventList (pure render + accordion; data already fetched/normalized upstream)
@@ -13,6 +14,8 @@ const EventList = ({
   events = [],
   accordion = true,
   onRegister = () => {},
+  eventPreferences = {},
+  onSelectPreference = () => {},
 }) => {
   const [openIds, setOpenIds] = useState(() => new Set());
 
@@ -34,6 +37,8 @@ const EventList = ({
     <div className="p-2 md:p-3 lg:p-4 space-y-3">
       {events.map((event) => {
         const id = event.id ?? event.eventId;
+        const normalizedId = normalizeEventId(id);
+        const preference = normalizedId ? eventPreferences?.[normalizedId] || null : null;
         return (
           <EventListItem
             key={id}
@@ -42,6 +47,8 @@ const EventList = ({
             expanded={openIds.has(id)}
             onToggle={() => toggle(id)}
             onRegister={onRegister}
+            preference={preference}
+            onSelectPreference={(status) => onSelectPreference(id, normalizedId, status)}
           />
         );
       })}
