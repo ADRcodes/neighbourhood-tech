@@ -35,6 +35,19 @@ All helpers respect RLS – authenticated calls inherit the current Supabase ses
 - Allows updating the status (`going`, `interested`, `not_interested`) or removing the save entirely.
 - Redirects users to `/auth` if they need to sign in first.
 
+#### Saved events schema contract
+
+The frontend assumes Supabase exposes `public.saved_events` with the following columns + relationships:
+
+- `id uuid primary key default gen_random_uuid()` (no foreign key relationship – Supabase generates it).
+- `user_id uuid references auth.users(id) on delete cascade`.
+- `event_id uuid references public.events(id) on delete cascade`.
+- `status text` constrained by the API/UI (`interested`, `going`, `not_interested`).
+
+All write helpers use Supabase’s `on conflict (user_id, event_id)` upsert, so each user maintains at most one row per event while letting the database enforce ownership.
+
+> **Note:** The home feed now pulls events directly from Supabase. If any of the related tables (`venues`, `organizers`, `event_tags`, `tags`) are empty or locked down by RLS, the UI still renders the base event rows, but the related data will be blank. Make sure those tables are populated and readable for your authenticated users to see enriched metadata.
+
 ### Commands
 
 ```bash

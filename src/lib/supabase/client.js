@@ -25,6 +25,10 @@ export const supabase =
     })
     : null;
 
+if (typeof window !== "undefined" && supabase) {
+  window.supabaseClient = supabase;
+}
+
 export function requireSupabase() {
   if (!supabase) {
     throw new Error("Supabase client is not configured");

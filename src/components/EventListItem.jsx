@@ -68,8 +68,9 @@ const EventListItem = ({
   const isNotInterested = preference === "not_interested";
   const handlePreference = async (status) => {
     try {
+      const nextStatus = preference === status ? null : status;
       setPendingStatus(status || "remove");
-      const result = onSelectPreference?.(status);
+      const result = onSelectPreference?.(nextStatus);
       if (result && typeof result.then === "function") {
         await result;
       }

@@ -8,70 +8,28 @@ const cx = (...xs) => xs.filter(Boolean).join(" ");
 
 const LINKS = [
   { to: "/", label: "Home" },
-  { to: "/me", label: "Profile" },
   { to: "/saved", label: "Saved" },
   { to: "/about", label: "About" },
+  { to: "/register", label: "Add Event", accent: true },
 ];
 
-function MenuToggleIcon({ open }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      className="h-5 w-5 will-change-transform transition-transform duration-200"
-      aria-hidden="true"
-    >
-      {open ? (
-        <>
-          <path
-            d="M6 6l12 12"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-          />
-          <path
-            d="M18 6L6 18"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-          />
-        </>
-      ) : (
-        <>
-          <path
-            d="M4 7h16"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-          />
-          <path
-            d="M4 12h16"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-          />
-          <path
-            d="M4 17h16"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-          />
-        </>
-      )}
-    </svg>
-  );
-}
+const ACCOUNT_LINKS = [
+  { to: "/me", label: "Profile" },
+  { to: "/saved", label: "Saved" },
+];
 
-function Tab({ to, children }) {
+function Tab({ to, children, accent, icon }) {
   return (
     <NavLink
       to={to}
       className={({ isActive }) =>
         cx(
           "px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-200 ease-out",
-          isActive
-            ? "bg-primary text-onprimary shadow-md shadow-primary/40"
-            : "text-text-muted hover:text-text"
+          accent
+            ? "bg-primary text-onprimary shadow-md shadow-primary/40 hover:opacity-95"
+            : isActive
+              ? "bg-primary text-onprimary shadow-md shadow-primary/40"
+              : "text-text-muted hover:text-text"
         )
       }
       end
@@ -80,9 +38,10 @@ function Tab({ to, children }) {
         <span
           className={cx(
             "relative flex items-center gap-1 will-change-transform",
-            isActive && "translate-y-[-1px]"
+            !accent && isActive && "translate-y-[-1px]"
           )}
         >
+          {icon ? <span className="text-base leading-none">{icon}</span> : null}
           {children}
         </span>
       )}
@@ -91,11 +50,11 @@ function Tab({ to, children }) {
 }
 
 export default function DesktopNav() {
-  const [compactMenuOpen, setCompactMenuOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [showTabs, setShowTabs] = useState(true);
-  const compactTriggerRef = useRef(null);
-  const compactMenuRef = useRef(null);
-  const compactMenuId = "desktop-nav-compact-menu";
+  const accountTriggerRef = useRef(null);
+  const accountMenuRef = useRef(null);
+  const accountMenuId = "desktop-nav-account-menu";
   const { user, ready } = useSupabaseSession();
   const [signingOut, setSigningOut] = useState(false);
   const hasSupabase = Boolean(supabase);
@@ -115,18 +74,18 @@ export default function DesktopNav() {
   useEffect(() => {
     const handleClick = (event) => {
       if (
-        compactMenuRef.current &&
-        compactTriggerRef.current &&
-        !compactMenuRef.current.contains(event.target) &&
-        !compactTriggerRef.current.contains(event.target)
+        accountMenuRef.current &&
+        accountTriggerRef.current &&
+        !accountMenuRef.current.contains(event.target) &&
+        !accountTriggerRef.current.contains(event.target)
       ) {
-        setCompactMenuOpen(false);
+        setAccountMenuOpen(false);
       }
     };
 
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
-        setCompactMenuOpen(false);
+        setAccountMenuOpen(false);
       }
     };
 
@@ -137,6 +96,12 @@ export default function DesktopNav() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setAccountMenuOpen(false);
+    }
+  }, [user]);
 
   useEffect(() => {
     const tabThreshold = window.matchMedia("(min-width: 1150px)");
@@ -151,12 +116,6 @@ export default function DesktopNav() {
       tabThreshold.removeEventListener("change", syncTabs);
     };
   }, []);
-
-  useEffect(() => {
-    if (showTabs) {
-      setCompactMenuOpen(false);
-    }
-  }, [showTabs]);
 
   return (
     <header className="hidden md:block sticky top-2 z-50">
@@ -180,7 +139,7 @@ export default function DesktopNav() {
               className="hidden md:flex items-center gap-1 rounded-full border border-brand-200/60 bg-surface/95 px-1 py-1 shadow-inner"
             >
               {LINKS.map((link) => (
-                <Tab key={link.to} to={link.to}>
+                <Tab key={link.to} to={link.to} accent={link.accent} icon={link.icon}>
                   {link.label}
                 </Tab>
               ))}
@@ -189,77 +148,9 @@ export default function DesktopNav() {
 
           {/* Right: Theme + Actions */}
           <div className="flex items-center gap-3">
-            {showTabs ? (
-              <div className="hidden md:block">
-                <ColorPaletteModalPro />
-              </div>
-            ) : (
-              <div className="relative">
-                <button
-                  ref={compactTriggerRef}
-                  type="button"
-                  onClick={() => setCompactMenuOpen((prev) => !prev)}
-                  aria-haspopup="true"
-                  aria-controls={compactMenuId}
-                  aria-expanded={compactMenuOpen}
-                  className={cx(
-                    "inline-flex items-center gap-2 rounded-full border border-brand-200/60 bg-surface px-3 py-2 text-sm font-semibold text-text transition-colors duration-150 ease-out will-change-transform",
-                    "hover:border-brand-200 hover:text-primary hover:bg-surface/95",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2",
-                    compactMenuOpen && "border-primary/50 text-primary shadow-[0_16px_28px_-18px_rgba(220,73,102,0.3)]"
-                  )}
-                >
-                  <MenuToggleIcon open={compactMenuOpen} />
-                  <span>Menu</span>
-                </button>
-                {compactMenuOpen && (
-                  <div
-                    id={compactMenuId}
-                    ref={compactMenuRef}
-                    role="menu"
-                    className="absolute right-0 mt-3 w-30 overflow-hidden rounded-2xl border border-brand-200/70 bg-surface shadow-[0_20px_46px_-24px_rgba(16,24,40,0.55)] ring-1 ring-black/5"
-                  >
-                    <div className="py-0">
-                      {LINKS.map((link) => (
-                        <NavLink
-                          key={link.to}
-                          to={link.to}
-                          role="menuitem"
-                          onClick={() => setCompactMenuOpen(false)}
-                          className={({ isActive }) =>
-                            cx(
-                              "block px-4 py-2.5 text-sm transition-colors text-center",
-                              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
-                              isActive
-                                ? "bg-primary/10 text-primary font-semibold hover:bg-accent/20"
-                                : "text-text-muted hover:text-text hover:bg-accent/30"
-                            )
-                          }
-                        >
-                          {link.label}
-                        </NavLink>
-                      ))}
-                    </div>
-                    <div className="border-t border-brand-200/60 px-4 py-3">
-                      <div className="text-xs text-center font-semibold uppercase tracking-[0.12em] text-text-muted">
-                        Theme
-                      </div>
-                      <div className="mt-2 flex items-center gap-3 text-text">
-                        <ColorPaletteModalPro />
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <NavLink
-              to="/register"
-              className="inline-flex items-center gap-2 rounded-full bg-primary text-onprimary text-sm font-semibold px-4 py-2 shadow-[0_16px_30px_-18px_rgba(220,73,102,0.9)] hover:shadow-[0_18px_36px_-16px_rgba(220,73,102,1)] hover:translate-y-[-1px] active:translate-y-0 transition-transform will-change-transform"
-            >
-              <span className="text-lg">＋</span>
-              <span className="text-nowrap">Create Event</span>
-            </NavLink>
+            <div className="hidden md:block">
+              <ColorPaletteModalPro />
+            </div>
 
             {!hasSupabase ? (
               <NavLink
@@ -274,19 +165,109 @@ export default function DesktopNav() {
             ) : !ready ? (
               <div className="text-xs font-semibold text-text-muted px-3">Checking session…</div>
             ) : user ? (
-              <button
-                type="button"
-                onClick={handleSignOut}
-                disabled={signingOut}
-                className="inline-flex items-center gap-3 rounded-full border border-brand-200/70 bg-surface px-3 py-2 text-left shadow-[0_10px_24px_-20px_rgba(16,24,40,0.6)] hover:border-primary/60 hover:text-primary transition"
-              >
-                <div className="h-9 w-9 rounded-full bg-primary/15 text-primary grid place-items-center font-semibold">
-                  {(user.user_metadata?.full_name || user.email || "U").charAt(0).toUpperCase()}
+              <div className="relative">
+                <button
+                  type="button"
+                  ref={accountTriggerRef}
+                  onClick={() => setAccountMenuOpen((prev) => !prev)}
+                  aria-haspopup="true"
+                  aria-expanded={accountMenuOpen}
+                  aria-controls={accountMenuId}
+                  className={cx(
+                    "inline-flex items-center gap-2 rounded-full border border-brand-200/70 bg-surface px-1.5 py-1 pr-3 text-left shadow-[0_10px_24px_-20px_rgba(16,24,40,0.6)] transition",
+                    "hover:border-primary/60 hover:text-primary",
+                    accountMenuOpen && "border-primary/60 text-primary"
+                  )}
+                >
+                  <span className="sr-only">Toggle account menu</span>
+                  <div className="h-9 w-9 rounded-full bg-primary/15 text-primary grid place-items-center font-semibold">
+                    {(user.user_metadata?.full_name || user.email || "U").charAt(0).toUpperCase()}
+                  </div>
+                  <svg
+                    className={cx(
+                      "h-4 w-4 transition-transform duration-200",
+                      accountMenuOpen && "rotate-180"
+                    )}
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M5 7l5 5 5-5"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+                <div
+                  id={accountMenuId}
+                  ref={accountMenuRef}
+                  role="menu"
+                  aria-hidden={!accountMenuOpen}
+                  className={cx(
+                    "absolute right-0 mt-3 w-max overflow-hidden rounded-2xl border border-brand-200/70 bg-surface shadow-[0_20px_46px_-24px_rgba(16,24,40,0.55)] ring-1 ring-black/5 origin-top-right transition-all duration-200 ease-out",
+                    accountMenuOpen
+                      ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
+                      : "opacity-0 -translate-y-2 scale-95 pointer-events-none"
+                  )}
+                >
+                  {!showTabs && (
+                    <div className="py-1 border-b border-brand-200/60">
+                      {LINKS.map((link) => (
+                        <NavLink
+                          key={link.to}
+                          to={link.to}
+                          role="menuitem"
+                          onClick={() => setAccountMenuOpen(false)}
+                          className={({ isActive }) =>
+                            cx(
+                              "flex items-center gap-2 px-4 py-2 text-sm transition-colors",
+                              isActive
+                                ? "text-primary font-semibold"
+                                : "text-text-muted hover:text-text hover:bg-primary/5"
+                            )
+                          }
+                        >
+                          {link.icon ? <span className="text-base">{link.icon}</span> : null}
+                          {link.label}
+                        </NavLink>
+                      ))}
+                    </div>
+                  )}
+                  <div className="py-1">
+                    {ACCOUNT_LINKS.map((item) => (
+                      <NavLink
+                        key={item.to}
+                        to={item.to}
+                        role="menuitem"
+                        onClick={() => setAccountMenuOpen(false)}
+                        className="block px-4 py-2 text-sm text-text-muted hover:text-text hover:bg-primary/5 transition-colors"
+                      >
+                        {item.label}
+                      </NavLink>
+                    ))}
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setAccountMenuOpen(false);
+                        handleSignOut();
+                      }}
+                      disabled={signingOut}
+                      className={cx(
+                        "w-full text-left px-4 py-2 text-sm font-semibold transition-colors",
+                        signingOut
+                          ? "text-text-muted cursor-wait"
+                          : "text-primary hover:bg-primary/10"
+                      )}
+                    >
+                      {signingOut ? "Signing out…" : "Sign out"}
+                    </button>
+                  </div>
                 </div>
-                <span className="text-xs text-primary font-semibold text-nowrap">
-                  {signingOut ? "Signing out…" : "Sign out"}
-                </span>
-              </button>
+              </div>
             ) : (
               <NavLink
                 to="/auth"

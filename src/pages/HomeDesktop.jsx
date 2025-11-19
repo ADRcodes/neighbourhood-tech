@@ -7,6 +7,9 @@ import Hero from "../components/Hero";
 export default function HomeDesktop({
   featured = [],
   events = [],
+  notInterestedEvents = [],
+  showNotInterested = false,
+  onToggleNotInterested = () => {},
   activeTags = [],
   availableTags = [],
   onToggleTag = () => {},
@@ -227,12 +230,41 @@ export default function HomeDesktop({
               onSelectPreference={onSelectPreference}
               onRegister={(ev) => console.log("register", ev.id)}
             />
-          ) : (
-            <div className="text-sm text-text-muted py-6">
-              No events match your selection.
-            </div>
-          )}
-        </main>
+        ) : (
+          <div className="text-sm text-text-muted py-6">
+            No events match your selection.
+          </div>
+        )}
+
+        {notInterestedEvents.length > 0 && (
+          <section className="mt-8 rounded-2xl border border-brand-200 bg-surface shadow-sm p-4">
+            <button
+              type="button"
+              onClick={onToggleNotInterested}
+              className="flex w-full items-center justify-between text-left text-base font-semibold text-text"
+              aria-expanded={showNotInterested}
+            >
+              <span>Not interested ({notInterestedEvents.length})</span>
+              <span className="text-xl text-text/60" aria-hidden>
+                {showNotInterested ? "−" : "+"}
+              </span>
+            </button>
+            {showNotInterested && (
+              <div className="mt-4">
+                <EventList
+                  events={notInterestedEvents}
+                  accordion
+                  density="comfortable"
+                  columns={{ base: 1 }}
+                  eventPreferences={eventPreferences}
+                  onSelectPreference={onSelectPreference}
+                  onRegister={(ev) => console.log("register", ev.id)}
+                />
+              </div>
+            )}
+          </section>
+        )}
+      </main>
 
         {/* Right rail */}
         <aside className="hidden xl:block xl:sticky xl:top-24 self-start z-10 xl:[grid-area:aside]">

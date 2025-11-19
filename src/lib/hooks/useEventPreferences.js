@@ -53,20 +53,35 @@ export function useEventPreferences() {
         throw err;
       }
       const targetId = normalizedId ?? normalizeEventId(eventId);
-      if (!targetId) return;
-
-      if (!status) {
-        await deleteSavedEvent({ userId, eventId: targetId });
-        setStatusByEvent((prev) => {
-          const next = { ...prev };
-          delete next[targetId];
-          return next;
+      if (!targetId) {
+        console.warn("Skipping preference update for event without Supabase id", {
+          eventId,
+          normalizedId,
         });
         return;
       }
 
-      await upsertSavedEvent({ userId, eventId: targetId, status });
-      setStatusByEvent((prev) => ({ ...prev, [targetId]: status }));
+      try {
+        if (!status) {
+          await deleteSavedEvent({ userId, eventId: targetId });
+          setStatusByEvent((prev) => {
+            const next = { ...prev };
+            delete next[targetId];
+            return next;
+          });
+          return;
+        }
+
+        await upsertSavedEvent({ userId, eventId: targetId, status });
+        setStatusByEvent((prev) => ({ ...prev, [targetId]: status }));
+      } catch (error) {
+        console.error("Failed to persist preference", {
+          eventId: targetId,
+          status: status ?? null,
+          error,
+        });
+        throw error;
+      }
     },
     [userId]
   );

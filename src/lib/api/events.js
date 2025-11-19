@@ -8,10 +8,13 @@ const LOCAL_EVENTS_URL = "/data/events.json";
 
 export async function fetchEvents({ signal } = {}) {
   if (supabase) {
+    console.info("[Events] Fetching via Supabase client");
     const rows = await listSupabaseEvents({ signal });
+    console.info("[Events] Supabase returned", rows.length, "rows");
     return rows.map(mapSupabaseEvent).map(coerceEvent);
   }
 
+  console.info("[Events] Fetching via API_BASE", API_BASE);
   const data = await httpGetJson(`${API_BASE}/api/events`, { signal });
   const rows = Array.isArray(data) ? data : data?.content ?? [];
   return rows.map(coerceEvent);

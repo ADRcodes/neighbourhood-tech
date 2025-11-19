@@ -6,6 +6,9 @@ import TagList from "../components/TagList";
 export default function HomeMobile({
   featured = [],
   events = [],
+  notInterestedEvents = [],
+  showNotInterested = false,
+  onToggleNotInterested = () => {},
   activeTags = [],
   onToggleTag = () => {},
   availableTags = [],
@@ -64,6 +67,33 @@ export default function HomeMobile({
         ) : (
           <div className="w-[340px] max-w-[92%] text-center text-sm text-gray-500 py-6">
             No events match your selection.
+          </div>
+        )}
+
+        {notInterestedEvents.length > 0 && (
+          <div className="w-full max-w-screen-sm px-4 sm:px-0 pb-10">
+            <button
+              type="button"
+              onClick={onToggleNotInterested}
+              className="w-full flex items-center justify-between rounded-2xl border border-brand-200 bg-surface px-4 py-3 text-left text-sm font-semibold text-text shadow-sm hover:border-brand-300 transition"
+              aria-expanded={showNotInterested}
+            >
+              <span>Not interested ({notInterestedEvents.length})</span>
+              <span className="text-lg" aria-hidden>
+                {showNotInterested ? "−" : "+"}
+              </span>
+            </button>
+            {showNotInterested && (
+              <div className="mt-4 rounded-3xl border border-brand-200 bg-surface shadow-sm">
+                <EventList
+                  events={notInterestedEvents}
+                  accordion
+                  eventPreferences={eventPreferences}
+                  onSelectPreference={onSelectPreference}
+                  onRegister={(ev) => console.log("register", ev.id)}
+                />
+              </div>
+            )}
           </div>
         )}
       </div>

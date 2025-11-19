@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { DEFAULT_USE_API } from "../config";
+import { supabase } from "../supabase/client";
 import { fetchEvents, fetchLocalEvents } from "../api/events";
 import { filterEvents, recommendedOf, buildTagOptions, buildSourceOptions } from "../utils/events";
 import { MOCK_EVENTS } from "../../data/mockEvents";
@@ -12,6 +13,8 @@ import { MOCK_EVENTS } from "../../data/mockEvents";
  * @param {string[]} opts.initialChips   initial selected chip keys
  */
 export function useEvents({ useApi = DEFAULT_USE_API, fallbackToMocks = true, initialChips = [] } = {}) {
+  const usingSupabase = useApi && Boolean(supabase);
+  const allowMockFallback = fallbackToMocks && !usingSupabase;
   const [events, setEvents] = useState([]);
   const [chips, setChips] = useState(initialChips);
   const [sourceFilters, setSourceFilters] = useState([]);
@@ -36,7 +39,7 @@ export function useEvents({ useApi = DEFAULT_USE_API, fallbackToMocks = true, in
         ? await fetchEvents({ signal: ctrl.signal })
         : await fetchLocalEvents({ signal: ctrl.signal });
 
-      if (!list.length && fallbackToMocks) {
+      if (!list.length && allowMockFallback) {
         setWarning("No events found — showing mock data.");
         setEvents(MOCK_EVENTS);
         return;
@@ -45,7 +48,7 @@ export function useEvents({ useApi = DEFAULT_USE_API, fallbackToMocks = true, in
       setEvents(list);
     } catch (e) {
       setError(String(e));
-      if (fallbackToMocks) {
+      if (allowMockFallback) {
         setWarning(
           useApi
             ? "API unavailable — showing mock data."
