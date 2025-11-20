@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
-import { setBrandBase, setBrandByClockContinuous } from "../theme/Contrast.js";
+import { setBrandBase, setBrandByClockContinuous } from "../lib/hooks/contrast.js";
 import useHexFromElementRef from "../lib/hooks/useHexFromElementRef.js";
 
 const BRAND_STORAGE_KEY = "nt:brand-base";
