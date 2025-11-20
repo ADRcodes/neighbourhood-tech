@@ -1,4 +1,4 @@
-import { anyCssColorToRgb, rgbToCss } from "../../theme/color-utils";
+import { anyCssColorToRgb, rgbToCss } from "./color-utils";
 
 // ---------------- sRGB helpers ----------------
 function srgbToLinear(c) {
@@ -119,4 +119,4 @@ export function setBrandBase(color, { target = 4.5, mutateBg = true } = {}) {
   });
 }
 
-export { setBrandByClockContinuous, startBrandClockContinuous } from "../../theme/brand-clock";
+export { setBrandByClockContinuous, startBrandClockContinuous } from "./brand-clock";
