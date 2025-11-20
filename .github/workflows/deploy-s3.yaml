@@ -18,6 +18,8 @@ env:
   S3_BUCKET: neighbourhood-tech
   # Set this in repo Settings → Variables → Actions
   VITE_API_URL: ${{ vars.VITE_API_URL }}
+  VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+  VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
 
 jobs:
   build-and-deploy:
@@ -37,11 +39,11 @@ jobs:
 
       - name: Build (Vite)
         run: |
-          {
-            echo "VITE_API_URL=${VITE_API_URL}"
-            echo "VITE_SUPABASE_URL=${{ vars.VITE_SUPABASE_URL }}"
-            echo "VITE_SUPABASE_PUBLIC_KEY=${{ vars.VITE_SUPABASE_PUBLIC_KEY }}"
-          } >> $GITHUB_ENV
+          # {
+          #   echo "VITE_API_URL=${VITE_API_URL}"
+          #   echo "VITE_SUPABASE_URL=${{ vars.VITE_SUPABASE_URL }}"
+          #   echo "VITE_SUPABASE_PUBLIC_KEY=${{ vars.VITE_SUPABASE_PUBLIC_KEY }}"
+          # } >> $GITHUB_ENV
           npm run build
 
       - name: Debug OIDC subject
