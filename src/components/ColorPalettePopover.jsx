@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { Link } from "react-router-dom";
 import { setBrandBase, setBrandByClockContinuous } from "../theme/Contrast.js";
 import useHexFromElementRef from "../lib/hooks/useHexFromElementRef.js";
 
@@ -118,31 +119,22 @@ function ColorPaletteModalPro() {
         className="fixed -left-[9999px] -top-[9999px] w-px h-px bg-primary pointer-events-none"
         aria-hidden
       />
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-col flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="px-2 py-1 cursor-pointer text-[var(--color-onprimary)] rounded-full box-border border-2 border-transparent hover:bg-accent/50 active:bg-primary-pressed text-2xl"
+          className="px-[6px] py-1 cursor-pointer text-[var(--color-onprimary)] rounded-full box-border border-2 border-transparent hover:bg-accent/50 active:bg-primary-pressed text-2xl"
           aria-label="Open color palette"
           title="Open color palette"
         >
           🎨
         </button>
-        <input
+        {/* <input
           type="color"
           className="w-8 h-8 p-0 rounded border border-black/10 cursor-pointer"
           onChange={(e) => handleColorChange(e.target.value)}
           aria-label="Pick brand color"
-        />
-        {customBrandActive && (
-          <button
-            type="button"
-            onClick={handleReset}
-            className="inline-flex items-center justify-center rounded-full border border-brand-200/70 bg-surface px-2 py-1 text-xs font-semibold text-text-muted hover:text-text hover:border-brand-200 transition-colors"
-          >
-            Reset
-          </button>
-        )}
+        /> */}
       </div>
 
       {/* PORTAL so overlay covers the entire app (not just the nav) */}
@@ -312,6 +304,23 @@ function ColorPaletteModalPro() {
                             </span>
                           </div>
                         </div>
+                      </div>
+
+                      <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                        <button
+                          type="button"
+                          onClick={handleReset}
+                          className="inline-flex items-center gap-2 rounded-full border border-brand-200/70 px-4 py-2 text-sm font-semibold text-text hover:bg-surface"
+                        >
+                          Reset palette
+                        </button>
+                        <Link
+                          to="/color-about"
+                          onClick={() => setOpen(false)}
+                          className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-onprimary hover:opacity-95"
+                        >
+                          Explore colour story ↗
+                        </Link>
                       </div>
                     </section>
                   </div>

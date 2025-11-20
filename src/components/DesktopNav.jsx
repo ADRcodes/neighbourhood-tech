@@ -26,10 +26,10 @@ function Tab({ to, children, accent, icon }) {
         cx(
           "px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-200 ease-out",
           accent
-            ? "bg-primary text-onprimary shadow-md shadow-primary/40 hover:opacity-95"
+            ? "bg-brand-complement text-oncomplement shadow-md shadow-primary/40 hover:opacity-65"
             : isActive
               ? "bg-primary text-onprimary shadow-md shadow-primary/40"
-              : "text-text-muted hover:text-text"
+              : "text-text-muted hover:text-text/40"
         )
       }
       end
@@ -104,7 +104,7 @@ export default function DesktopNav() {
   }, [user]);
 
   useEffect(() => {
-    const tabThreshold = window.matchMedia("(min-width: 1150px)");
+    const tabThreshold = window.matchMedia("(min-width: 900px)");
 
     const syncTabs = (event) => setShowTabs(event.matches);
 
@@ -212,6 +212,7 @@ export default function DesktopNav() {
                       ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
                       : "opacity-0 -translate-y-2 scale-95 pointer-events-none"
                   )}
+                  style={{ willChange: "transform, opacity" }}
                 >
                   {!showTabs && (
                     <div className="py-1 border-b border-brand-200/60">

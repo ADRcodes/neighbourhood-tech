@@ -78,6 +78,7 @@ export function coerceEvent(e) {
     organizer,
     tags,
     url: e.url ?? e.link ?? null,
+    source: e.source ?? e.source_name ?? e.sourceName ?? e.provider ?? null,
     registered: regs,
   };
 }

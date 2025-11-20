@@ -8,34 +8,30 @@ export default function HomeMobile({
   events = [],
   notInterestedEvents = [],
   showNotInterested = false,
-  onToggleNotInterested = () => {},
+  onToggleNotInterested = () => { },
   activeTags = [],
-  onToggleTag = () => {},
+  onToggleTag = () => { },
   availableTags = [],
   activeSources = [],
   availableSources = [],
-  onToggleSource = () => {},
+  onToggleSource = () => { },
   loading = false,
-  error,
-  warning,
+  // error,
+  // warning,
   eventPreferences = {},
-  onSelectPreference = () => {},
+  onSelectPreference = () => { },
 }) {
   return (
     <div className="tiled-background relative flex flex-col min-w-0">
       <div className="w-full flex flex-col gap-2 items-center overflow-y-auto pb-8 min-w-0">
-        <div className="md:hidden">
-          <ColorPalettePopover />
-        </div>
-
-        <div className="w-full max-w-screen-sm md:max-w-4xl lg:max-w-6xl px-0 md:px-0 pt-2 min-w-0">
+        <div className="w-full md:max-w-4xl lg:max-w-6xl px-0 md:px-0 pt-2 min-w-0">
           <h3 className="h3">Recommended events</h3>
           {featured.length > 0 && <EventCarousel events={featured} />}
         </div>
 
-        <h3 className="h3 w-full">Upcoming events</h3>
+        <h3 className="h3 mt-2 w-full">Upcoming events</h3>
 
-        <div className="w-full max-w-screen-sm px-4 sm:px-0">
+        <div className="w-full px-4">
           <div className="rounded-3xl border border-brand-100 bg-surface shadow-sm p-4 space-y-4">
             <TagList
               title="Filter by source"

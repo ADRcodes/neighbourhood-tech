@@ -8,6 +8,7 @@ import RegisterEventForm from "./pages/RegisterEventForm";
 import Unauthenticated from "./pages/Unauthenticated";
 import HomeShell from "./pages/HomeShell";
 import About from "./pages/About";
+import ColorAbout from "./pages/ColorAbout";
 import { SupabaseSessionProvider } from "./lib/auth/supabase.jsx";
 import { supabase } from "./lib/supabase/client";
 
@@ -52,6 +53,7 @@ function App() {
             <Route path="saved" element={<Saved />} />
             <Route path="me" element={<Profile />} />
             <Route path="about" element={<About />} />
+            <Route path="color-about" element={<ColorAbout />} />
             <Route path="register" element={<RegisterEventForm />} />
           </Route>
         </Routes>

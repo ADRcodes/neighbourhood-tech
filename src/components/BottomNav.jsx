@@ -1,7 +1,8 @@
-import React, { cloneElement, useState } from "react";
+import React, { cloneElement, useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useSupabaseSession, signOut } from "../lib/auth/supabase.jsx";
 import { supabase } from "../lib/supabase/client";
+import ColorPaletteModalPro from "./ColorPalettePopover";
 const cx = (...xs) => xs.filter(Boolean).join(" ");
 
 const Icons = {
@@ -45,12 +46,16 @@ function NavItem({ to, label, icon }) {
   );
 }
 
-function NavButton({ label, icon, onClick, disabled, active }) {
+const NavButton = React.forwardRef(function NavButton(
+  { label, icon, onClick, disabled, active },
+  ref
+) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
+      ref={ref}
       className={cx(
         "flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors w-full",
         disabled ? "text-text-muted/70" : active ? "text-primary" : "text-text-muted hover:text-text"
@@ -69,12 +74,15 @@ function NavButton({ label, icon, onClick, disabled, active }) {
       <span className="leading-none">{label}</span>
     </button>
   );
-}
+});
 
 export default function BottomNav() {
   const hasSupabase = Boolean(supabase);
   const { user, ready } = useSupabaseSession();
   const [signingOut, setSigningOut] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+  const triggerRef = useRef(null);
 
   const handleSignOut = async () => {
     if (!hasSupabase || signingOut) return;
@@ -88,13 +96,43 @@ export default function BottomNav() {
     }
   };
 
+  useEffect(() => {
+    const handleClick = (event) => {
+      if (
+        menuRef.current &&
+        triggerRef.current &&
+        !menuRef.current.contains(event.target) &&
+        !triggerRef.current.contains(event.target)
+      ) {
+        setMenuOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("click", handleClick);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("click", handleClick);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!user) setMenuOpen(false);
+  }, [user]);
+
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50">
       <div className="relative mx-auto w-full max-w-screen-sm px-4 pb-[max(env(safe-area-inset-bottom),12px)]">
         <div className="relative h-16 rounded-2xl bg-surface/92 backdrop-blur-xl shadow-[0_22px_45px_-26px_rgba(16,24,40,0.65)] border border-brand-200/80 text-text">
           <div className="grid grid-cols-5 h-full">
             <NavItem to="/" label="Home" icon={<Icons.Home />} />
-            <NavItem to="/me" label="Profile" icon={<Icons.User />} />
+            <NavItem to="/saved" label="Saved" icon={<Icons.Saved />} />
             <div className="relative">
               <NavLink
                 to="/register"
@@ -104,20 +142,57 @@ export default function BottomNav() {
                 <Icons.Plus className="h-7 w-7" />
               </NavLink>
             </div>
-            {/* <NavItem to="/saved" label="Saved" icon={<Icons.Saved />} /> */}
             <NavItem to="/about" label="About" icon={<Icons.Info />} />
             {!hasSupabase ? (
               <NavItem to="/auth" label="Sign in" icon={<Icons.User />} />
             ) : !ready ? (
               <NavButton label="Loading" icon={<Icons.User />} disabled onClick={() => { }} />
             ) : user ? (
-              <NavButton
-                label={signingOut ? "Signing out…" : "Sign out"}
-                icon={<Icons.User />}
-                active
-                disabled={signingOut}
-                onClick={handleSignOut}
-              />
+              <div className="relative flex align-middle">
+                <NavButton
+                  label="More"
+                  icon={<Icons.User />}
+                  onClick={() => setMenuOpen((prev) => !prev)}
+                  active={menuOpen}
+                  ref={triggerRef}
+                />
+                <div
+                  ref={menuRef}
+                  className={cx(
+                    "absolute bottom-[calc(100%+12px)] right-[70px] translate-x-1/2 w-max rounded-2xl border border-brand-200/60 bg-surface shadow-[0_24px_40px_-28px_rgba(16,24,40,0.7)] p-3",
+                    "origin-bottom transition-all duration-200 ease-out",
+                    menuOpen
+                      ? "opacity-100 translate-y-0 pointer-events-auto"
+                      : "opacity-0 translate-y-2 pointer-events-none"
+                  )}
+                  style={{ willChange: "transform, opacity" }}
+                >
+                  <ColorPaletteModalPro />
+                  <NavLink
+                    to="/me"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-text hover:bg-primary/5"
+                  >
+                    {/* <Icons.User className="h-4 w-4" /> */}
+                    Profile
+                  </NavLink>
+
+                  <button
+                    type="button"
+                    className={cx(
+                      "w-full rounded-full px-3 py-2 text-sm font-semibold transition-colors",
+                      signingOut ? "text-text-muted cursor-wait" : "text-primary hover:bg-primary/10"
+                    )}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      handleSignOut();
+                    }}
+                    disabled={signingOut}
+                  >
+                    {signingOut ? "Signing out…" : "Sign out"}
+                  </button>
+                </div>
+              </div>
             ) : (
               <NavItem to="/auth" label="Sign in" icon={<Icons.User />} />
             )}

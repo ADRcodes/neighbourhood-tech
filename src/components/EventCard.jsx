@@ -1,8 +1,8 @@
 // EventCard.jsx
-import { useEffect, useRef, useState, useMemo } from "react";
+import { memo, useEffect, useMemo, useRef, useState, useLayoutEffect } from "react";
 import { formatSourceName, formatPriceDisplay } from "../lib/utils/events";
 
-export default function EventCard({
+function EventCardComponent({
   event,
   registered = [],
   onBodyResize,           // (h:number) => void
@@ -19,12 +19,22 @@ export default function EventCard({
   const bodyRef = useRef(null);
 
   // Measure only when collapsed (so expansion never affects equalized height)
-  useEffect(() => {
+  const lastReportedSummaryHeight = useRef(0);
+
+  useLayoutEffect(() => {
     if (!bodyRef.current || expanded) return;
     const el = bodyRef.current;
-    const report = () => onBodyResize?.(el.scrollHeight);
+    const report = () => {
+      const next = Math.round(el.scrollHeight);
+      if (next !== lastReportedSummaryHeight.current) {
+        lastReportedSummaryHeight.current = next;
+        onBodyResize?.(next);
+      }
+    };
     report();
-    const ro = new ResizeObserver(report);
+    const ro = new ResizeObserver(() => {
+      requestAnimationFrame(report);
+    });
     ro.observe(el);
     return () => ro.disconnect();
   }, [
@@ -52,14 +62,14 @@ export default function EventCard({
   const [detailsMax, setDetailsMax] = useState(0);
   const [detailsHeight, setDetailsHeight] = useState(0);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!detailsRef.current) return;
     const el = detailsRef.current;
     const measure = () => {
       const next = el.scrollHeight;
-      setDetailsMax(next);
+      setDetailsMax((prev) => (prev === next ? prev : next));
       if (expanded) {
-        setDetailsHeight(next);
+        setDetailsHeight((prev) => (prev === next ? prev : next));
       }
     };
     measure();
@@ -70,15 +80,21 @@ export default function EventCard({
     return () => ro.disconnect();
   }, [expanded, event.description, event.company, event?.venue?.address, event?.tags?.length]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = detailsRef.current;
     if (!el) return;
+    let rafId;
     if (expanded) {
       const target = el.scrollHeight;
-      requestAnimationFrame(() => setDetailsHeight(target));
+      rafId = requestAnimationFrame(() => {
+        setDetailsHeight((prev) => (prev === target ? prev : target));
+      });
     } else {
-      setDetailsHeight(0);
+      setDetailsHeight((prev) => (prev === 0 ? prev : 0));
     }
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, [expanded, detailsMax]);
 
   // Date/time
@@ -234,3 +250,5 @@ export default function EventCard({
     </div>
   );
 }
+
+export default memo(EventCardComponent);

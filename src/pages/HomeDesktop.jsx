@@ -9,18 +9,18 @@ export default function HomeDesktop({
   events = [],
   notInterestedEvents = [],
   showNotInterested = false,
-  onToggleNotInterested = () => {},
+  onToggleNotInterested = () => { },
   activeTags = [],
   availableTags = [],
-  onToggleTag = () => {},
+  onToggleTag = () => { },
   activeSources = [],
   availableSources = [],
-  onToggleSource = () => {},
+  onToggleSource = () => { },
   searchTerm = "",
-  onSearchChange = () => {},
+  onSearchChange = () => { },
   loading,
   eventPreferences = {},
-  onSelectPreference = () => {},
+  onSelectPreference = () => { },
 }) {
   const topFeatured = featured.slice(0, 8);
   const auroraSectionRef = useRef(null);
@@ -105,31 +105,6 @@ export default function HomeDesktop({
 
   return (
     <div className="mx-auto w-full text-text">
-      {/* Desktop hero */}
-      {/* <div className="hidden md:block ">
-        <Hero
-          showSearch={false}
-          title="Neighbourhood tech, all in one place"
-          subtitle="Discover meetups, workshops, and socials — or host your own."
-        />
-      </div> */}
-
-      {/* Heading + CTA */}
-      {/* <div className="flex flex-col gap-4 px-[32px] py-6 lg:flex-row lg:items-end lg:justify-between">
-        <div className="max-w-xl">
-          <h1 className="text-2xl lg:text-3xl font-bold">Discover events</h1>
-          <p className="text-text-muted">
-            Browse by tags, venue, and date. Host your own in minutes.
-          </p>
-        </div>
-        <a
-          href="/register"
-          className="hidden md:inline-flex items-center gap-2 rounded-lg px-4 py-2 font-semibold shadow-sm bg-primary text-onprimary hover:opacity-95 active:opacity-90 transition"
-        >
-          ＋ Create event
-        </a>
-      </div> */}
-
       {/* Responsive grid */}
       <div
         className="
@@ -155,13 +130,6 @@ export default function HomeDesktop({
                   Curated standouts to catch before they sell out.
                 </p>
               </div>
-              <a
-                href="/explore"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:opacity-90 transition"
-              >
-                Browse all
-                <span aria-hidden>→</span>
-              </a>
             </div>
             <FeaturedGrid items={topFeatured} />
           </section>
@@ -230,41 +198,41 @@ export default function HomeDesktop({
               onSelectPreference={onSelectPreference}
               onRegister={(ev) => console.log("register", ev.id)}
             />
-        ) : (
-          <div className="text-sm text-text-muted py-6">
-            No events match your selection.
-          </div>
-        )}
+          ) : (
+            <div className="text-sm text-text-muted py-6">
+              No events match your selection.
+            </div>
+          )}
 
-        {notInterestedEvents.length > 0 && (
-          <section className="mt-8 rounded-2xl border border-brand-200 bg-surface shadow-sm p-4">
-            <button
-              type="button"
-              onClick={onToggleNotInterested}
-              className="flex w-full items-center justify-between text-left text-base font-semibold text-text"
-              aria-expanded={showNotInterested}
-            >
-              <span>Not interested ({notInterestedEvents.length})</span>
-              <span className="text-xl text-text/60" aria-hidden>
-                {showNotInterested ? "−" : "+"}
-              </span>
-            </button>
-            {showNotInterested && (
-              <div className="mt-4">
-                <EventList
-                  events={notInterestedEvents}
-                  accordion
-                  density="comfortable"
-                  columns={{ base: 1 }}
-                  eventPreferences={eventPreferences}
-                  onSelectPreference={onSelectPreference}
-                  onRegister={(ev) => console.log("register", ev.id)}
-                />
-              </div>
-            )}
-          </section>
-        )}
-      </main>
+          {notInterestedEvents.length > 0 && (
+            <section className="mt-8 rounded-2xl border border-brand-200 bg-surface shadow-sm p-4">
+              <button
+                type="button"
+                onClick={onToggleNotInterested}
+                className="flex w-full items-center justify-between text-left text-base font-semibold text-text"
+                aria-expanded={showNotInterested}
+              >
+                <span>Not interested ({notInterestedEvents.length})</span>
+                <span className="text-xl text-text/60" aria-hidden>
+                  {showNotInterested ? "−" : "+"}
+                </span>
+              </button>
+              {showNotInterested && (
+                <div className="mt-4">
+                  <EventList
+                    events={notInterestedEvents}
+                    accordion
+                    density="comfortable"
+                    columns={{ base: 1 }}
+                    eventPreferences={eventPreferences}
+                    onSelectPreference={onSelectPreference}
+                    onRegister={(ev) => console.log("register", ev.id)}
+                  />
+                </div>
+              )}
+            </section>
+          )}
+        </main>
 
         {/* Right rail */}
         <aside className="hidden xl:block xl:sticky xl:top-24 self-start z-10 xl:[grid-area:aside]">
