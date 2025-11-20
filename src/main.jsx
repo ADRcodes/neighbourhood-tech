@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './main.css'
 import App from './App.jsx'
 
-import { initOnColors, watchThemeAttribute } from "./theme/Contrast.js";
+import { initOnColors, watchThemeAttribute } from "./theme/contrast.js";
 
 // 1) Initialize readable on-colors (will also nudge bg tokens toward contrast if needed)
 initOnColors({ target: 4.5, mutateBg: true });
