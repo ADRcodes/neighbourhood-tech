@@ -1,14 +1,20 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  listSavedEvents,
-  deleteSavedEvent,
-  upsertSavedEvent,
-} from "../lib/api/supabase";
-import { mapSupabaseEvent } from "../lib/api/events";
-import { coerceEvent } from "../lib/api/normalize";
-import { useSupabaseSession } from "../lib/auth/supabase.jsx";
-import { supabase } from "../lib/supabase/client";
+import { useSavedEvents } from "../lib/context/SavedEventsProvider";
+import TagList from "../components/TagList";
+import { buildSourceOptions, buildTagOptions, filterEvents } from "../lib/utils/events";
+
+const STATUS_GROUPS = [
+  { key: "going", label: "Going" },
+  { key: "interested", label: "Interested" },
+  { key: "not_interested", label: "Not interested" },
+];
+
+const STATUS_DESCRIPTIONS = {
+  going: "Locked in plans",
+  interested: "Keeping an eye on",
+  not_interested: "Passing on these",
+};
 
 const STATUS_OPTIONS = [
   { value: "going", label: "Going" },
@@ -16,79 +22,88 @@ const STATUS_OPTIONS = [
   { value: "not_interested", label: "Not interested" },
 ];
 
-const STATUS_BADGE_STYLES = {
-  going: "bg-success/15 text-success border-success/30",
-  interested: "bg-warning/15 text-warning border-warning/30",
-  not_interested: "bg-text/10 text-text-muted border-text/15",
-};
-
 const Saved = () => {
   const navigate = useNavigate();
-  const hasSupabase = Boolean(supabase);
-  const { user, ready } = useSupabaseSession();
-  const [loading, setLoading] = useState(false);
+  const { entries, loading, error: loadError, updateStatus, user, ready, hasSupabase } = useSavedEvents();
   const [pending, setPending] = useState(null);
-  const [error, setError] = useState("");
-  const [entries, setEntries] = useState([]);
-
-  const load = useCallback(async () => {
-    if (!user) {
-      setEntries([]);
-      return;
-    }
-    setLoading(true);
-    setError("");
-    try {
-      const rows = await listSavedEvents(user.id);
-      const mapped = rows
-        .map((row) => {
-          if (!row.event) return null;
-          const normalized = coerceEvent(mapSupabaseEvent(row.event));
-          return { event: normalized, status: row.status || "interested" };
-        })
-        .filter(Boolean);
-      setEntries(mapped);
-    } catch (err) {
-      console.error("Failed to load saved events", err);
-      setError(err.message || "Unable to load saved events");
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  const [actionError, setActionError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTags, setActiveTags] = useState([]);
+  const [activeSources, setActiveSources] = useState([]);
+  const [openSections, setOpenSections] = useState({
+    going: false,
+    interested: false,
+    not_interested: false,
+  });
 
   const handleStatusChange = useCallback(async (eventId, status) => {
     if (!user) return;
     setPending(`${eventId}:${status}`);
-    setError("");
+    setActionError("");
     try {
-      await upsertSavedEvent({ userId: user.id, eventId, status });
-      await load();
+      await updateStatus(eventId, status);
     } catch (err) {
       console.error("Failed to update", err);
-      setError(err.message || "Unable to update status");
+      setActionError(err.message || "Unable to update status");
     } finally {
       setPending(null);
     }
-  }, [load, user]);
+  }, [updateStatus, user]);
 
-  const handleRemove = useCallback(async (eventId) => {
-    if (!user) return;
-    setPending(`delete:${eventId}`);
-    setError("");
-    try {
-      await deleteSavedEvent({ userId: user.id, eventId });
-      await load();
-    } catch (err) {
-      console.error("Failed to remove saved event", err);
-      setError(err.message || "Unable to remove event");
-    } finally {
-      setPending(null);
+  const savedEvents = useMemo(() => entries.map((entry) => entry.event), [entries]);
+
+  const tagOptions = useMemo(() => buildTagOptions(savedEvents), [savedEvents]);
+  const sourceOptions = useMemo(() => buildSourceOptions(savedEvents), [savedEvents]);
+
+  const filteredEntries = useMemo(() => {
+    if (!entries.length) return [];
+    if (!activeTags.length && !activeSources.length && !searchTerm.trim()) {
+      return entries;
     }
-  }, [load, user]);
+    const decorated = entries.map((entry) => ({ ...entry.event }));
+    const filteredEvents = filterEvents(decorated, {
+      tags: activeTags,
+      sources: activeSources,
+      search: searchTerm,
+    });
+    const allowedIds = new Set(filteredEvents.map((event) => event.id));
+    return entries.filter((entry) => allowedIds.has(entry.event.id));
+  }, [entries, activeTags, activeSources, searchTerm]);
+
+  const grouped = useMemo(() => {
+    const base = {
+      going: [],
+      interested: [],
+      not_interested: [],
+    };
+    filteredEntries.forEach((entry) => {
+      const key = entry.status === "going"
+        ? "going"
+        : entry.status === "not_interested"
+          ? "not_interested"
+          : "interested";
+      base[key].push(entry);
+    });
+    return base;
+  }, [filteredEntries]);
+
+  const hasAnyFiltered = filteredEntries.length > 0;
+  const isFiltering = activeTags.length > 0 || activeSources.length > 0 || Boolean(searchTerm.trim());
+  const toggleTag = useCallback(
+    (key) => {
+      setActiveTags((prev) => (prev.includes(key) ? prev.filter((v) => v !== key) : [...prev, key]));
+    },
+    []
+  );
+  const toggleSource = useCallback(
+    (key) => {
+      setActiveSources((prev) => (prev.includes(key) ? prev.filter((v) => v !== key) : [...prev, key]));
+    },
+    []
+  );
+  const toggleSection = useCallback((key) => {
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  }, []);
 
   const content = useMemo(() => {
     if (!hasSupabase) {
@@ -118,74 +133,79 @@ const Saved = () => {
       );
     }
 
-    if (!entries.length) {
-      return <p className="text-sm text-text-muted">No saved events yet.</p>;
+    if (!hasAnyFiltered) {
+      return (
+        <div className="text-sm text-text-muted py-6">
+          {isFiltering ? "No saved events match your filters." : "No saved events yet."}
+        </div>
+      );
     }
+    const largeColumns = (
+      <div className="hidden lg:grid lg:grid-cols-3 gap-6">
+        {STATUS_GROUPS.map((group) => (
+            <SavedStatusColumn
+              key={group.key}
+              label={group.label}
+              description={STATUS_DESCRIPTIONS[group.key]}
+              entries={grouped[group.key]}
+              pending={pending}
+              onStatusChange={handleStatusChange}
+            />
+          ))}
+        </div>
+      );
 
-    return (
-      <div className="space-y-4">
-        {entries.map(({ event, status }) => {
-          const formattedDate = event.date
-            ? new Date(event.date).toLocaleDateString(undefined, {
-                month: "short",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            : "Date TBA";
-          const statusClasses = STATUS_BADGE_STYLES[status] || STATUS_BADGE_STYLES.interested;
-          return (
-            <div
-              key={event.id}
-              className="rounded-3xl border border-brand-200 bg-surface/95 p-4 shadow-[0_8px_32px_-24px_rgba(15,23,42,0.85)]"
+    const mobileAccordions = (
+      <div className="lg:hidden space-y-4">
+        {STATUS_GROUPS.map((group) => (
+          <section key={group.key} className="rounded-2xl border border-brand-200 bg-surface shadow-sm">
+            <button
+              type="button"
+              className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold"
+              onClick={() => toggleSection(group.key)}
+              aria-expanded={openSections[group.key]}
             >
-              <div className="flex flex-col gap-2">
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <div>
-                    <p className="text-xs text-text-muted">{formattedDate}</p>
-                    <h3 className="text-lg font-semibold text-text">{event.title}</h3>
-                    {event.venue?.name && (
-                      <p className="text-sm text-text-muted">📍 {event.venue.name}</p>
-                    )}
-                  </div>
-                  <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${statusClasses}`}>
-                    {STATUS_OPTIONS.find((opt) => opt.value === status)?.label || "Interested"}
-                  </span>
-                </div>
-                <p className="text-sm text-text-muted line-clamp-2">{event.description || "More details coming soon."}</p>
+              <span>
+                {group.label} ({grouped[group.key].length})
+              </span>
+              <span className="text-lg" aria-hidden>
+                {openSections[group.key] ? "−" : "+"}
+              </span>
+            </button>
+            {openSections[group.key] && (
+              <div className="px-4 pb-4">
+                <SavedEventsList
+                  entries={grouped[group.key]}
+                  pending={pending}
+                  onStatusChange={handleStatusChange}
+                />
               </div>
-
-              <div className="mt-3 flex flex-wrap gap-2">
-                {STATUS_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => handleStatusChange(event.id, opt.value)}
-                    disabled={pending === `${event.id}:${opt.value}`}
-                    className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
-                      status === opt.value
-                        ? "bg-primary text-onprimary border-primary"
-                        : "bg-surface text-text border-brand-200/80 hover:bg-primary/10"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => handleRemove(event.id)}
-                  disabled={pending === `delete:${event.id}`}
-                  className="ml-auto text-xs font-semibold text-danger hover:underline"
-                >
-                  Remove
-                </button>
-              </div>
-            </div>
-          );
-        })}
+            )}
+          </section>
+        ))}
       </div>
     );
-  }, [entries, hasSupabase, handleRemove, handleStatusChange, loading, navigate, pending, ready, user]);
+
+    return (
+      <>
+        {largeColumns}
+        {mobileAccordions}
+      </>
+    );
+  }, [
+    grouped,
+    hasSupabase,
+    handleStatusChange,
+    loading,
+    openSections,
+    pending,
+    ready,
+    toggleSection,
+    hasAnyFiltered,
+    isFiltering,
+    navigate,
+    user,
+  ]);
 
   return (
     <div className="px-4 py-6 space-y-4">
@@ -193,10 +213,169 @@ const Saved = () => {
         <p className="text-xs font-semibold uppercase tracking-wide text-primary">Library</p>
         <h1 className="text-2xl font-bold text-text">Saved events</h1>
       </div>
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {loadError && <p className="text-sm text-danger">{loadError}</p>}
+      {actionError && <p className="text-sm text-danger">{actionError}</p>}
+      <FilterPanel
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        availableTags={tagOptions}
+        activeTags={activeTags}
+        onToggleTag={toggleTag}
+        availableSources={sourceOptions}
+        activeSources={activeSources}
+        onToggleSource={toggleSource}
+      />
       {content}
     </div>
   );
 };
+
+function FilterPanel({
+  searchTerm,
+  onSearchChange,
+  availableTags,
+  activeTags,
+  onToggleTag,
+  availableSources,
+  activeSources,
+  onToggleSource,
+}) {
+  return (
+    <section className="rounded-3xl border border-brand-200 bg-surface shadow-sm p-4 space-y-4">
+      <div className="relative">
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-50">⌕</span>
+        <input
+          type="search"
+          placeholder="Search saved events"
+          className="w-full rounded-xl border border-brand-200/80 bg-white py-2 pl-8 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+          value={searchTerm}
+          onChange={(e) => onSearchChange(e.target.value)}
+        />
+      </div>
+      <div className="rounded-2xl border border-brand-200 bg-surface/70 p-3">
+        <TagList
+          title="Filter by source"
+          items={availableSources}
+          activeKeys={activeSources}
+          onToggle={onToggleSource}
+          emptyLabel="Sources appear once events load."
+          className="bg-white rounded-xl p-3"
+        />
+      </div>
+      <div className="rounded-2xl border border-brand-200 bg-surface/70 p-3">
+        <TagList
+          title="Filter by tag"
+          items={availableTags}
+          activeKeys={activeTags}
+          onToggle={onToggleTag}
+          emptyLabel="Tags appear once events load."
+          className="bg-white rounded-xl p-3"
+        />
+      </div>
+    </section>
+  );
+}
+
+function SavedStatusColumn({ label, description, entries, pending, onStatusChange }) {
+  return (
+    <section className="rounded-3xl border border-brand-200 bg-surface shadow-sm p-4 space-y-4">
+      <div>
+        <p className="text-xs uppercase tracking-[0.35em] text-primary">{description}</p>
+        <h3 className="mt-2 text-xl font-semibold text-text flex items-baseline gap-2">
+          {label}
+          <span className="text-xs font-semibold text-text-muted">({entries.length})</span>
+        </h3>
+      </div>
+      <SavedEventsList
+        entries={entries}
+        pending={pending}
+        onStatusChange={onStatusChange}
+      />
+    </section>
+  );
+}
+
+function SavedEventsList({ entries, pending, onStatusChange }) {
+  if (!entries.length) {
+    return <p className="text-sm text-text-muted">Nothing here yet.</p>;
+  }
+  return (
+    <div className="space-y-4">
+      {entries.map(({ event, status }) => (
+        <SavedEventCard
+          key={event.id}
+          event={event}
+          status={status}
+          pending={pending}
+          onStatusChange={onStatusChange}
+        />
+      ))}
+    </div>
+  );
+}
+
+function SavedEventCard({ event, status, pending, onStatusChange }) {
+  const formattedDate = event.date
+    ? new Date(event.date).toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+    : "Date TBA";
+  const imageSrc = event.image || `https://picsum.photos/seed/${event.id || "saved"}/320/200`;
+  return (
+    <article className="rounded-2xl border border-brand-200/70 bg-white p-4 shadow-[0_10px_30px_-26px_rgba(16,24,40,0.65)]">
+      <div className="flex gap-4">
+        <img
+          src={imageSrc}
+          alt={event.title || "Event"}
+          className="w-28 h-24 rounded-xl object-cover shadow-[0_12px_28px_-20px_rgba(16,24,40,0.55)]"
+          loading="lazy"
+          onError={(e) => {
+            e.currentTarget.src = `https://picsum.photos/seed/${event.id || "saved-fallback"}/320/200`;
+          }}
+        />
+        <div className="flex-1 min-w-0 space-y-1">
+          <p className="text-xs text-text-muted">{formattedDate}</p>
+          <h4 className="text-lg font-semibold text-text leading-tight line-clamp-2">{event.title}</h4>
+          {event.venue?.name && (
+            <p className="text-sm text-text-muted">📍 {event.venue.name}</p>
+          )}
+        </div>
+        {event.url && (
+          <a
+            href={event.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="self-start rounded-full border border-brand-200 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10"
+          >
+            Visit
+          </a>
+        )}
+      </div>
+      {event.description && (
+        <p className="mt-2 text-sm text-text-muted line-clamp-2">{event.description}</p>
+      )}
+      <div className="mt-3 flex flex-wrap gap-2">
+        {STATUS_OPTIONS.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => onStatusChange(event.id, opt.value)}
+            disabled={pending === `${event.id}:${opt.value}`}
+            className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+              status === opt.value
+                ? "bg-primary text-onprimary border-primary"
+                : "bg-surface text-text border-brand-200/80 hover:bg-primary/10"
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+    </article>
+  );
+}
 
 export default Saved;

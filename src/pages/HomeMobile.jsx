@@ -22,8 +22,8 @@ export default function HomeMobile({
   onSelectPreference = () => { },
 }) {
   return (
-    <div className="tiled-background relative flex flex-col min-w-0">
-      <div className="w-full flex flex-col gap-2 items-center overflow-y-auto pb-8 min-w-0">
+    <div className="mobile-aurora relative flex flex-col min-w-0">
+      <div className="w-full flex flex-col gap-2 items-center overflow-visible pb-8 min-w-0">
         <div className="w-full md:max-w-4xl lg:max-w-6xl px-0 md:px-0 pt-2 min-w-0">
           <h3 className="h3">Recommended events</h3>
           {featured.length > 0 && <EventCarousel events={featured} />}
@@ -32,7 +32,7 @@ export default function HomeMobile({
         <h3 className="h3 mt-2 w-full">Upcoming events</h3>
 
         <div className="w-full px-4">
-          <div className="rounded-3xl border border-brand-100 bg-surface shadow-sm p-4 space-y-4">
+          <div className="rounded-3xl border border-brand-100 bg-white shadow-sm p-4 space-y-4">
             <TagList
               title="Filter by source"
               items={availableSources}
@@ -59,6 +59,7 @@ export default function HomeMobile({
             eventPreferences={eventPreferences}
             onSelectPreference={onSelectPreference}
             onRegister={(ev) => console.log("register", ev.id)}
+            cardClassName="bg-white"
           />
         ) : (
           <div className="w-[340px] max-w-[92%] text-center text-sm text-gray-500 py-6">
@@ -87,6 +88,7 @@ export default function HomeMobile({
                   eventPreferences={eventPreferences}
                   onSelectPreference={onSelectPreference}
                   onRegister={(ev) => console.log("register", ev.id)}
+                  cardClassName="bg-white"
                 />
               </div>
             )}

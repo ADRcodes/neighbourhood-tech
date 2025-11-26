@@ -16,6 +16,7 @@ const EventList = ({
   onRegister = () => {},
   eventPreferences = {},
   onSelectPreference = () => {},
+  cardClassName = "",
 }) => {
   const [openIds, setOpenIds] = useState(() => new Set());
 
@@ -49,6 +50,7 @@ const EventList = ({
             onRegister={onRegister}
             preference={preference}
             onSelectPreference={(status) => onSelectPreference(id, normalizedId, status)}
+            cardClassName={cardClassName}
           />
         );
       })}

@@ -63,6 +63,7 @@ const EventListItem = ({
   onRegister = () => { },
   preference = null,
   onSelectPreference = () => { },
+  cardClassName = "",
 }) => {
   const [pendingStatus, setPendingStatus] = useState(null);
   const isNotInterested = preference === "not_interested";
@@ -107,6 +108,8 @@ const EventListItem = ({
     ? dateObj.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
     : "";
 
+  const surfaceClass = cardClassName || "bg-surface";
+
   return (
     <div
       role="button"
@@ -114,9 +117,8 @@ const EventListItem = ({
       aria-expanded={expanded}
       onClick={onToggle}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onToggle()}
-      className={`relative w-full bg-surface rounded-2xl border border-brand-200/70 shadow-[0_15px_40px_-28px_rgba(16,24,40,0.65)] hover:shadow-[0_20px_45px_-25px_rgba(16,24,40,0.58)] transition-shadow flex flex-col p-3 md:p-4 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 ${
-        isNotInterested ? "opacity-60 grayscale" : ""
-      }`}
+      className={`relative w-full ${surfaceClass} rounded-2xl border border-brand-200/70 shadow-[0_15px_40px_-28px_rgba(16,24,40,0.65)] hover:shadow-[0_20px_45px_-25px_rgba(16,24,40,0.58)] transition-shadow flex flex-col p-3 md:p-4 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 ${isNotInterested ? "opacity-60 grayscale" : ""
+        }`}
     >
       {isNotInterested && (
         <span className="absolute left-3 top-3 z-10 rounded-full bg-text/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-onprimary">
@@ -132,18 +134,18 @@ const EventListItem = ({
           onError={(e) => {
             e.currentTarget.src = `https://picsum.photos/seed/${event.id || "fallback"}/300/200`;
           }}
-          className="w-24 sm:w-28 md:w-32 lg:w-36 xl:w-40 aspect-[4/3] object-cover rounded-xl shrink-0 shadow-[0_10px_24px_-20px_rgba(16,24,40,0.6)]"
+          className="w-24 sm:w-28 md:w-32 lg:w-36 xl:w-40 h-20 sm:h-24 md:h-28 lg:h-32 xl:h-36 object-cover rounded-xl shrink-0 shadow-[0_10px_24px_-20px_rgba(16,24,40,0.6)]"
         />
 
         <div className="w-full flex-1 flex flex-col gap-1 min-w-0">
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start justify-between gap-1">
             <div className="flex-1 min-w-0">
               <h3 className={`text-base md:text-lg font-semibold leading-snug text-text ${expanded ? "" : "line-clamp-1"}`}>
                 {event.title || "Untitled Event"}
               </h3>
               <LocationRow venue={event.venue} expanded={expanded} />
             </div>
-            <div className="flex flex-col items-end gap-2 w-12 shrink-0">
+            <div className="flex flex-col items-end shrink-0">
               <button
                 type="button"
                 aria-label="Not interested"
@@ -178,9 +180,6 @@ const EventListItem = ({
 
       {/* Expandable panel */}
       <div className="relative">
-        {expanded && (
-          <div className="pointer-events-none absolute top-0 left-0 right-0 h-3 bg-gradient-to-b from-surface to-transparent rounded-b" />
-        )}
         <div
           className="overflow-hidden transition-[max-height] duration-500 ease-out"
           style={{ maxHeight: expanded ? maxHeight : 0 }}
@@ -260,12 +259,21 @@ const EventListItem = ({
 
       <span
         aria-hidden
-        className={`pointer-events-none absolute left-1/2 -translate-x-1/2  text-text-muted text-sm transition-transform duration-300 ${expanded ? "rotate-180 -bottom-[6px]" : "rotate-0 bottom-2"
-          }`}
+        className={`pointer-events-none absolute flex h-4 w-4 items-center justify-center rounded-full left-1/2 -translate-x-1/2 text-text-muted transition-transform duration-300 bg-surface border border-brand-200 shadow-sm ${expanded ? "rotate-180 -bottom-2" : "rotate-0 -bottom-2 pt-[1px]"}`}
       >
-        ▾
+        <svg
+          viewBox="0 0 24 24"
+          className="h-3.5 w-3.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M6 9l6 6 6-6" />
+        </svg>
       </span>
-    </div>
+    </div >
   );
 };
 

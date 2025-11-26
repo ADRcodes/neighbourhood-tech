@@ -2,12 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useEvents } from "../lib/hooks/useEvents";
 import HomeMobile from "./HomeMobile";
 import HomeDesktop from "./HomeDesktop";
-import { DEFAULT_USE_API } from "../lib/config";
 import { useEventPreferences } from "../lib/hooks/useEventPreferences";
 import { normalizeEventId } from "../lib/utils/ids";
+import { useEventsContext } from "../lib/context/EventsProvider";
 
 export default function HomeShell() {
   const {
@@ -24,11 +23,7 @@ export default function HomeShell() {
     loading,
     error,
     warning,
-  } = useEvents({
-    useApi: DEFAULT_USE_API,
-    fallbackToMocks: true,
-    initialChips: [],
-  });
+  } = useEventsContext();
   const navigate = useNavigate();
   const { statusByEvent, setPreference, AUTH_REQUIRED_ERROR } = useEventPreferences();
   const [showNotInterested, setShowNotInterested] = useState(false);

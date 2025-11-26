@@ -2,6 +2,8 @@
 import { Outlet } from "react-router-dom";
 import DesktopNav from "../components/DesktopNav";
 import BottomNav from "../components/BottomNav";
+import { EventsProvider } from "../lib/context/EventsProvider";
+import { SavedEventsProvider } from "../lib/context/SavedEventsProvider";
 
 export default function MobileShell() {
   return (
@@ -10,11 +12,15 @@ export default function MobileShell() {
       <DesktopNav />
 
       {/* leave space: bottom nav on mobile, top bar on desktop */}
-      <main className="pb-24 md:pb-0">
-        <div className=" mx-auto">
-          <Outlet />
-        </div>
-      </main>
+      <EventsProvider>
+        <SavedEventsProvider>
+          <main className="pb-24 md:pb-0">
+            <div className=" mx-auto">
+              <Outlet />
+            </div>
+          </main>
+        </SavedEventsProvider>
+      </EventsProvider>
 
       <div className="md:hidden">
         <BottomNav />
