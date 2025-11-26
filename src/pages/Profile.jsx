@@ -1,10 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSupabaseSession, signOut } from "../lib/auth/supabase.jsx";
 import { supabase } from "../lib/supabase/client";
-import { listSavedEvents } from "../lib/api/supabase";
-import { mapSupabaseEvent } from "../lib/api/events";
-import { coerceEvent } from "../lib/api/normalize";
+import { useSavedEvents } from "../lib/context/SavedEventsProvider";
 
 const STATUS_OPTIONS = [
   { value: "going", label: "Going" },
@@ -22,38 +20,7 @@ export default function Profile() {
   const navigate = useNavigate();
   const hasSupabase = Boolean(supabase);
   const { user, ready } = useSupabaseSession();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [entries, setEntries] = useState([]);
-
-  const loadSaved = useCallback(async () => {
-    if (!user) {
-      setEntries([]);
-      return;
-    }
-    setLoading(true);
-    setError("");
-    try {
-      const rows = await listSavedEvents(user.id);
-      const mapped = rows
-        .map((row) => {
-          if (!row.event) return null;
-          const normalized = coerceEvent(mapSupabaseEvent(row.event));
-          return { event: normalized, status: row.status || "interested" };
-        })
-        .filter(Boolean);
-      setEntries(mapped);
-    } catch (err) {
-      console.error("Failed to load saved events", err);
-      setError(err.message || "Unable to load saved events");
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  useEffect(() => {
-    loadSaved();
-  }, [loadSaved]);
+  const { entries, loading, error } = useSavedEvents();
 
   const handleSignOut = async () => {
     try {

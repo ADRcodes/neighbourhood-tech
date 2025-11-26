@@ -203,6 +203,72 @@ body {
   }
 }
 
+.mobile-aurora {
+  position: relative;
+  min-height: 100svh;
+  background-image: linear-gradient(130deg,
+      color-mix(in oklch, var(--color-primary) 88%, var(--color-onprimary) 12%) 0%,
+      color-mix(in oklch, var(--color-brand-analog-a) 70%, var(--color-onprimary) 30%) 38%,
+      color-mix(in oklch, var(--color-brand-complement) 65%, var(--color-surface) 35%) 68%,
+      color-mix(in oklch, var(--color-accent) 80%, var(--color-onprimary) 20%) 100%);
+  background-size: 360% 360%;
+  animation: mobile-aurora-shift 48s ease-in-out infinite;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.mobile-aurora::before,
+.mobile-aurora::after {
+  content: "";
+  position: absolute;
+  inset: -30% -15%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+  filter: blur(95px);
+  background: radial-gradient(circle at 30% 20%, color-mix(in oklch, var(--color-accent) 65%, transparent) 0%, transparent 70%);
+  animation: mobile-aurora-glow 32s ease-in-out infinite;
+}
+
+.mobile-aurora::after {
+  inset: -12% -25%;
+  background: radial-gradient(circle at 75% 75%, color-mix(in oklch, var(--color-brand-complement) 70%, transparent) 0%, transparent 75%);
+  animation-duration: 40s;
+  animation-direction: alternate;
+}
+
+.mobile-aurora > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes mobile-aurora-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 30%;
+  }
+  100% {
+    background-position: 0% 70%;
+  }
+}
+
+@keyframes mobile-aurora-glow {
+  0% {
+    transform: translate3d(-5%, -5%, 0) scale(0.85);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translate3d(8%, 10%, 0) scale(1.1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate3d(-12%, 6%, 0) scale(0.9);
+    opacity: 0.4;
+  }
+}
+
 .about-aurora {
   position: relative;
   overflow: hidden;
