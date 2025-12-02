@@ -31,7 +31,7 @@ export default function HomeMobile({
 
         <h3 className="h3 mt-2 w-full">Upcoming events</h3>
 
-        <div className="w-full px-4">
+        <div className="w-full px-2 sm:px-4 md:px-0">
           <div className="rounded-3xl border border-brand-100 bg-white shadow-sm p-4 space-y-4">
             <TagList
               title="Filter by source"

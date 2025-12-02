@@ -257,22 +257,7 @@ const EventListItem = ({
         </div>
       </div>
 
-      <span
-        aria-hidden
-        className={`pointer-events-none absolute flex h-4 w-4 items-center justify-center rounded-full left-1/2 -translate-x-1/2 text-text-muted transition-transform duration-300 bg-surface border border-brand-200 shadow-sm ${expanded ? "rotate-180 -bottom-2" : "rotate-0 -bottom-2 pt-[1px]"}`}
-      >
-        <svg
-          viewBox="0 0 24 24"
-          className="h-3.5 w-3.5"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M6 9l6 6 6-6" />
-        </svg>
-      </span>
+      {/* Chevron removed per latest requirement */}
     </div >
   );
 };
