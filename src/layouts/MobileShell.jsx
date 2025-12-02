@@ -2,6 +2,7 @@
 import { Outlet } from "react-router-dom";
 import DesktopNav from "../components/DesktopNav";
 import BottomNav from "../components/BottomNav";
+import GlobalLoadingGate from "../components/GlobalLoadingGate";
 import { EventsProvider } from "../lib/context/EventsProvider";
 import { SavedEventsProvider } from "../lib/context/SavedEventsProvider";
 
@@ -14,6 +15,7 @@ export default function MobileShell() {
       {/* leave space: bottom nav on mobile, top bar on desktop */}
       <EventsProvider>
         <SavedEventsProvider>
+          <GlobalLoadingGate />
           <main className="pb-24 md:pb-0">
             <div className=" mx-auto">
               <Outlet />
