@@ -9,6 +9,7 @@ const cx = (...xs) => xs.filter(Boolean).join(" ");
 const LINKS = [
   { to: "/", label: "Home" },
   { to: "/saved", label: "Saved" },
+  { to: "/calendar", label: "Calendar" },
   { to: "/about", label: "About" },
   { to: "/register", label: "Add Event", accent: true },
 ];

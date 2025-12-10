@@ -9,6 +9,7 @@ import Unauthenticated from "./pages/Unauthenticated";
 import HomeShell from "./pages/HomeShell";
 import About from "./pages/About";
 import ColorAbout from "./pages/ColorAbout";
+import CalendarView from "./pages/CalendarView";
 import { SupabaseSessionProvider } from "./lib/auth/supabase.jsx";
 import { supabase } from "./lib/supabase/client";
 
@@ -55,6 +56,7 @@ function App() {
             <Route path="about" element={<About />} />
             <Route path="color-about" element={<ColorAbout />} />
             <Route path="register" element={<RegisterEventForm />} />
+            <Route path="calendar" element={<CalendarView />} />
           </Route>
         </Routes>
       </Router>

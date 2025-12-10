@@ -55,6 +55,11 @@ const preferenceOptions = [
   { value: "going", label: "Going" },
 ];
 
+const MEDIA_SIZES = {
+  md: "w-24 sm:w-28 md:w-32 lg:w-36 xl:w-40 h-20 sm:h-24 md:h-28 lg:h-32 xl:h-36",
+  sm: "w-20 sm:w-24 md:w-28 h-20 sm:h-24 md:h-24",
+};
+
 const EventListItem = ({
   event,
   registered = [],
@@ -64,6 +69,8 @@ const EventListItem = ({
   preference = null,
   onSelectPreference = () => { },
   cardClassName = "",
+  mediaSize = "md",
+  selected = false,
 }) => {
   const [pendingStatus, setPendingStatus] = useState(null);
   const isNotInterested = preference === "not_interested";
@@ -109,6 +116,9 @@ const EventListItem = ({
     : "";
 
   const surfaceClass = cardClassName || "bg-surface";
+  const selectedClasses = selected
+    ? "outline outline-2 outline-primary/70 outline-offset-2"
+    : "";
 
   return (
     <div
@@ -117,7 +127,7 @@ const EventListItem = ({
       aria-expanded={expanded}
       onClick={onToggle}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onToggle()}
-      className={`relative w-full ${surfaceClass} rounded-2xl border border-brand-200/70 shadow-[0_15px_40px_-28px_rgba(16,24,40,0.65)] hover:shadow-[0_20px_45px_-25px_rgba(16,24,40,0.58)] transition-shadow flex flex-col p-3 md:p-4 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 ${isNotInterested ? "opacity-60 grayscale" : ""
+      className={`relative w-full ${surfaceClass} rounded-2xl border border-brand-200/70 shadow-[0_15px_40px_-28px_rgba(16,24,40,0.65)] hover:shadow-[0_20px_45px_-25px_rgba(16,24,40,0.58)] transition-shadow flex flex-col p-3 md:p-4 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 ${selectedClasses} ${isNotInterested ? "opacity-60 grayscale" : ""
         }`}
     >
       {isNotInterested && (
@@ -134,7 +144,7 @@ const EventListItem = ({
           onError={(e) => {
             e.currentTarget.src = `https://picsum.photos/seed/${event.id || "fallback"}/300/200`;
           }}
-          className="w-24 sm:w-28 md:w-32 lg:w-36 xl:w-40 h-20 sm:h-24 md:h-28 lg:h-32 xl:h-36 object-cover rounded-xl shrink-0 shadow-[0_10px_24px_-20px_rgba(16,24,40,0.6)]"
+          className={`${MEDIA_SIZES[mediaSize] || MEDIA_SIZES.md} object-cover rounded-xl shrink-0 shadow-[0_10px_24px_-20px_rgba(16,24,40,0.6)]`}
         />
 
         <div className="w-full flex-1 flex flex-col gap-1 min-w-0">
