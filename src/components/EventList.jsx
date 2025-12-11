@@ -17,6 +17,7 @@ const EventList = ({
   eventPreferences = {},
   onSelectPreference = () => { },
   cardClassName = "",
+  headingTone = "default",
 }) => {
   const [openIds, setOpenIds] = useState(() => new Set());
 
@@ -40,7 +41,13 @@ const EventList = ({
     <div className="px-2 sm:px-4 md:px-0 space-y-3">
       {displayItems.map((item, index) => {
         if (item.type === "heading") {
-          return <ListHeading key={item.key || `heading-${index}`} label={item.label} />;
+          return (
+            <ListHeading
+              key={item.key || `heading-${index}`}
+              label={item.label}
+              tone={headingTone}
+            />
+          );
         }
         const event = item.event;
         const id = event.id ?? event.eventId;
@@ -64,11 +71,17 @@ const EventList = ({
   );
 };
 
-const ListHeading = ({ label }) => (
-  <div className="px-3 md:px-4 pt-4 text-xs font-semibold uppercase tracking-[0.35em] text-text-muted">
-    {label}
-  </div>
-);
+const ListHeading = ({ label, tone = "default" }) => {
+  const toneClass =
+    tone === "hero"
+      ? "text-onprimary drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]"
+      : "text-text-muted";
+  return (
+    <div className={`px-3 md:px-4 pt-4 text-xs font-semibold uppercase tracking-[0.35em] ${toneClass}`}>
+      {label}
+    </div>
+  );
+};
 
 function buildDisplayItems(events) {
   if (!Array.isArray(events) || events.length === 0) return [];

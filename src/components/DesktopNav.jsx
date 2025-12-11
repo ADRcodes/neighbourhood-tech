@@ -105,7 +105,8 @@ export default function DesktopNav() {
   }, [user]);
 
   useEffect(() => {
-    const tabThreshold = window.matchMedia("(min-width: 900px)");
+    // Adjust this breakpoint to control when tabs show vs dropdown menu
+    const tabThreshold = window.matchMedia("(min-width: 1024px)");
 
     const syncTabs = (event) => setShowTabs(event.matches);
 
@@ -153,19 +154,33 @@ export default function DesktopNav() {
               <ColorPaletteModalPro />
             </div>
 
-            {!hasSupabase ? (
-              <NavLink
-                to="/auth"
-                className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text transition-colors"
-              >
-                <div className="h-9 w-9 rounded-full border border-brand-200/70 bg-surface/80 grid place-items-center shadow-[0_10px_24px_-16px_rgba(16,24,40,0.45)]">
-                  <span className="text-lg">👤</span>
-                </div>
-                <span>Sign in</span>
-              </NavLink>
-            ) : !ready ? (
-              <div className="text-xs font-semibold text-text-muted px-3">Checking session…</div>
-            ) : user ? (
+            {showTabs ? (
+              hasSupabase && ready && user ? (
+                <NavLink
+                  to="/me"
+                  className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text transition-colors"
+                >
+                  <div className="h-9 w-9 rounded-full border border-brand-200/70 bg-surface/80 grid place-items-center shadow-[0_10px_24px_-16px_rgba(16,24,40,0.45)]">
+                    <span className="text-lg">
+                      {(user.user_metadata?.full_name || user.email || "U").charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <span>Profile</span>
+                </NavLink>
+              ) : (
+                <NavLink
+                  to="/auth"
+                  className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text transition-colors"
+                >
+                  <div className="h-9 w-9 rounded-full border border-brand-200/70 bg-surface/80 grid place-items-center shadow-[0_10px_24px_-16px_rgba(16,24,40,0.45)]">
+                    <span className="text-base" aria-hidden>
+                      ☰
+                    </span>
+                  </div>
+                  <span>Sign in</span>
+                </NavLink>
+              )
+            ) : (
               <div className="relative">
                 <button
                   type="button"
@@ -175,32 +190,15 @@ export default function DesktopNav() {
                   aria-expanded={accountMenuOpen}
                   aria-controls={accountMenuId}
                   className={cx(
-                    "inline-flex items-center gap-2 rounded-full border border-brand-200/70 bg-surface px-1.5 py-1 pr-3 text-left shadow-[0_10px_24px_-20px_rgba(16,24,40,0.6)] transition",
+                    "inline-flex items-center gap-1 rounded-full border border-brand-200/70 bg-surface px-3 py-2 text-sm font-semibold shadow-[0_10px_24px_-20px_rgba(16,24,40,0.6)] transition",
                     "hover:border-primary/60 hover:text-primary",
                     accountMenuOpen && "border-primary/60 text-primary"
                   )}
                 >
-                  <span className="sr-only">Toggle account menu</span>
-                  <div className="h-9 w-9 rounded-full bg-primary/15 text-primary grid place-items-center font-semibold">
-                    {(user.user_metadata?.full_name || user.email || "U").charAt(0).toUpperCase()}
-                  </div>
-                  <svg
-                    className={cx(
-                      "h-4 w-4 transition-transform duration-200",
-                      accountMenuOpen && "rotate-180"
-                    )}
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M5 7l5 5 5-5"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <span className="text-[1.5rem] -mt-[6px]" aria-hidden>
+                    ☰
+                  </span>
+                  <span>Menu</span>
                 </button>
                 <div
                   id={accountMenuId}
@@ -215,71 +213,74 @@ export default function DesktopNav() {
                   )}
                   style={{ willChange: "transform, opacity" }}
                 >
-                  {!showTabs && (
-                    <div className="py-1 border-b border-brand-200/60">
-                      {LINKS.map((link) => (
-                        <NavLink
-                          key={link.to}
-                          to={link.to}
-                          role="menuitem"
-                          onClick={() => setAccountMenuOpen(false)}
-                          className={({ isActive }) =>
-                            cx(
-                              "flex items-center gap-2 px-4 py-2 text-sm transition-colors",
-                              isActive
-                                ? "text-primary font-semibold"
-                                : "text-text-muted hover:text-text hover:bg-primary/5"
-                            )
-                          }
-                        >
-                          {link.icon ? <span className="text-base">{link.icon}</span> : null}
-                          {link.label}
-                        </NavLink>
-                      ))}
-                    </div>
-                  )}
-                  <div className="py-1">
-                    {ACCOUNT_LINKS.map((item) => (
+                  <div className="py-1 border-b border-brand-200/60">
+                    {LINKS.map((link) => (
                       <NavLink
-                        key={item.to}
-                        to={item.to}
+                        key={link.to}
+                        to={link.to}
+                        role="menuitem"
+                        onClick={() => setAccountMenuOpen(false)}
+                        className={({ isActive }) =>
+                          cx(
+                            "flex items-center gap-2 px-4 py-2 text-sm transition-colors",
+                            isActive
+                              ? "text-primary font-semibold"
+                              : "text-text-muted hover:text-text hover:bg-primary/5"
+                          )
+                        }
+                      >
+                        {link.icon ? <span className="text-base">{link.icon}</span> : null}
+                        {link.label}
+                      </NavLink>
+                    ))}
+                  </div>
+                  <div className="py-1">
+                    {hasSupabase && ready && user ? (
+                      <>
+                        {ACCOUNT_LINKS.map((item) => (
+                          <NavLink
+                            key={item.to}
+                            to={item.to}
+                            role="menuitem"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="block px-4 py-2 text-sm text-text-muted hover:text-text hover:bg-primary/5 transition-colors"
+                          >
+                            {item.label}
+                          </NavLink>
+                        ))}
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => {
+                            setAccountMenuOpen(false);
+                            handleSignOut();
+                          }}
+                          disabled={signingOut}
+                          className={cx(
+                            "w-full text-left px-4 py-2 text-sm font-semibold transition-colors",
+                            signingOut
+                              ? "text-text-muted cursor-wait"
+                              : "text-primary hover:bg-primary/10"
+                          )}
+                        >
+                          {signingOut ? "Signing out…" : "Sign out"}
+                        </button>
+                      </>
+                    ) : hasSupabase && !ready ? (
+                      <div className="px-4 py-2 text-sm text-text-muted">Checking session…</div>
+                    ) : (
+                      <NavLink
+                        to="/auth"
                         role="menuitem"
                         onClick={() => setAccountMenuOpen(false)}
                         className="block px-4 py-2 text-sm text-text-muted hover:text-text hover:bg-primary/5 transition-colors"
                       >
-                        {item.label}
+                        Sign in
                       </NavLink>
-                    ))}
-                    <button
-                      type="button"
-                      role="menuitem"
-                      onClick={() => {
-                        setAccountMenuOpen(false);
-                        handleSignOut();
-                      }}
-                      disabled={signingOut}
-                      className={cx(
-                        "w-full text-left px-4 py-2 text-sm font-semibold transition-colors",
-                        signingOut
-                          ? "text-text-muted cursor-wait"
-                          : "text-primary hover:bg-primary/10"
-                      )}
-                    >
-                      {signingOut ? "Signing out…" : "Sign out"}
-                    </button>
+                    )}
                   </div>
                 </div>
               </div>
-            ) : (
-              <NavLink
-                to="/auth"
-                className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text transition-colors"
-              >
-                <div className="h-9 w-9 rounded-full border border-brand-200/70 bg-surface/80 grid place-items-center shadow-[0_10px_24px_-16px_rgba(16,24,40,0.45)]">
-                  <span className="text-lg">👤</span>
-                </div>
-                <span>Sign in</span>
-              </NavLink>
             )}
           </div>
         </div>

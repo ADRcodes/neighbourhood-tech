@@ -12,6 +12,14 @@ const Icons = {
   Saved: (p) => (<svg viewBox="0 0 24 24" fill="none" {...p}><path d="M6.5 3.5h11a1.5 1.5 0 0 1 1.5 1.5v15l-7-4-7 4V5a1.5 1.5 0 0 1 1.5-1.5Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" /></svg>),
   User: (p) => (<svg viewBox="0 0 24 24" fill="none" {...p}><circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.6" /><path d="M4 20a8 8 0 0 1 16 0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>),
   Info: (p) => (<svg viewBox="0 0 24 24" fill="none" {...p}><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" /><path d="M12 8v.01" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /><path d="M11.5 12.5h1v4h-1z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>),
+  Menu: (p) => (<svg viewBox="0 0 24 24" fill="none" {...p}><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>),
+  Calendar: (p) => (
+    <svg viewBox="0 0 24 24" fill="none" {...p}>
+      <rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M8 3v4M16 3v4M4 9h16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M9.5 13.5h5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  ),
 };
 
 function NavItem({ to, label, icon }) {
@@ -132,7 +140,7 @@ export default function BottomNav() {
         <div className="relative h-16 rounded-2xl bg-surface/92 backdrop-blur-xl shadow-[0_22px_45px_-26px_rgba(16,24,40,0.65)] border border-brand-200/80 text-text">
           <div className="grid grid-cols-5 h-full">
             <NavItem to="/" label="Home" icon={<Icons.Home />} />
-            <NavItem to="/saved" label="Saved" icon={<Icons.Saved />} />
+            <NavItem to="/calendar" label="Calendar" icon={<Icons.Calendar />} />
             <div className="relative">
               <NavLink
                 to="/register"
@@ -142,60 +150,78 @@ export default function BottomNav() {
                 <Icons.Plus className="h-7 w-7" />
               </NavLink>
             </div>
-            <NavItem to="/about" label="About" icon={<Icons.Info />} />
-            {!hasSupabase ? (
-              <NavItem to="/auth" label="Sign in" icon={<Icons.User />} />
-            ) : !ready ? (
-              <NavButton label="Loading" icon={<Icons.User />} disabled onClick={() => { }} />
-            ) : user ? (
-              <div className="relative flex align-middle">
-                <NavButton
-                  label="More"
-                  icon={<Icons.User />}
-                  onClick={() => setMenuOpen((prev) => !prev)}
-                  active={menuOpen}
-                  ref={triggerRef}
-                />
-                <div
-                  ref={menuRef}
-                  className={cx(
-                    "absolute bottom-[calc(100%+12px)] right-[70px] translate-x-1/2 w-max rounded-2xl border border-brand-200/60 bg-surface shadow-[0_24px_40px_-28px_rgba(16,24,40,0.7)] p-3",
-                    "origin-bottom transition-all duration-200 ease-out",
-                    menuOpen
-                      ? "opacity-100 translate-y-0 pointer-events-auto"
-                      : "opacity-0 translate-y-2 pointer-events-none"
-                  )}
-                  style={{ willChange: "transform, opacity" }}
+            <NavItem to="/saved" label="Saved" icon={<Icons.Saved />} />
+            <div className="relative flex align-middle">
+              <NavButton
+                label="More"
+                icon={<Icons.Menu />}
+                onClick={() => setMenuOpen((prev) => !prev)}
+                active={menuOpen}
+                ref={triggerRef}
+              />
+              <div
+                ref={menuRef}
+                className={cx(
+                  "absolute bottom-[calc(100%+12px)] right-[70px] translate-x-1/2 w-max rounded-2xl border border-brand-200/60 bg-surface shadow-[0_24px_40px_-28px_rgba(16,24,40,0.7)] p-3",
+                  "origin-bottom transition-all duration-200 ease-out",
+                  menuOpen
+                    ? "opacity-100 translate-y-0 pointer-events-auto"
+                    : "opacity-0 translate-y-2 pointer-events-none"
+                )}
+                style={{ willChange: "transform, opacity" }}
+              >
+                <ColorPaletteModalPro />
+                <NavLink
+                  to="/about"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-text hover:bg-primary/5"
                 >
-                  <ColorPaletteModalPro />
+                  About
+                </NavLink>
+                <NavLink
+                  to="/calendar"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-text hover:bg-primary/5"
+                >
+                  Calendar
+                </NavLink>
+                {hasSupabase && ready && user ? (
+                  <>
+                    <NavLink
+                      to="/me"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-text hover:bg-primary/5"
+                    >
+                      Profile
+                    </NavLink>
+                    <button
+                      type="button"
+                      className={cx(
+                        "w-full rounded-full px-3 py-2 text-sm font-semibold transition-colors",
+                        signingOut ? "text-text-muted cursor-wait" : "text-primary hover:bg-primary/10"
+                      )}
+                      onClick={() => {
+                        setMenuOpen(false);
+                        handleSignOut();
+                      }}
+                      disabled={signingOut}
+                    >
+                      {signingOut ? "Signing out…" : "Sign out"}
+                    </button>
+                  </>
+                ) : hasSupabase && !ready ? (
+                  <div className="px-3 py-2 text-sm text-text-muted">Checking session…</div>
+                ) : (
                   <NavLink
-                    to="/me"
+                    to="/auth"
                     onClick={() => setMenuOpen(false)}
                     className="flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-text hover:bg-primary/5"
                   >
-                    {/* <Icons.User className="h-4 w-4" /> */}
-                    Profile
+                    Sign in
                   </NavLink>
-
-                  <button
-                    type="button"
-                    className={cx(
-                      "w-full rounded-full px-3 py-2 text-sm font-semibold transition-colors",
-                      signingOut ? "text-text-muted cursor-wait" : "text-primary hover:bg-primary/10"
-                    )}
-                    onClick={() => {
-                      setMenuOpen(false);
-                      handleSignOut();
-                    }}
-                    disabled={signingOut}
-                  >
-                    {signingOut ? "Signing out…" : "Sign out"}
-                  </button>
-                </div>
+                )}
               </div>
-            ) : (
-              <NavItem to="/auth" label="Sign in" icon={<Icons.User />} />
-            )}
+            </div>
           </div>
         </div>
       </div>

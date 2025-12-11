@@ -6,24 +6,44 @@ import { supabase } from "../supabase/client";
 
 const LOCAL_EVENTS_URL = "/data/events.json";
 
+const startOfTodayIso = () => {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString();
+};
+
+const filterFromToday = (rows, todayIso) => {
+  const todayMs = new Date(todayIso).getTime();
+  return rows.filter((row) => {
+    if (!row?.date) return false;
+    const ms = new Date(row.date).getTime();
+    return Number.isFinite(ms) && ms >= todayMs;
+  });
+};
+
 export async function fetchEvents({ signal } = {}) {
+  const dateFrom = startOfTodayIso();
+
   if (supabase) {
     console.info("[Events] Fetching via Supabase client");
-    const rows = await listSupabaseEvents({ signal });
+    const rows = await listSupabaseEvents({ filters: { dateFrom }, signal });
     console.info("[Events] Supabase returned", rows.length, "rows");
-    return rows.map(mapSupabaseEvent).map(coerceEvent);
+    return filterFromToday(rows.map(mapSupabaseEvent).map(coerceEvent), dateFrom);
   }
 
   console.info("[Events] Fetching via API_BASE", API_BASE);
-  const data = await httpGetJson(`${API_BASE}/api/events`, { signal });
+  const url = `${API_BASE}/api/events?dateFrom=${encodeURIComponent(dateFrom)}`;
+  const data = await httpGetJson(url, { signal });
   const rows = Array.isArray(data) ? data : data?.content ?? [];
-  return rows.map(coerceEvent);
+  return filterFromToday(rows.map(coerceEvent), dateFrom);
 }
 
 export async function fetchLocalEvents({ signal } = {}) {
+  const dateFrom = startOfTodayIso();
   const data = await httpGetJson(LOCAL_EVENTS_URL, { signal, timeoutMs: 6000 });
   const rows = Array.isArray(data?.rows) ? data.rows : [];
-  return rows
+  const filtered = filterFromToday(rows, dateFrom);
+  return filtered
     .map((row, index) => transformLocalRow(row, index))
     .filter(Boolean)
     .sort((a, b) => {

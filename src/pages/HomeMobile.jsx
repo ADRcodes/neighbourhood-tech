@@ -24,12 +24,16 @@ export default function HomeMobile({
   return (
     <div className="mobile-aurora relative flex flex-col min-w-0">
       <div className="w-full flex flex-col gap-2 items-center overflow-visible pb-8 min-w-0">
-        <div className="w-full md:max-w-4xl lg:max-w-6xl px-0 md:px-0 pt-2 min-w-0">
-          <h3 className="h3">Recommended events</h3>
+        <div className="w-full md:max-w-4xl lg:max-w-6xl px-0 pt-2 min-w-0">
+          <h3 className="h3 px-2 text-onprimary drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)] text-[20px] font-bold">
+            Recommended events
+          </h3>
           {featured.length > 0 && <EventCarousel events={featured} />}
         </div>
 
-        <h3 className="h3 mt-2 w-full">Upcoming events</h3>
+        <h3 className="h3 mt-2 w-full text-onprimary drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)] text-[20px] font-bold">
+          Upcoming events
+        </h3>
 
         <div className="w-full px-2 sm:px-4 md:px-0">
           <div className="rounded-3xl border border-brand-100 bg-white shadow-sm p-4 space-y-4">
@@ -56,6 +60,7 @@ export default function HomeMobile({
           <EventList
             events={events}
             accordion
+            headingTone="hero"
             eventPreferences={eventPreferences}
             onSelectPreference={onSelectPreference}
             onRegister={(ev) => console.log("register", ev.id)}
@@ -85,6 +90,7 @@ export default function HomeMobile({
                 <EventList
                   events={notInterestedEvents}
                   accordion
+                  headingTone="default"
                   eventPreferences={eventPreferences}
                   onSelectPreference={onSelectPreference}
                   onRegister={(ev) => console.log("register", ev.id)}
