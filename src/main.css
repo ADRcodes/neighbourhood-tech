@@ -84,7 +84,7 @@ body {
   padding: 0;
 }
 .h3 {
-  @apply text-[18px] px-[var(--mobile-padding)] drop-shadow-sm;
+  @apply text-[18px] px-[var(--mobile-padding)] sm:px-[32px] drop-shadow-sm;
 }
 
 .btn {

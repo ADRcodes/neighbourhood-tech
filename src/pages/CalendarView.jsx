@@ -302,7 +302,7 @@ export default function CalendarView() {
   };
 
   return (
-    <div className="px-4 md:px-6 lg:px-8 py-6 text-text">
+    <div className={`px-4 md:px-6 lg:px-8 py-6 text-text ${isMobileCalendar ? "mobile-aurora min-h-screen" : ""}`}>
       <header className="mb-6 space-y-4">
         <div className="flex flex-col gap-2">
           <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary">Calendar</p>
