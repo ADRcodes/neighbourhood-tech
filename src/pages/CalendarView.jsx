@@ -316,36 +316,69 @@ export default function CalendarView() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-brand-200 bg-surface shadow-sm p-4 space-y-4">
-          <div className="relative">
-            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-60">⌕</span>
-            <input
-              type="search"
-              placeholder="Search events"
-              className="w-full pl-8 pr-3 py-2 rounded-xl text-sm bg-white border border-brand-100 focus:ring-2 focus:ring-focus outline-none"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+        {isMobileCalendar ? (
+          <div className="space-y-3">
+            <div className="relative">
+              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-60">⌕</span>
+              <input
+                type="search"
+                placeholder="Search events"
+                className="w-full pl-8 pr-3 py-2 rounded-xl text-sm bg-white border border-brand-100 focus:ring-2 focus:ring-focus outline-none"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-3">
+              <TagList
+                title="Filter by source"
+                items={sourceOptions}
+                activeKeys={sourceFilters}
+                onToggle={toggleSource}
+                emptyLabel="Sources will appear once events load."
+                className="bg-white rounded-2xl p-3 shadow-sm"
+              />
+              <TagList
+                title="Filter by tag"
+                items={tagOptions}
+                activeKeys={chips}
+                onToggle={toggleChip}
+                emptyLabel="Tags will appear once events load."
+                className="bg-white rounded-2xl p-3 shadow-sm"
+              />
+            </div>
           </div>
-          <div className="grid gap-3 lg:grid-cols-2">
-            <TagList
-              title="Filter by source"
-              items={sourceOptions}
-              activeKeys={sourceFilters}
-              onToggle={toggleSource}
-              emptyLabel="Sources will appear once events load."
-              className="bg-white rounded-2xl p-3"
-            />
-            <TagList
-              title="Filter by tag"
-              items={tagOptions}
-              activeKeys={chips}
-              onToggle={toggleChip}
-              emptyLabel="Tags will appear once events load."
-              className="bg-white rounded-2xl p-3"
-            />
+        ) : (
+          <div className="rounded-3xl border border-brand-200 bg-surface shadow-sm p-4 space-y-4">
+            <div className="relative">
+              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-60">⌕</span>
+              <input
+                type="search"
+                placeholder="Search events"
+                className="w-full pl-8 pr-3 py-2 rounded-xl text-sm bg-white border border-brand-100 focus:ring-2 focus:ring-focus outline-none"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-3 lg:grid-cols-2">
+              <TagList
+                title="Filter by source"
+                items={sourceOptions}
+                activeKeys={sourceFilters}
+                onToggle={toggleSource}
+                emptyLabel="Sources will appear once events load."
+                className="bg-white rounded-2xl p-3"
+              />
+              <TagList
+                title="Filter by tag"
+                items={tagOptions}
+                activeKeys={chips}
+                onToggle={toggleChip}
+                emptyLabel="Tags will appear once events load."
+                className="bg-white rounded-2xl p-3"
+              />
+            </div>
           </div>
-        </div>
+        )}
       </header>
 
       <div className="grid gap-6 items-start lg:grid-cols-[2fr_1fr]">
@@ -512,68 +545,132 @@ export default function CalendarView() {
           )}
         </section>
 
-        <aside className="space-y-3 lg:sticky lg:top-24">
-          <div className="rounded-3xl border border-brand-200 bg-surface shadow-sm py-4 space-y-2">
-            <div className="flex items-center justify-between gap-2 px-4">
-              <div>
-                <p className="text-sm font-semibold text-text">Events in view</p>
-                <p className="text-xs text-text-muted">
-                  {dayFilterIso && selectedDayLabel
-                    ? visibleEvents.length
-                      ? `${visibleEvents.length} events on ${selectedDayLabel}`
-                      : `No events on ${selectedDayLabel}`
-                    : visibleEvents.length
-                      ? `${visibleEvents.length} events`
-                      : "Scroll the calendar to see events"}
-                </p>
+        <aside className={`space-y-3 ${isMobileCalendar ? "" : "lg:sticky lg:top-24"}`}>
+          {isMobileCalendar ? (
+            <>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-text">Events in view</p>
+                  <p className="text-xs text-text-muted">
+                    {dayFilterIso && selectedDayLabel
+                      ? visibleEvents.length
+                        ? `${visibleEvents.length} events on ${selectedDayLabel}`
+                        : `No events on ${selectedDayLabel}`
+                      : visibleEvents.length
+                        ? `${visibleEvents.length} events`
+                        : "Scroll the calendar to see events"}
+                  </p>
+                </div>
+                <div
+                  className={`rounded-full text-xs font-semibold px-2 py-1 border ${dayFilterIso
+                      ? "bg-primary/10 text-primary border-primary/20"
+                      : "bg-brand-100 text-text border-brand-200"
+                    }`}
+                >
+                  {dayFilterIso ? "Day view" : "Live sync"}
+                </div>
               </div>
-              <div
-                className={`rounded-full text-xs font-semibold px-2 py-1 border ${dayFilterIso
-                    ? "bg-primary/10 text-primary border-primary/20"
-                    : "bg-brand-100 text-text border-brand-200"
-                  }`}
-              >
-                {dayFilterIso ? "Day view" : "Live sync"}
+              <div className="space-y-3">
+                {loading ? (
+                  <p className="text-xs text-text-muted">Loading events…</p>
+                ) : visibleEvents.length === 0 ? (
+                  <p className="text-xs text-text-muted">No events in this range.</p>
+                ) : (
+                  visibleEvents.map((event) => {
+                    const key = eventKey(event);
+                    const normalizedId = normalizeEventId(event?.id ?? event?.eventId);
+                    const preference = normalizedId ? statusByEvent?.[normalizedId] || null : null;
+                    return (
+                      <div
+                        key={key}
+                        ref={(node) => {
+                          if (!node) visibleEventRefs.current.delete(key);
+                          else visibleEventRefs.current.set(key, node);
+                        }}
+                        className="rounded-3xl"
+                        style={{ scrollMarginTop: "12px", scrollMarginBottom: "12px" }}
+                      >
+                        <EventListItem
+                          event={event}
+                          registered={event.registered ?? []}
+                          expanded={openIds.has(key)}
+                          onToggle={() => toggleVisibleEvent(key)}
+                          preference={preference}
+                          onSelectPreference={(status) => handlePreference(event?.id ?? event?.eventId, normalizedId, status)}
+                          onRegister={(ev) => console.log("register", ev.id)}
+                          cardClassName="bg-white"
+                          mediaSize="sm"
+                          selected={selectedEventKey === key}
+                        />
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="rounded-3xl border border-brand-200 bg-surface shadow-sm py-4 space-y-2">
+              <div className="flex items-center justify-between gap-2 px-4">
+                <div>
+                  <p className="text-sm font-semibold text-text">Events in view</p>
+                  <p className="text-xs text-text-muted">
+                    {dayFilterIso && selectedDayLabel
+                      ? visibleEvents.length
+                        ? `${visibleEvents.length} events on ${selectedDayLabel}`
+                        : `No events on ${selectedDayLabel}`
+                      : visibleEvents.length
+                        ? `${visibleEvents.length} events`
+                        : "Scroll the calendar to see events"}
+                  </p>
+                </div>
+                <div
+                  className={`rounded-full text-xs font-semibold px-2 py-1 border ${dayFilterIso
+                      ? "bg-primary/10 text-primary border-primary/20"
+                      : "bg-brand-100 text-text border-brand-200"
+                    }`}
+                >
+                  {dayFilterIso ? "Day view" : "Live sync"}
+                </div>
+              </div>
+              <div className="space-y-3 max-h-[72vh] overflow-y-auto p-2">
+                {loading ? (
+                  <p className="text-xs text-text-muted">Loading events…</p>
+                ) : visibleEvents.length === 0 ? (
+                  <p className="text-xs text-text-muted">No events in this range.</p>
+                ) : (
+                  visibleEvents.map((event) => {
+                    const key = eventKey(event);
+                    const normalizedId = normalizeEventId(event?.id ?? event?.eventId);
+                    const preference = normalizedId ? statusByEvent?.[normalizedId] || null : null;
+                    return (
+                      <div
+                        key={key}
+                        ref={(node) => {
+                          if (!node) visibleEventRefs.current.delete(key);
+                          else visibleEventRefs.current.set(key, node);
+                        }}
+                        className="rounded-3xl"
+                        style={{ scrollMarginTop: "12px", scrollMarginBottom: "12px" }}
+                      >
+                        <EventListItem
+                          event={event}
+                          registered={event.registered ?? []}
+                          expanded={openIds.has(key)}
+                          onToggle={() => toggleVisibleEvent(key)}
+                          preference={preference}
+                          onSelectPreference={(status) => handlePreference(event?.id ?? event?.eventId, normalizedId, status)}
+                          onRegister={(ev) => console.log("register", ev.id)}
+                          cardClassName="bg-white"
+                          mediaSize="sm"
+                          selected={selectedEventKey === key}
+                        />
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
-            <div className="space-y-3 max-h-[72vh] overflow-y-auto p-2">
-              {loading ? (
-                <p className="text-xs text-text-muted">Loading events…</p>
-              ) : visibleEvents.length === 0 ? (
-                <p className="text-xs text-text-muted">No events in this range.</p>
-              ) : (
-                visibleEvents.map((event) => {
-                  const key = eventKey(event);
-                  const normalizedId = normalizeEventId(event?.id ?? event?.eventId);
-                  const preference = normalizedId ? statusByEvent?.[normalizedId] || null : null;
-                  return (
-                    <div
-                      key={key}
-                      ref={(node) => {
-                        if (!node) visibleEventRefs.current.delete(key);
-                        else visibleEventRefs.current.set(key, node);
-                      }}
-                      className="rounded-3xl"
-                      style={{ scrollMarginTop: "12px", scrollMarginBottom: "12px" }}
-                    >
-                      <EventListItem
-                        event={event}
-                        registered={event.registered ?? []}
-                        expanded={openIds.has(key)}
-                        onToggle={() => toggleVisibleEvent(key)}
-                        preference={preference}
-                        onSelectPreference={(status) => handlePreference(event?.id ?? event?.eventId, normalizedId, status)}
-                        onRegister={(ev) => console.log("register", ev.id)}
-                        cardClassName="bg-white"
-                        mediaSize="sm"
-                        selected={selectedEventKey === key}
-                      />
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
+          )}
         </aside>
       </div>
     </div>
