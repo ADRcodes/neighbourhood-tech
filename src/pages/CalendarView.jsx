@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import TagList from "../components/TagList";
+import FiltersPanel from "../components/FiltersPanel";
 import EventListItem from "../components/EventListItem";
 import { useEventsContext } from "../lib/context/EventsProvider";
 import { useEventPreferences } from "../lib/hooks/useEventPreferences";
@@ -61,10 +61,13 @@ export default function CalendarView() {
     toggleChip,
     sourceFilters,
     toggleSource,
+    locationFilters,
+    toggleLocation,
     searchTerm,
     setSearchTerm,
     tagOptions,
     sourceOptions,
+    locationOptions,
     loading,
   } = useEventsContext();
   const navigate = useNavigate();
@@ -302,7 +305,9 @@ export default function CalendarView() {
   };
 
   return (
-    <div className={`px-4 md:px-6 lg:px-8 py-6 text-text ${isMobileCalendar ? "mobile-aurora min-h-screen" : ""}`}>
+    <div
+      className={`px-4 md:px-6 lg:px-8 py-6 md:-mt-[72px] md:pt-24 text-text mobile-aurora ${isMobileCalendar ? " min-h-screen" : ""}`}
+    >
       <header className="mb-6 space-y-4">
         <div className="flex flex-col gap-2">
           <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary">Calendar</p>
@@ -316,69 +321,19 @@ export default function CalendarView() {
           </div>
         </div>
 
-        {isMobileCalendar ? (
-          <div className="space-y-3">
-            <div className="relative">
-              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-60">⌕</span>
-              <input
-                type="search"
-                placeholder="Search events"
-                className="w-full pl-8 pr-3 py-2 rounded-xl text-sm bg-white border border-brand-100 focus:ring-2 focus:ring-focus outline-none"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="grid gap-3">
-              <TagList
-                title="Filter by source"
-                items={sourceOptions}
-                activeKeys={sourceFilters}
-                onToggle={toggleSource}
-                emptyLabel="Sources will appear once events load."
-                className="bg-white rounded-2xl p-3 shadow-sm"
-              />
-              <TagList
-                title="Filter by tag"
-                items={tagOptions}
-                activeKeys={chips}
-                onToggle={toggleChip}
-                emptyLabel="Tags will appear once events load."
-                className="bg-white rounded-2xl p-3 shadow-sm"
-              />
-            </div>
-          </div>
-        ) : (
-          <div className="rounded-3xl border border-brand-200 bg-surface shadow-sm p-4 space-y-4">
-            <div className="relative">
-              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-60">⌕</span>
-              <input
-                type="search"
-                placeholder="Search events"
-                className="w-full pl-8 pr-3 py-2 rounded-xl text-sm bg-white border border-brand-100 focus:ring-2 focus:ring-focus outline-none"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="grid gap-3 lg:grid-cols-2">
-              <TagList
-                title="Filter by source"
-                items={sourceOptions}
-                activeKeys={sourceFilters}
-                onToggle={toggleSource}
-                emptyLabel="Sources will appear once events load."
-                className="bg-white rounded-2xl p-3"
-              />
-              <TagList
-                title="Filter by tag"
-                items={tagOptions}
-                activeKeys={chips}
-                onToggle={toggleChip}
-                emptyLabel="Tags will appear once events load."
-                className="bg-white rounded-2xl p-3"
-              />
-            </div>
-          </div>
-        )}
+        <FiltersPanel
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          availableSources={sourceOptions}
+          activeSources={sourceFilters}
+          onToggleSource={toggleSource}
+          availableLocations={locationOptions}
+          activeLocations={locationFilters}
+          onToggleLocation={toggleLocation}
+          availableTags={tagOptions}
+          activeTags={chips}
+          onToggleTag={toggleChip}
+        />
       </header>
 
       <div className="grid gap-6 items-start lg:grid-cols-[2fr_1fr]">
@@ -469,8 +424,8 @@ export default function CalendarView() {
                       type="button"
                       onClick={() => handleDaySelect(day.iso)}
                       className={`flex h-16 flex-col items-center justify-center gap-1 rounded-lg text-sm transition ${isSelected
-                          ? "bg-primary text-onprimary shadow-sm"
-                          : "bg-white text-text border border-brand-200 hover:border-primary/60"
+                        ? "bg-primary text-onprimary shadow-sm"
+                        : "bg-white text-text border border-brand-200 hover:border-primary/60"
                         } ${!day.isCurrentMonth ? "opacity-60" : ""} ${day.isToday && !isSelected ? "ring-1 ring-primary/60" : ""}`}
                     >
                       <span className="text-base font-semibold leading-none">{day.label}</span>
@@ -524,8 +479,8 @@ export default function CalendarView() {
                                 type="button"
                                 onClick={() => handleDayEventClick(event)}
                                 className={`w-full text-left text-xs rounded-lg px-1 py-0.5 transition line-clamp-2 leading-snug ${selectedEventKey === eventKey(event)
-                                    ? "bg-primary/15 text-primary font-semibold"
-                                    : "bg-white text-text-muted hover:bg-primary/8"
+                                  ? "bg-primary/15 text-primary font-semibold"
+                                  : "bg-white text-text-muted hover:bg-primary/8"
                                   }`}
                               >
                                 {event.title}
@@ -563,8 +518,8 @@ export default function CalendarView() {
                 </div>
                 <div
                   className={`rounded-full text-xs font-semibold px-2 py-1 border ${dayFilterIso
-                      ? "bg-primary/10 text-primary border-primary/20"
-                      : "bg-brand-100 text-text border-brand-200"
+                    ? "bg-primary/10 text-primary border-primary/20"
+                    : "bg-brand-100 text-text border-brand-200"
                     }`}
                 >
                   {dayFilterIso ? "Day view" : "Live sync"}
@@ -625,8 +580,8 @@ export default function CalendarView() {
                 </div>
                 <div
                   className={`rounded-full text-xs font-semibold px-2 py-1 border ${dayFilterIso
-                      ? "bg-primary/10 text-primary border-primary/20"
-                      : "bg-brand-100 text-text border-brand-200"
+                    ? "bg-primary/10 text-primary border-primary/20"
+                    : "bg-brand-100 text-text border-brand-200"
                     }`}
                 >
                   {dayFilterIso ? "Day view" : "Live sync"}

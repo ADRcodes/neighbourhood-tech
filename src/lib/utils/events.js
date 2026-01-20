@@ -1,10 +1,26 @@
 import { getEventTagsLower, norm } from "./tags";
 
-export function filterEvents(events, { tags = [], sources = [], search = "" } = {}) {
-  if (!tags.length && !sources.length && !search) return events;
+const extractLocationLabel = (ev) => {
+  const city = String(ev?.city ?? "").trim();
+  if (city) return city;
+
+  const address = String(ev?.venue?.address ?? "").trim();
+  if (address) {
+    const parts = address.split(",");
+    const candidate = String(parts[parts.length - 1] ?? "").trim();
+    return candidate || address;
+  }
+
+  const venueName = String(ev?.venue?.name ?? "").trim();
+  return venueName;
+};
+
+export function filterEvents(events, { tags = [], sources = [], locations = [], search = "" } = {}) {
+  if (!tags.length && !sources.length && !locations.length && !search) return events;
 
   const tagSet = new Set(tags.map(norm).filter(Boolean));
   const sourceSet = new Set(sources.map(norm).filter(Boolean));
+  const locationSet = new Set(locations.map(norm).filter(Boolean));
   const searchTerm = norm(search);
 
   return events.filter((ev) => {
@@ -22,8 +38,25 @@ export function filterEvents(events, { tags = [], sources = [], search = "" } = 
       }
     }
 
+    if (locationSet.size) {
+      const locationKey = norm(extractLocationLabel(ev));
+      if (!locationKey || !locationSet.has(locationKey)) {
+        return false;
+      }
+    }
+
     if (searchTerm) {
-      const haystack = norm(ev?.title);
+      const haystack = [
+        ev?.title,
+        ev?.company,
+        ev?.venue?.name,
+        ev?.venue?.address,
+        ev?.city,
+        extractLocationLabel(ev),
+      ]
+        .map(norm)
+        .filter(Boolean)
+        .join(" ");
       if (!haystack.includes(searchTerm)) {
         return false;
       }
@@ -134,4 +167,24 @@ export function buildSourceOptions(events) {
   return Array.from(map.values()).sort((a, b) =>
     a.label.localeCompare(b.label, undefined, { sensitivity: "base" })
   );
+}
+
+export function buildLocationOptions(events) {
+  const map = new Map();
+  events.forEach((ev) => {
+    const label = extractLocationLabel(ev);
+    if (!label) return;
+    const key = norm(label);
+    if (!key) return;
+    const entry = map.get(key) ?? { key, label, count: 0 };
+    entry.count += 1;
+    map.set(key, entry);
+  });
+
+  return Array.from(map.values())
+    .sort((a, b) => {
+      if (b.count !== a.count) return b.count - a.count;
+      return a.label.localeCompare(b.label, undefined, { sensitivity: "base" });
+    })
+    .map(({ key, label }) => ({ key, label }));
 }

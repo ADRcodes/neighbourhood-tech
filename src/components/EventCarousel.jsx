@@ -32,7 +32,7 @@ export default function EventCarousel({ events }) {
             shrink-0 snap-start min-w-0
             w-[clamp(260px,28vw,360px)]
             md:w-[clamp(280px,24vw,400px)]
-            first:ml-[20px] last:mr-4
+            first:ml-[8px] sm:first:ml-[16px] last:mr-4
             [scroll-margin-left:12px]     /* 👈 reveal the previous card when snapped */
           "
         >

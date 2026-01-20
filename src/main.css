@@ -83,9 +83,6 @@ body {
   margin: 0;
   padding: 0;
 }
-.h3 {
-  @apply text-[18px] px-[var(--mobile-padding)] sm:px-[32px] drop-shadow-sm;
-}
 
 .btn {
   @apply px-4 py-2 text-white rounded hover:bg-blue-600;
