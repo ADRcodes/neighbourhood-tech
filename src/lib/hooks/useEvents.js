@@ -2,7 +2,13 @@ import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { DEFAULT_USE_API } from "../config";
 import { supabase } from "../supabase/client";
 import { fetchEvents, fetchLocalEvents } from "../api/events";
-import { filterEvents, recommendedOf, buildTagOptions, buildSourceOptions } from "../utils/events";
+import {
+  filterEvents,
+  recommendedOf,
+  buildTagOptions,
+  buildSourceOptions,
+  buildLocationOptions,
+} from "../utils/events";
 import { MOCK_EVENTS } from "../../data/mockEvents";
 
 /**
@@ -18,6 +24,7 @@ export function useEvents({ useApi = DEFAULT_USE_API, fallbackToMocks = true, in
   const [events, setEvents] = useState([]);
   const [chips, setChips] = useState(initialChips);
   const [sourceFilters, setSourceFilters] = useState([]);
+  const [locationFilters, setLocationFilters] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -77,13 +84,26 @@ export function useEvents({ useApi = DEFAULT_USE_API, fallbackToMocks = true, in
     setSourceFilters((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
   }, []);
 
+  const toggleLocation = useCallback((key) => {
+    setLocationFilters((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
+  }, []);
+
   const filtered = useMemo(
-    () => filterEvents(events, { tags: chips, sources: sourceFilters, search: searchTerm }),
-    [events, chips, sourceFilters, searchTerm]
+    () =>
+      filterEvents(events, {
+        tags: chips,
+        sources: sourceFilters,
+        locations: locationFilters,
+        search: searchTerm,
+      }),
+    [events, chips, sourceFilters, locationFilters, searchTerm]
   );
   const recommended = useMemo(() => recommendedOf(events, 12), [events]);
   const tagOptions = useMemo(() => buildTagOptions(events), [events]);
   const sourceOptions = useMemo(() => buildSourceOptions(events), [events]);
+  const locationOptions = useMemo(() => buildLocationOptions(events), [events]);
 
   return {
     data: events,
@@ -94,10 +114,13 @@ export function useEvents({ useApi = DEFAULT_USE_API, fallbackToMocks = true, in
     toggleChip,
     sourceFilters,
     toggleSource,
+    locationFilters,
+    toggleLocation,
     searchTerm,
     setSearchTerm,
     tagOptions,
     sourceOptions,
+    locationOptions,
     loading,
     error,
     warning,

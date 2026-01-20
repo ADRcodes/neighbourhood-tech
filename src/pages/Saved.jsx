@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSavedEvents } from "../lib/context/SavedEventsProvider";
-import TagList from "../components/TagList";
-import { buildSourceOptions, buildTagOptions, filterEvents } from "../lib/utils/events";
+import FiltersPanel from "../components/FiltersPanel";
+import { buildLocationOptions, buildSourceOptions, buildTagOptions, filterEvents } from "../lib/utils/events";
 
 const STATUS_GROUPS = [
   { key: "going", label: "Going" },
@@ -30,6 +30,7 @@ const Saved = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTags, setActiveTags] = useState([]);
   const [activeSources, setActiveSources] = useState([]);
+  const [activeLocations, setActiveLocations] = useState([]);
   const [openSections, setOpenSections] = useState({
     going: false,
     interested: false,
@@ -54,21 +55,23 @@ const Saved = () => {
 
   const tagOptions = useMemo(() => buildTagOptions(savedEvents), [savedEvents]);
   const sourceOptions = useMemo(() => buildSourceOptions(savedEvents), [savedEvents]);
+  const locationOptions = useMemo(() => buildLocationOptions(savedEvents), [savedEvents]);
 
   const filteredEntries = useMemo(() => {
     if (!entries.length) return [];
-    if (!activeTags.length && !activeSources.length && !searchTerm.trim()) {
+    if (!activeTags.length && !activeSources.length && !activeLocations.length && !searchTerm.trim()) {
       return entries;
     }
     const decorated = entries.map((entry) => ({ ...entry.event }));
     const filteredEvents = filterEvents(decorated, {
       tags: activeTags,
       sources: activeSources,
+      locations: activeLocations,
       search: searchTerm,
     });
     const allowedIds = new Set(filteredEvents.map((event) => event.id));
     return entries.filter((entry) => allowedIds.has(entry.event.id));
-  }, [entries, activeTags, activeSources, searchTerm]);
+  }, [entries, activeTags, activeSources, activeLocations, searchTerm]);
 
   const grouped = useMemo(() => {
     const base = {
@@ -88,7 +91,11 @@ const Saved = () => {
   }, [filteredEntries]);
 
   const hasAnyFiltered = filteredEntries.length > 0;
-  const isFiltering = activeTags.length > 0 || activeSources.length > 0 || Boolean(searchTerm.trim());
+  const isFiltering =
+    activeTags.length > 0 ||
+    activeSources.length > 0 ||
+    activeLocations.length > 0 ||
+    Boolean(searchTerm.trim());
   const toggleTag = useCallback(
     (key) => {
       setActiveTags((prev) => (prev.includes(key) ? prev.filter((v) => v !== key) : [...prev, key]));
@@ -98,6 +105,12 @@ const Saved = () => {
   const toggleSource = useCallback(
     (key) => {
       setActiveSources((prev) => (prev.includes(key) ? prev.filter((v) => v !== key) : [...prev, key]));
+    },
+    []
+  );
+  const toggleLocation = useCallback(
+    (key) => {
+      setActiveLocations((prev) => (prev.includes(key) ? prev.filter((v) => v !== key) : [...prev, key]));
     },
     []
   );
@@ -143,17 +156,17 @@ const Saved = () => {
     const largeColumns = (
       <div className="hidden lg:grid lg:grid-cols-3 gap-6">
         {STATUS_GROUPS.map((group) => (
-            <SavedStatusColumn
-              key={group.key}
-              label={group.label}
-              description={STATUS_DESCRIPTIONS[group.key]}
-              entries={grouped[group.key]}
-              pending={pending}
-              onStatusChange={handleStatusChange}
-            />
-          ))}
-        </div>
-      );
+          <SavedStatusColumn
+            key={group.key}
+            label={group.label}
+            description={STATUS_DESCRIPTIONS[group.key]}
+            entries={grouped[group.key]}
+            pending={pending}
+            onStatusChange={handleStatusChange}
+          />
+        ))}
+      </div>
+    );
 
     const mobileAccordions = (
       <div className="lg:hidden space-y-4">
@@ -208,73 +221,31 @@ const Saved = () => {
   ]);
 
   return (
-    <div className="px-4 py-6 space-y-4">
+    <div className="px-4 md:px-6 lg:px-8 py-6 md:-mt-[72px] md:pt-24 space-y-4 text-text mobile-aurora">
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-primary">Library</p>
         <h1 className="text-2xl font-bold text-text">Saved events</h1>
       </div>
       {loadError && <p className="text-sm text-danger">{loadError}</p>}
       {actionError && <p className="text-sm text-danger">{actionError}</p>}
-      <FilterPanel
+      <FiltersPanel
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
+        searchPlaceholder="Search saved events"
         availableTags={tagOptions}
         activeTags={activeTags}
         onToggleTag={toggleTag}
         availableSources={sourceOptions}
         activeSources={activeSources}
         onToggleSource={toggleSource}
+        availableLocations={locationOptions}
+        activeLocations={activeLocations}
+        onToggleLocation={toggleLocation}
       />
       {content}
     </div>
   );
 };
-
-function FilterPanel({
-  searchTerm,
-  onSearchChange,
-  availableTags,
-  activeTags,
-  onToggleTag,
-  availableSources,
-  activeSources,
-  onToggleSource,
-}) {
-  return (
-    <section className="rounded-3xl border border-brand-200 bg-surface shadow-sm p-4 space-y-4">
-      <div className="relative">
-        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-50">⌕</span>
-        <input
-          type="search"
-          placeholder="Search saved events"
-          className="w-full rounded-xl border border-brand-200/80 bg-white py-2 pl-8 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-          value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
-        />
-      </div>
-      <div className="rounded-2xl border border-brand-200 bg-surface/70 p-3">
-        <TagList
-          title="Filter by source"
-          items={availableSources}
-          activeKeys={activeSources}
-          onToggle={onToggleSource}
-          emptyLabel="Sources appear once events load."
-          className="bg-white rounded-xl p-3"
-        />
-      </div>
-      <div className="rounded-2xl border border-brand-200 bg-surface/70 p-3">
-        <TagList
-          title="Filter by tag"
-          items={availableTags}
-          activeKeys={activeTags}
-          onToggle={onToggleTag}
-          emptyLabel="Tags appear once events load."
-          className="bg-white rounded-xl p-3"
-        />
-      </div>
-    </section>
-  );
-}
 
 function SavedStatusColumn({ label, description, entries, pending, onStatusChange }) {
   return (
@@ -364,11 +335,10 @@ function SavedEventCard({ event, status, pending, onStatusChange }) {
             type="button"
             onClick={() => onStatusChange(event.id, opt.value)}
             disabled={pending === `${event.id}:${opt.value}`}
-            className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
-              status === opt.value
+            className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${status === opt.value
                 ? "bg-primary text-onprimary border-primary"
                 : "bg-surface text-text border-brand-200/80 hover:bg-primary/10"
-            }`}
+              }`}
           >
             {opt.label}
           </button>

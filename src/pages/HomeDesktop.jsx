@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import FeaturedGrid from "../components/FeaturedGrid";
 import EventList from "../components/EventList";
-import TagList from "../components/TagList";
 import Hero from "../components/Hero";
+import FiltersPanel from "../components/FiltersPanel";
 
 export default function HomeDesktop({
   featured = [],
@@ -16,6 +16,9 @@ export default function HomeDesktop({
   activeSources = [],
   availableSources = [],
   onToggleSource = () => { },
+  activeLocations = [],
+  availableLocations = [],
+  onToggleLocation = () => { },
   searchTerm = "",
   onSearchChange = () => { },
   loading,
@@ -143,39 +146,22 @@ export default function HomeDesktop({
             xl:[grid-area:filters]
           "
         >
-          <div className="rounded-2xl border shadow-sm bg-surface border-brand-200 p-3">
+          <div className="py-3 max-h-[calc(100vh-6rem)] overflow-y-auto pr-1">
+            <FiltersPanel
+              searchTerm={searchTerm}
+              onSearchChange={onSearchChange}
+              availableSources={availableSources}
+              activeSources={activeSources}
+              onToggleSource={onToggleSource}
+              availableLocations={availableLocations}
+              activeLocations={activeLocations}
+              onToggleLocation={onToggleLocation}
+              availableTags={availableTags}
+              activeTags={activeTags}
+              onToggleTag={onToggleTag}
+              searchPlaceholder="Search…"
 
-            {/* (presentational for now) */}
-            <div className="mb-3">
-              <div className="relative">
-                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-60">⌕</span>
-                <input
-                  type="search"
-                  placeholder="Search…"
-                  className="w-full pl-8 pr-3 py-2 rounded-lg text-sm bg-white border border-brand-100 focus:ring-2 focus:ring-focus outline-none"
-                  value={searchTerm}
-                  onChange={(e) => onSearchChange?.(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <TagList
-                title="Sources"
-                items={availableSources}
-                activeKeys={activeSources}
-                onToggle={onToggleSource}
-                emptyLabel="Sources will appear once events load."
-              />
-
-              <TagList
-                title="Tags"
-                items={availableTags}
-                activeKeys={activeTags}
-                onToggle={onToggleTag}
-                emptyLabel="Tags will appear once events load."
-              />
-            </div>
+            />
           </div>
         </aside>
 

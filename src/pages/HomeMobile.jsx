@@ -1,7 +1,7 @@
 import EventList from "../components/EventList";
 import EventCarousel from "../components/EventCarousel";
 import ColorPalettePopover from "../components/ColorPalettePopover";
-import TagList from "../components/TagList";
+import FiltersPanel from "../components/FiltersPanel";
 
 export default function HomeMobile({
   featured = [],
@@ -15,6 +15,11 @@ export default function HomeMobile({
   activeSources = [],
   availableSources = [],
   onToggleSource = () => { },
+  activeLocations = [],
+  availableLocations = [],
+  onToggleLocation = () => { },
+  searchTerm = "",
+  onSearchChange = () => { },
   loading = false,
   // error,
   // warning,
@@ -25,33 +30,30 @@ export default function HomeMobile({
     <div className="mobile-aurora relative flex flex-col min-w-0">
       <div className="w-full flex flex-col gap-2 items-center overflow-visible pb-8 min-w-0">
         <div className="w-full md:max-w-4xl lg:max-w-6xl px-0 pt-2 min-w-0">
-          <h3 className="h3 px-2 text-onprimary drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)] text-[20px] font-bold">
+          <h3 className="px-7 text-onprimary drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)] text-[20px] font-bold">
             Recommended events
           </h3>
           {featured.length > 0 && <EventCarousel events={featured} />}
         </div>
 
-        <h3 className="h3 mt-2 w-full text-onprimary drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)] text-[20px] font-bold">
+        <h3 className="px-7 mt-2 w-full text-onprimary drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)] text-[20px] font-bold">
           Upcoming events
         </h3>
 
         <div className="w-full px-2 sm:px-4 md:px-0">
-          <div className="rounded-3xl border border-brand-100 bg-white shadow-sm p-4 space-y-4">
-            <TagList
-              title="Filter by source"
-              items={availableSources}
-              activeKeys={activeSources}
-              onToggle={onToggleSource}
-              emptyLabel="Sources will appear once events load."
-            />
-            <TagList
-              title="Filter by tag"
-              items={availableTags}
-              activeKeys={activeTags}
-              onToggle={onToggleTag}
-              emptyLabel="Tags will appear once events load."
-            />
-          </div>
+          <FiltersPanel
+            searchTerm={searchTerm}
+            onSearchChange={onSearchChange}
+            availableSources={availableSources}
+            activeSources={activeSources}
+            onToggleSource={onToggleSource}
+            availableLocations={availableLocations}
+            activeLocations={activeLocations}
+            onToggleLocation={onToggleLocation}
+            availableTags={availableTags}
+            activeTags={activeTags}
+            onToggleTag={onToggleTag}
+          />
         </div>
 
         {loading ? (
