@@ -339,7 +339,7 @@ export default function CalendarView() {
       </header>
 
       <div className="grid gap-6 items-start lg:grid-cols-[2fr_1fr]">
-        <section className="rounded-3xl border border-brand-200 bg-surface shadow-sm p-4 lg:p-5">
+        <section className="rounded-squircle-lg border border-brand-200 bg-surface shadow-sm p-4 lg:p-5">
           <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
             <div>
               <p className="text-sm font-semibold text-text">Continuous calendar</p>
