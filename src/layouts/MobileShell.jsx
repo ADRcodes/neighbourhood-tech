@@ -16,7 +16,7 @@ export default function MobileShell() {
       <EventsProvider>
         <SavedEventsProvider>
           <GlobalLoadingGate />
-          <main className="pb-24 md:pb-0">
+          <main className="pb-[var(--bottom-nav-space)] md:pb-0">
             <div className=" mx-auto">
               <Outlet />
             </div>

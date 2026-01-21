@@ -306,16 +306,18 @@ export default function CalendarView() {
 
   return (
     <div
-      className={`px-4 md:px-6 lg:px-8 py-6 md:-mt-[72px] md:pt-24 text-text mobile-aurora ${isMobileCalendar ? " min-h-screen" : ""}`}
+      className={`px-4 md:px-6 lg:px-8 md:-mt-[72px] pt-4 md:pt-24 pb-[calc(var(--bottom-nav-space)+16px)] text-text mobile-aurora ${isMobileCalendar ? " min-h-screen" : ""}`}
     >
       <header className="mb-6 space-y-4">
         <div className="flex flex-col gap-2">
           <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary">Calendar</p>
           <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-bold">Continuous event calendar</h1>
+            <h1 className="text-2xl font-bold">
+              {isMobileCalendar ? "Day-by-day Event Calendar" : "Continuous Event Calendar"}
+            </h1>
             <p className="text-sm text-text-muted">
               {isMobileCalendar
-                ? "Swipe through dates, tap a day to load its events with quick badges for interest."
+                ? "Tap a day to load its events with quick badges for interest."
                 : "Scroll through upcoming days; visible events stay in sync on the right."}
             </p>
           </div>
@@ -525,7 +527,7 @@ export default function CalendarView() {
                   {dayFilterIso ? "Day view" : "Live sync"}
                 </div>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-3 pb-4">
                 {loading ? (
                   <p className="text-xs text-text-muted">Loading events…</p>
                 ) : visibleEvents.length === 0 ? (

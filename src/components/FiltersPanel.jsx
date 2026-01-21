@@ -52,7 +52,7 @@ export default function FiltersPanel({
   };
 
   return (
-    <section className={`rounded-3xl border border-brand-100 bg-white shadow-sm p-3 space-y-3 ${className}`}>
+    <section className={`squircle border border-brand-100 bg-white shadow-sm p-3 space-y-3 ${className}`}>
       <div className="relative">
         <span className="pointer-events-none text-2xl absolute left-3 top-1/2 -translate-y-1/2 opacity-60">⌕</span>
         <input
@@ -81,7 +81,7 @@ export default function FiltersPanel({
                     event.stopPropagation();
                     handleSummaryToggle(item);
                   }}
-                  className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus/80 bg-primary text-onprimary border-primary shadow-sm shadow-primary/30"
+                  className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus/80 bg-primary text-onprimary border-primary shadow-sm shadow-primary/30 cursor-pointer"
                 >
                   {item.label}
                 </button>

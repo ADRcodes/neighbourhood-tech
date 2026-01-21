@@ -2,6 +2,7 @@ import EventList from "../components/EventList";
 import EventCarousel from "../components/EventCarousel";
 import ColorPalettePopover from "../components/ColorPalettePopover";
 import FiltersPanel from "../components/FiltersPanel";
+import PaginationControls from "../components/PaginationControls";
 
 export default function HomeMobile({
   featured = [],
@@ -25,18 +26,19 @@ export default function HomeMobile({
   // warning,
   eventPreferences = {},
   onSelectPreference = () => { },
+  pagination = {},
 }) {
   return (
     <div className="mobile-aurora relative flex flex-col min-w-0">
       <div className="w-full flex flex-col gap-2 items-center overflow-visible pb-8 min-w-0">
         <div className="w-full md:max-w-4xl lg:max-w-6xl px-0 pt-2 min-w-0">
-          <h3 className="px-7 text-onprimary drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)] text-[20px] font-bold">
+          <h3 className="px-5 text-onprimary drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)] text-[20px] font-bold">
             Recommended events
           </h3>
           {featured.length > 0 && <EventCarousel events={featured} />}
         </div>
 
-        <h3 className="px-7 mt-2 w-full text-onprimary drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)] text-[20px] font-bold">
+        <h3 className="px-5 mt-2 w-full text-onprimary drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)] text-[20px] font-bold">
           Upcoming events
         </h3>
 
@@ -73,6 +75,13 @@ export default function HomeMobile({
             No events match your selection.
           </div>
         )}
+
+        <PaginationControls
+          page={pagination.page}
+          totalPages={pagination.totalPages}
+          onPageChange={pagination.onPageChange}
+          className="w-full max-w-screen-sm px-6"
+        />
 
         {notInterestedEvents.length > 0 && (
           <div className="w-full max-w-screen-sm px-4 sm:px-0 pb-10">

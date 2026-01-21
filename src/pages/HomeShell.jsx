@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import HomeMobile from "./HomeMobile";
 import HomeDesktop from "./HomeDesktop";
 import { useEventPreferences } from "../lib/hooks/useEventPreferences";
+import { usePagination } from "../lib/hooks/usePagination";
 import { normalizeEventId } from "../lib/utils/ids";
 import { useEventsContext } from "../lib/context/EventsProvider";
 
@@ -57,6 +58,24 @@ export default function HomeShell() {
     return { visibleEvents: visible, notInterestedEvents: hidden, visibleFeatured: featuredList };
   }, [filtered, recommended, statusByEvent]);
 
+  const paginationResetKey = useMemo(() => {
+    const tagKey = Array.isArray(chips) ? chips.join("|") : "";
+    const sourceKey = Array.isArray(sourceFilters) ? sourceFilters.join("|") : "";
+    const locationKey = Array.isArray(locationFilters) ? locationFilters.join("|") : "";
+    return `${visibleEvents.length}|${searchTerm}|${tagKey}|${sourceKey}|${locationKey}`;
+  }, [visibleEvents.length, searchTerm, chips, sourceFilters, locationFilters]);
+
+  const {
+    page: eventsPage,
+    totalPages: eventsTotalPages,
+    pageItems: pagedEvents,
+    setPage: setEventsPage,
+  } = usePagination({
+    items: visibleEvents,
+    pageSize: 40,
+    resetKey: paginationResetKey,
+  });
+
   useEffect(() => {
     if (!notInterestedEvents.length && showNotInterested) {
       setShowNotInterested(false);
@@ -78,7 +97,7 @@ export default function HomeShell() {
   // Pass the same state into both views; CSS decides which one shows
   const props = {
     featured: visibleFeatured,
-    events: visibleEvents,
+    events: pagedEvents,
     notInterestedEvents,
     showNotInterested,
     onToggleNotInterested: () => setShowNotInterested((prev) => !prev),
@@ -98,6 +117,12 @@ export default function HomeShell() {
     loading,
     error,
     warning,
+    pagination: {
+      page: eventsPage,
+      totalPages: eventsTotalPages,
+      onPageChange: setEventsPage,
+      totalItems: visibleEvents.length,
+    },
   };
 
   return (
