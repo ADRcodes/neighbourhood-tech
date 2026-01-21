@@ -52,13 +52,13 @@ export default function FiltersPanel({
   };
 
   return (
-    <section className={`squircle border border-brand-100 bg-white shadow-sm p-3 space-y-3 ${className}`}>
+    <section className={`rounded-squircle-lg border border-brand-100 bg-white shadow-sm p-3 space-y-3 ${className}`}>
       <div className="relative">
         <span className="pointer-events-none text-2xl absolute left-3 top-1/2 -translate-y-1/2 opacity-60">⌕</span>
         <input
           type="search"
           placeholder={searchPlaceholder}
-          className="w-full pl-8 pr-3 py-2 rounded-xl text-sm bg-white border border-brand-100 focus:ring-1 focus:ring-focus ring-primary outline-none"
+          className="w-full pl-8 pr-3 py-2 rounded-squircle text-sm bg-white border border-brand-100 focus:ring-1 focus:ring-focus ring-primary outline-none"
           value={searchTerm}
           onChange={(e) => onSearchChange?.(e.target.value)}
         />
@@ -66,7 +66,7 @@ export default function FiltersPanel({
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="flex w-full items-center justify-between rounded-2xl border border-brand-200 bg-surface px-4 py-3 m-0 text-left text-sm font-semibold text-text shadow-sm hover:border-brand-300 transition"
+        className="flex w-full items-center justify-between rounded-squircle border border-brand-200 bg-surface px-4 py-3 m-0 text-left text-sm font-semibold text-text shadow-sm hover:border-brand-300 transition"
         aria-expanded={open}
       >
         <span className="inline-flex flex-wrap items-center gap-2">

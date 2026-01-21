@@ -135,7 +135,7 @@ function EventCardComponent({
       tabIndex={0}
       onClick={toggle}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && toggle()}
-      className={`relative flex flex-col rounded-xl shadow-md bg-white cursor-pointer select-none transition-shadow duration-200 hover:shadow-lg ${compact ? "p-2" : "p-3"
+      className={`relative flex flex-col rounded-squircle shadow-md bg-white cursor-pointer select-none transition-shadow duration-200 hover:shadow-lg ${compact ? "p-2" : "p-3"
         }`}
     >
       {/* SUMMARY: always clamped; height forced only when collapsed */}
@@ -152,7 +152,7 @@ function EventCardComponent({
       >
         <img
           ref={imgRef}
-          className={`w-full object-cover rounded-lg ${compact ? "aspect-[5/3]" : "aspect-[4/2]"
+          className={`w-full object-cover rounded-squircle-sm ${compact ? "aspect-[5/3]" : "aspect-[4/2]"
             }`}
           src={event.image}
           referrerPolicy="no-referrer"
