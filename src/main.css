@@ -64,6 +64,7 @@
   /* Layout tokens */
   --mobile-padding: 16px;
   --desktop-padding: 32px;
+  --bottom-nav-space: calc(4rem + max(env(safe-area-inset-bottom), 12px));
 }
 
 /* Optional: component sugar */
@@ -75,6 +76,12 @@
 
 .colory {
   background-color:oklch(from #20a75d l c (h + 180));
+}
+
+.squircle {
+  border-radius: 40px;
+  corner-shape: squircle;
+  /* corner-radius: 40px; */
 }
   
 body {
@@ -203,6 +210,8 @@ body {
 .mobile-aurora {
   position: relative;
   min-height: 100svh;
+  padding-bottom: var(--bottom-nav-space);
+  margin-bottom: calc(-1 * var(--bottom-nav-space));
   background-image: linear-gradient(130deg,
       color-mix(in oklch, var(--color-primary) 88%, var(--color-onprimary) 12%) 0%,
       color-mix(in oklch, var(--color-brand-analog-a) 70%, var(--color-onprimary) 30%) 38%,
@@ -212,6 +221,12 @@ body {
   animation: mobile-aurora-shift 48s ease-in-out infinite;
   overflow: hidden;
   isolation: isolate;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --bottom-nav-space: 0px;
+  }
 }
 
 .mobile-aurora::before,

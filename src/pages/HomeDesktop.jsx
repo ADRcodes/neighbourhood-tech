@@ -3,6 +3,7 @@ import FeaturedGrid from "../components/FeaturedGrid";
 import EventList from "../components/EventList";
 import Hero from "../components/Hero";
 import FiltersPanel from "../components/FiltersPanel";
+import PaginationControls from "../components/PaginationControls";
 
 export default function HomeDesktop({
   featured = [],
@@ -24,6 +25,7 @@ export default function HomeDesktop({
   loading,
   eventPreferences = {},
   onSelectPreference = () => { },
+  pagination = {},
 }) {
   const topFeatured = featured.slice(0, 8);
   const auroraSectionRef = useRef(null);
@@ -189,6 +191,13 @@ export default function HomeDesktop({
               No events match your selection.
             </div>
           )}
+
+          <PaginationControls
+            page={pagination.page}
+            totalPages={pagination.totalPages}
+            onPageChange={pagination.onPageChange}
+            className="mt-6"
+          />
 
           {notInterestedEvents.length > 0 && (
             <section className="mt-8 rounded-2xl border border-brand-200 bg-surface shadow-sm p-4">
