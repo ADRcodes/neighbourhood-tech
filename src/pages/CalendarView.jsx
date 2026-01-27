@@ -89,6 +89,7 @@ export default function CalendarView() {
   const [selectedEventKey, setSelectedEventKey] = useState(null);
   const scrollToSelectionRef = useRef(false);
   const visibleEventRefs = useRef(new Map());
+  const visibleEventsScrollRef = useRef(null);
   const [openIds, setOpenIds] = useState(new Set());
 
   useEffect(() => {
@@ -205,11 +206,24 @@ export default function CalendarView() {
   useEffect(() => {
     if (!scrollToSelectionRef.current || !selectedEventKey) return;
     const node = visibleEventRefs.current.get(selectedEventKey);
-    if (node && typeof node.scrollIntoView === "function") {
+    if (!node) return;
+
+    if (!isMobileCalendar && visibleEventsScrollRef.current) {
+      const container = visibleEventsScrollRef.current;
+      const nodeRect = node.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      const offset = nodeRect.top - containerRect.top + container.scrollTop;
+      const target = offset - (container.clientHeight / 2 - nodeRect.height / 2);
+      container.scrollTo({ top: Math.max(0, target), behavior: "smooth" });
+      scrollToSelectionRef.current = false;
+      return;
+    }
+
+    if (typeof node.scrollIntoView === "function") {
       node.scrollIntoView({ behavior: "smooth", block: "center" });
       scrollToSelectionRef.current = false;
     }
-  }, [selectedEventKey, visibleEvents.length]);
+  }, [isMobileCalendar, selectedEventKey, visibleEvents.length]);
 
   useEffect(() => {
     if (isMobileCalendar) return undefined;
@@ -392,12 +406,10 @@ export default function CalendarView() {
               </div>
               <div className="grid grid-cols-7 gap-1">
                 {monthGridDays.map((day) => {
-                  const prefCount = day.meta.going + day.meta.interested;
                   const eventsCount = day.meta.count;
                   const isSelected = selectedDayIso === day.iso;
-                  const showDots = eventsCount > 0 || prefCount > 0;
+                  const showDots = eventsCount > 0;
                   const dotColor = isSelected ? "bg-onprimary" : "bg-primary";
-                  const accentColor = isSelected ? "bg-onprimary/80" : "bg-accent";
                   const dotsRow =
                     eventsCount > 5 ? (
                       <span
@@ -414,9 +426,6 @@ export default function CalendarView() {
                           Array.from({ length: eventsCount }).map((_, idx) => (
                             <span key={idx} className={`h-1.5 w-1.5 rounded-full ${dotColor}`} aria-hidden />
                           ))
-                        )}
-                        {prefCount > 0 && (
-                          <span className={`h-1.5 w-1.5 rounded-full ${accentColor}`} aria-hidden />
                         )}
                       </div>
                     );
@@ -566,7 +575,7 @@ export default function CalendarView() {
               </div>
             </>
           ) : (
-            <div className="rounded-3xl border border-brand-200 bg-surface shadow-sm py-4 space-y-2">
+            <div className="rounded-squircle-lg border border-brand-200 bg-surface shadow-sm py-4 space-y-2">
               <div className="flex items-center justify-between gap-2 px-4">
                 <div>
                   <p className="text-sm font-semibold text-text">Events in view</p>
@@ -589,7 +598,7 @@ export default function CalendarView() {
                   {dayFilterIso ? "Day view" : "Live sync"}
                 </div>
               </div>
-              <div className="space-y-3 max-h-[72vh] overflow-y-auto p-2">
+              <div ref={visibleEventsScrollRef} className="space-y-3 max-h-[72vh] overflow-y-auto p-2">
                 {loading ? (
                   <p className="text-xs text-text-muted">Loading events…</p>
                 ) : visibleEvents.length === 0 ? (
