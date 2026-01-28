@@ -9,6 +9,7 @@ import { normalizeEventId } from "../lib/utils/ids";
 const DAY_MS = 1000 * 60 * 60 * 24;
 
 const eventKey = (event) => event?.id ?? event?.eventId ?? event?.title;
+const eventIdentity = (event) => normalizeEventId(event?.id ?? event?.eventId) ?? eventKey(event);
 
 function toStartOfDay(value) {
   const d = new Date(value);
@@ -131,17 +132,31 @@ export default function CalendarView() {
     filtered.forEach((event) => {
       if (!event?.date) return;
       const iso = isoDay(event.date);
-      if (!map.has(iso)) map.set(iso, []);
-      map.get(iso).push(event);
+      const key = eventIdentity(event);
+      if (!key) return;
+      if (!map.has(iso)) map.set(iso, new Map());
+      const bucket = map.get(iso);
+      if (!bucket.has(key)) bucket.set(key, event);
     });
-    return map;
+    const flattened = new Map();
+    map.forEach((bucket, iso) => {
+      flattened.set(iso, Array.from(bucket.values()));
+    });
+    return flattened;
   }, [filtered]);
 
   const dayMeta = useMemo(() => {
     const map = new Map();
+    const seenByDay = new Map();
     filtered.forEach((event) => {
       if (!event?.date) return;
       const iso = isoDay(event.date);
+      const key = eventIdentity(event);
+      if (!key) return;
+      if (!seenByDay.has(iso)) seenByDay.set(iso, new Set());
+      const seen = seenByDay.get(iso);
+      if (seen.has(key)) return;
+      seen.add(key);
       const normalizedId = normalizeEventId(event?.id ?? event?.eventId);
       const status = normalizedId ? statusByEvent?.[normalizedId] : null;
       const meta = map.get(iso) || { count: 0, interested: 0, going: 0 };
