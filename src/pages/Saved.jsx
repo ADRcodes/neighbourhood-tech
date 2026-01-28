@@ -2,30 +2,24 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSavedEvents } from "../lib/context/SavedEventsProvider";
 import FiltersPanel from "../components/FiltersPanel";
+import EventListItem from "../components/EventListItem";
 import { buildLocationOptions, buildSourceOptions, buildTagOptions, filterEvents } from "../lib/utils/events";
 
 const STATUS_GROUPS = [
-  { key: "going", label: "Going" },
+  { key: "going", label: "Saved" },
   { key: "interested", label: "Interested" },
   { key: "not_interested", label: "Not interested" },
 ];
 
 const STATUS_DESCRIPTIONS = {
-  going: "Locked in plans",
+  going: "Saved for later",
   interested: "Keeping an eye on",
   not_interested: "Passing on these",
 };
 
-const STATUS_OPTIONS = [
-  { value: "going", label: "Going" },
-  { value: "interested", label: "Interested" },
-  { value: "not_interested", label: "Not interested" },
-];
-
 const Saved = () => {
   const navigate = useNavigate();
   const { entries, loading, error: loadError, updateStatus, user, ready, hasSupabase } = useSavedEvents();
-  const [pending, setPending] = useState(null);
   const [actionError, setActionError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTags, setActiveTags] = useState([]);
@@ -36,18 +30,16 @@ const Saved = () => {
     interested: false,
     not_interested: false,
   });
+  const [openIds, setOpenIds] = useState(() => new Set());
 
   const handleStatusChange = useCallback(async (eventId, status) => {
     if (!user) return;
-    setPending(`${eventId}:${status}`);
     setActionError("");
     try {
       await updateStatus(eventId, status);
     } catch (err) {
       console.error("Failed to update", err);
       setActionError(err.message || "Unable to update status");
-    } finally {
-      setPending(null);
     }
   }, [updateStatus, user]);
 
@@ -117,6 +109,14 @@ const Saved = () => {
   const toggleSection = useCallback((key) => {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
   }, []);
+  const toggleEventOpen = useCallback((eventId) => {
+    setOpenIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(eventId)) next.delete(eventId);
+      else next.add(eventId);
+      return next;
+    });
+  }, []);
 
   const content = useMemo(() => {
     if (!hasSupabase) {
@@ -154,17 +154,45 @@ const Saved = () => {
       );
     }
     const largeColumns = (
-      <div className="hidden lg:grid lg:grid-cols-3 gap-6">
-        {STATUS_GROUPS.map((group) => (
-          <SavedStatusColumn
-            key={group.key}
-            label={group.label}
-            description={STATUS_DESCRIPTIONS[group.key]}
-            entries={grouped[group.key]}
-            pending={pending}
-            onStatusChange={handleStatusChange}
-          />
-        ))}
+      <div className="hidden lg:flex lg:flex-col gap-6">
+        <div className="grid gap-6 lg:[grid-template-columns:minmax(400px,1fr)_minmax(400px,1fr)]">
+          {STATUS_GROUPS.filter((group) => group.key !== "not_interested").map((group) => (
+            <SavedStatusColumn
+              key={group.key}
+              label={group.label}
+              description={STATUS_DESCRIPTIONS[group.key]}
+              entries={grouped[group.key]}
+              onStatusChange={handleStatusChange}
+              openIds={openIds}
+              onToggleOpen={toggleEventOpen}
+            />
+          ))}
+        </div>
+        <section className="rounded-3xl border border-brand-200 bg-surface shadow-sm">
+          <button
+            type="button"
+            className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold"
+            onClick={() => toggleSection("not_interested")}
+            aria-expanded={openSections.not_interested}
+          >
+            <span>
+              {STATUS_GROUPS.find((group) => group.key === "not_interested")?.label} ({grouped.not_interested.length})
+            </span>
+            <span className="text-lg" aria-hidden>
+              {openSections.not_interested ? "−" : "+"}
+            </span>
+          </button>
+          {openSections.not_interested && (
+            <div className="px-4 pb-4">
+              <SavedEventsList
+                entries={grouped.not_interested}
+                onStatusChange={handleStatusChange}
+                openIds={openIds}
+                onToggleOpen={toggleEventOpen}
+              />
+            </div>
+          )}
+        </section>
       </div>
     );
 
@@ -189,8 +217,9 @@ const Saved = () => {
               <div className="px-4 pb-4">
                 <SavedEventsList
                   entries={grouped[group.key]}
-                  pending={pending}
                   onStatusChange={handleStatusChange}
+                  openIds={openIds}
+                  onToggleOpen={toggleEventOpen}
                 />
               </div>
             )}
@@ -211,13 +240,14 @@ const Saved = () => {
     handleStatusChange,
     loading,
     openSections,
-    pending,
     ready,
     toggleSection,
+    toggleEventOpen,
     hasAnyFiltered,
     isFiltering,
     navigate,
     user,
+    openIds,
   ]);
 
   return (
@@ -247,7 +277,7 @@ const Saved = () => {
   );
 };
 
-function SavedStatusColumn({ label, description, entries, pending, onStatusChange }) {
+function SavedStatusColumn({ label, description, entries, onStatusChange, openIds, onToggleOpen }) {
   return (
     <section className="rounded-3xl border border-brand-200 bg-surface shadow-sm p-4 space-y-4">
       <div>
@@ -259,92 +289,40 @@ function SavedStatusColumn({ label, description, entries, pending, onStatusChang
       </div>
       <SavedEventsList
         entries={entries}
-        pending={pending}
         onStatusChange={onStatusChange}
+        openIds={openIds}
+        onToggleOpen={onToggleOpen}
       />
     </section>
   );
 }
 
-function SavedEventsList({ entries, pending, onStatusChange }) {
+function SavedEventsList({ entries, onStatusChange, openIds, onToggleOpen }) {
   if (!entries.length) {
     return <p className="text-sm text-text-muted">Nothing here yet.</p>;
   }
   return (
     <div className="space-y-4">
       {entries.map(({ event, status }) => (
-        <SavedEventCard
-          key={event.id}
-          event={event}
-          status={status}
-          pending={pending}
-          onStatusChange={onStatusChange}
-        />
+        <div key={event.id} className="rounded-3xl">
+          <EventListItem
+            event={event}
+            registered={event.registered ?? []}
+            expanded={openIds.has(event.id)}
+            onToggle={() => onToggleOpen(event.id)}
+            preference={status}
+            onSelectPreference={(nextStatus) => {
+              if (!nextStatus) return;
+              return onStatusChange(event.id, nextStatus);
+            }}
+            onRegister={(ev) => console.log("register", ev.id)}
+            cardClassName="bg-white"
+            mediaSize="md"
+            selected={false}
+          />
+        </div>
       ))}
     </div>
-  );
-}
-
-function SavedEventCard({ event, status, pending, onStatusChange }) {
-  const formattedDate = event.date
-    ? new Date(event.date).toLocaleDateString(undefined, {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-    : "Date TBA";
-  const imageSrc = event.image || `https://picsum.photos/seed/${event.id || "saved"}/320/200`;
-  return (
-    <article className="rounded-2xl border border-brand-200/70 bg-white p-4 shadow-[0_10px_30px_-26px_rgba(16,24,40,0.65)]">
-      <div className="flex gap-4">
-        <img
-          src={imageSrc}
-          alt={event.title || "Event"}
-          className="w-28 h-24 rounded-xl object-cover shadow-[0_12px_28px_-20px_rgba(16,24,40,0.55)]"
-          loading="lazy"
-          onError={(e) => {
-            e.currentTarget.src = `https://picsum.photos/seed/${event.id || "saved-fallback"}/320/200`;
-          }}
-        />
-        <div className="flex-1 min-w-0 space-y-1">
-          <p className="text-xs text-text-muted">{formattedDate}</p>
-          <h4 className="text-lg font-semibold text-text leading-tight line-clamp-2">{event.title}</h4>
-          {event.venue?.name && (
-            <p className="text-sm text-text-muted">📍 {event.venue.name}</p>
-          )}
-        </div>
-        {event.url && (
-          <a
-            href={event.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="self-start rounded-full border border-brand-200 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10"
-          >
-            Visit
-          </a>
-        )}
-      </div>
-      {event.description && (
-        <p className="mt-2 text-sm text-text-muted line-clamp-2">{event.description}</p>
-      )}
-      <div className="mt-3 flex flex-wrap gap-2">
-        {STATUS_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            type="button"
-            onClick={() => onStatusChange(event.id, opt.value)}
-            disabled={pending === `${event.id}:${opt.value}`}
-            className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${status === opt.value
-                ? "bg-primary text-onprimary border-primary"
-                : "bg-surface text-text border-brand-200/80 hover:bg-primary/10"
-              }`}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
-    </article>
   );
 }
 
