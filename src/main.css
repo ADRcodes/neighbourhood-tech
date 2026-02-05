@@ -1,3 +1,5 @@
+
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
 @theme {
@@ -66,10 +68,31 @@
   --desktop-padding: 32px;
   --bottom-nav-space: calc(4rem + max(env(safe-area-inset-bottom), 12px));
 
-  --radius-squircle-sm: 16px; 
-  --radius-squircle: 24px;      
-  --radius-squircle-lg: 32px;
+  /* Base radii (fallback / normal border-radius) */
+  --radius-squircle-sm: 12px;
+  --radius-squircle: 18px;
+  --radius-squircle-lg: 24px;
 
+  /* Squircle-supported radii (doubled so it reads similarly) */
+  --radius-squircle-sm-sq: 24px;
+  --radius-squircle-sq: 36px;
+  --radius-squircle-lg-sq: 48px;
+}
+
+/* Brand font options */
+:root {
+  --font-brand-sans: "Sora", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.font-brand-sans {
+  font-family: var(--font-brand-sans);
+}
+
+body {
+  @apply bg-[var(--color-bg)] text-gray-800;
+  font-family: var(--font-brand-sans);
+  margin: 0;
+  padding: 0;
 }
 
 /* Optional: component sugar */
@@ -79,46 +102,45 @@
   @apply focus:ring-[var(--color-focus-ring)];
 }
 
-.colory {
-  background-color:oklch(from #20a75d l c (h + 180));
+/* Shared card + metadata utilities */
+.card {
+  @apply bg-surface rounded-squircle border border-brand-200/70 shadow-[0_12px_32px_-26px_rgba(16,24,40,0.5)] transition-shadow;
 }
 
-/* Squircle utilities with fallback */
+.card-muted-meta {
+  @apply text-[var(--color-text-muted)];
+}
+
+.icon-muted {
+  @apply text-[var(--color-text-muted)] text-[0.85em] leading-none;
+}
+
 .rounded-squircle-sm {
-  border-radius: 8px;
+  border-radius: var(--radius-squircle-sm);
 }
-
 .rounded-squircle {
-  border-radius: 16px;
+  border-radius: var(--radius-squircle);
 }
-
 .rounded-squircle-lg {
-  border-radius: 24px;
+  border-radius: var(--radius-squircle-lg);
 }
 
 @supports (corner-shape: squircle) {
   .rounded-squircle-sm {
-    border-radius: 16px;
+    border-radius: var(--radius-squircle-sm-sq);
     corner-shape: squircle;
   }
-  
   .rounded-squircle {
-    border-radius: 32px;
+    border-radius: var(--radius-squircle-sq);
     corner-shape: squircle;
   }
-  
   .rounded-squircle-lg {
-    border-radius: 48px;
+    border-radius: var(--radius-squircle-lg-sq);
     corner-shape: squircle;
   }
 }
   
-body {
-  @apply bg-[var(--color-bg)] text-gray-800;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0;
-  padding: 0;
-}
+
 
 .btn {
   @apply px-4 py-2 text-white rounded hover:bg-blue-600;

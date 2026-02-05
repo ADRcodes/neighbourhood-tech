@@ -51,11 +51,11 @@ export default function EventCarousel({ events }) {
   if (!events?.length) return null;
 
   return (
-    <section className="relative w-full min-w-0 overflow-hidden" aria-roledescription="carousel">
+    <section className="relative w-full min-w-0 overflow-visible -mb-2 md:-mb-2" aria-roledescription="carousel">
       <div
         className={[
-          "flex gap-4 overflow-x-auto snap-x snap-mandatory",
-          "py-2 md:py-3 min-w-0 w-full",
+          "flex items-start gap-4 overflow-x-auto snap-x snap-mandatory",
+          "pt-2 pb-6 md:pt-3 md:pb-7 min-w-0 w-full",
           // small scroll padding so first/last don’t jam edges when centered
           "scroll-pl-4 md:scroll-pl-6 scroll-pr-4 md:scroll-pr-6",
           HIDE_SCROLLBAR,

@@ -8,7 +8,6 @@ const cx = (...xs) => xs.filter(Boolean).join(" ");
 const Icons = {
   Home: (p) => (<svg viewBox="0 0 24 24" fill="none" {...p}><path d="M3 10.5 12 3l9 7.5v9a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 19.5v-9Z" stroke="currentColor" strokeWidth="1.6" /><path d="M9 21v-6a3 3 0 0 1 6 0v6" stroke="currentColor" strokeWidth="1.6" /></svg>),
   Search: (p) => (<svg viewBox="0 0 24 24" fill="none" {...p}><circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.6" /><path d="m20 20-3.5-3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>),
-  Plus: (p) => (<svg viewBox="0 0 24 24" fill="none" {...p}><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>),
   Saved: (p) => (<svg viewBox="0 0 24 24" fill="none" {...p}><path d="M6.5 3.5h11a1.5 1.5 0 0 1 1.5 1.5v15l-7-4-7 4V5a1.5 1.5 0 0 1 1.5-1.5Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" /></svg>),
   User: (p) => (<svg viewBox="0 0 24 24" fill="none" {...p}><circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.6" /><path d="M4 20a8 8 0 0 1 16 0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>),
   Info: (p) => (<svg viewBox="0 0 24 24" fill="none" {...p}><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" /><path d="M12 8v.01" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /><path d="M11.5 12.5h1v4h-1z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>),
@@ -138,18 +137,9 @@ export default function BottomNav() {
     <nav className="fixed bottom-0 inset-x-0 z-50">
       <div className="relative mx-auto w-full max-w-screen-sm px-4 pb-[max(env(safe-area-inset-bottom),12px)]">
         <div className="relative h-16 rounded-2xl bg-surface/92 backdrop-blur-xl shadow-[0_22px_45px_-26px_rgba(16,24,40,0.65)] border border-brand-200/80 text-text">
-          <div className="grid grid-cols-5 h-full">
+          <div className="grid grid-cols-4 h-full">
             <NavItem to="/" label="Home" icon={<Icons.Home />} />
             <NavItem to="/calendar" label="Calendar" icon={<Icons.Calendar />} />
-            <div className="relative">
-              <NavLink
-                to="/register"
-                aria-label="Create event"
-                className="absolute left-1/2 -translate-x-1/2 -top-2 inline-flex h-14 w-14 items-center justify-center rounded-full shadow-xl border border-primary bg-primary text-onprimary active:scale-95 transition"
-              >
-                <Icons.Plus className="h-7 w-7" />
-              </NavLink>
-            </div>
             <NavItem to="/saved" label="Saved" icon={<Icons.Saved />} />
             <div className="relative flex align-middle">
               <NavButton
@@ -174,14 +164,14 @@ export default function BottomNav() {
                 <NavLink
                   to="/about"
                   onClick={() => setMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-text hover:bg-primary/5"
+                  className="flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-text hover:bg-brand-100/60"
                 >
                   About
                 </NavLink>
                 <NavLink
                   to="/calendar"
                   onClick={() => setMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-text hover:bg-primary/5"
+                  className="flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-text hover:bg-brand-100/60"
                 >
                   Calendar
                 </NavLink>
@@ -190,7 +180,7 @@ export default function BottomNav() {
                     <NavLink
                       to="/me"
                       onClick={() => setMenuOpen(false)}
-                      className="flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-text hover:bg-primary/5"
+                      className="flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-text hover:bg-brand-100/60"
                     >
                       Profile
                     </NavLink>
@@ -198,7 +188,7 @@ export default function BottomNav() {
                       type="button"
                       className={cx(
                         "w-full rounded-full px-3 py-2 text-sm font-semibold transition-colors",
-                        signingOut ? "text-text-muted cursor-wait" : "text-primary hover:bg-primary/10"
+                        signingOut ? "text-text-muted cursor-wait" : "text-text hover:bg-brand-100/60"
                       )}
                       onClick={() => {
                         setMenuOpen(false);
@@ -215,7 +205,7 @@ export default function BottomNav() {
                   <NavLink
                     to="/auth"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-text hover:bg-primary/5"
+                    className="flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-text hover:bg-brand-100/60"
                   >
                     Sign in
                   </NavLink>

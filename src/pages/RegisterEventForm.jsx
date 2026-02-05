@@ -135,7 +135,7 @@ const RegisterEventForm = () => {
           <div className="lg:w-1/3 space-y-8 text-text lg:pr-6">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-text-muted font-semibold">Host</p>
-              <h1 className="mt-3 text-3xl lg:text-4xl font-semibold text-text/70">Launch a neighbourhood event</h1>
+              <h1 className="mt-3 text-3xl lg:text-4xl font-semibold text-text/70">Launch an Out &amp; About event</h1>
               <p className="mt-4 text-text-muted/80 leading-relaxed">Share your workshop, meetup, or jam session. We’ll feature it across the community and highlight it in the weekly drop.</p>
             </div>
             <div className="rounded-3xl border border-brand-200/60 bg-surface/80 p-5 lg:p-6 shadow-[0_18px_40px_-28px_rgba(16,24,40,0.55)] space-y-3 text-text-muted/80">
@@ -161,7 +161,7 @@ const RegisterEventForm = () => {
                     <input
                       className="w-full rounded-xl border border-brand-200 bg-white px-4 py-3 text-sm text-text shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                       name="title"
-                      placeholder="Neighbourhood Prototype Night"
+                      placeholder="Out & About Prototype Night"
                       value={formData.title}
                       onChange={handleChange}
                       required
@@ -172,7 +172,7 @@ const RegisterEventForm = () => {
                     <input
                       className="w-full rounded-xl border border-brand-200 bg-white px-4 py-3 text-sm text-text shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                       name="company"
-                      placeholder="Neighbourhood Tech"
+                      placeholder="Out & About Events"
                       value={formData.company}
                       onChange={handleChange}
                       required

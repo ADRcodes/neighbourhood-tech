@@ -77,7 +77,7 @@ export default function SelectField({
         }}
         disabled={disabled}
         className={`w-full rounded-xl border border-brand-200 bg-white px-4 py-3 text-left text-sm text-text shadow-inner transition focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary flex items-center justify-between gap-3 ${
-          disabled ? "opacity-60 cursor-not-allowed" : "hover:border-primary/60"
+          disabled ? "opacity-60 cursor-not-allowed" : "hover:border-brand-300"
         }`}
       >
         <span className={`truncate ${activeLabel ? "text-text" : "text-text-muted"}`}>
@@ -109,7 +109,7 @@ export default function SelectField({
                     onClick={() => handleSelect(opt)}
                     className={`w-full px-4 py-2.5 text-left text-sm transition flex justify-between items-center ${
                       isActive
-                        ? "bg-primary/10 text-primary font-semibold"
+                        ? "bg-brand-100/70 text-text font-semibold"
                         : "text-text hover:bg-surface/80"
                     }`}
                   >

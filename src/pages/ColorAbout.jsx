@@ -91,7 +91,7 @@ export default function ColorAbout() {
         >
           <div className="relative z-10 flex flex-col gap-6 px-6 py-12 sm:px-10 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-xl">
-              <p className="text-xs uppercase tracking-[0.25em] text-onprimary/70">Neighbourhood Tech Festival</p>
+              <p className="text-xs uppercase tracking-[0.25em] text-onprimary/70">Out &amp; About Events Festival</p>
               <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">Colour is our headliner.</h1>
               <p className="mt-4 text-base sm:text-lg text-onprimary/85">
                 The About experience is a live stage for the brand system. Primary sets the mood, accent keeps the rhythm, and complement brings balance across rails.

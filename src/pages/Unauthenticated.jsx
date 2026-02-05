@@ -85,14 +85,14 @@ export default function Unauthenticated() {
   return (
     <div className="min-h-screen bg-[var(--color-bg)] px-4 py-10 md:py-16">
       <div className="mx-auto grid w-full max-w-6xl gap-8 rounded-[32px] border border-brand-200/70 bg-surface/80 p-5 shadow-[0_30px_80px_-48px_rgba(15,23,42,0.9)] backdrop-blur-2xl md:grid-cols-[1.1fr_0.9fr] md:p-10">
-        <section className="rounded-[28px] bg-gradient-to-br from-primary/90 via-primary/70 to-accent/80 p-8 text-onprimary shadow-[0_20px_60px_-40px_rgba(15,23,42,0.9)]">
+        <section className="rounded-[28px] bg-gradient-to-br from-brand-400/90 via-brand-300/70 to-accent/80 p-8 text-onprimary shadow-[0_20px_60px_-40px_rgba(15,23,42,0.9)]">
           <div className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.3em] text-onprimary/80">
-            <img src={NTlogo} alt="Neighbourhood Tech" className="h-12 w-12 rounded-2xl border border-white/30 bg-white/20 p-2" />
-            Neighbourhood Tech
+            <img src={NTlogo} alt="Out & About Events" className="h-12 w-12 rounded-2xl border border-white/30 bg-white/20 p-2" />
+            Out &amp; About Events
           </div>
           <div className="mt-8 space-y-4">
             <h1 className="text-3xl font-bold leading-tight md:text-4xl">
-              Create, discover, and share events with your neighbourhood.
+              Create, discover, and share events around your city.
             </h1>
             <p className="text-onprimary/80 md:text-lg">
               Build community through curated programming, token-driven design, and Supabase-backed auth.
@@ -110,16 +110,16 @@ export default function Unauthenticated() {
 
         <section className="flex flex-col rounded-[28px] border border-brand-200/70 bg-surface/95 p-6 shadow-[0_18px_50px_-42px_rgba(15,23,42,0.85)]">
           <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">{mode === "login" ? "Welcome back" : "Join the community"}</p>
-            <h2 className="text-2xl font-semibold text-text">{mode === "login" ? "Sign in to Neighbourhood Tech" : "Create your account"}</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-text-muted">{mode === "login" ? "Welcome back" : "Join Out & About Events"}</p>
+            <h2 className="text-2xl font-semibold text-text">{mode === "login" ? "Sign in to Out & About Events" : "Create your account"}</h2>
             <p className="text-sm text-text-muted">
-              {supabase ? "Use email or continue with a provider." : "Supabase env vars missing — auth is disabled."}
+              {supabase ? "Use email or keep going with a provider." : "Auth is offline — missing Supabase env vars."}
             </p>
           </div>
 
           <div className="mt-6 space-y-3">
             {error && <p className="rounded-2xl border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">{error}</p>}
-            {status && <p className="rounded-2xl border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-primary">{status}</p>}
+            {status && <p className="rounded-2xl border border-brand-200 bg-brand-100/70 px-3 py-2 text-sm text-text">{status}</p>}
           </div>
 
           <div className="mt-6 space-y-3">
@@ -194,10 +194,10 @@ export default function Unauthenticated() {
                   type="button"
                   onClick={() => handleOAuth(provider.id)}
                   disabled={disabled}
-                  className="inline-flex w-full items-center justify-between rounded-2xl border border-brand-200/80 bg-surface px-4 py-3 text-sm font-semibold text-text shadow-[0_12px_30px_-24px_rgba(15,23,42,0.7)] transition hover:border-primary/40 hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex w-full items-center justify-between rounded-2xl border border-brand-200/80 bg-surface px-4 py-3 text-sm font-semibold text-text shadow-[0_12px_30px_-24px_rgba(15,23,42,0.7)] transition hover:border-brand-300/80 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <span className="inline-flex items-center gap-3">
-                    <span className="grid h-8 w-8 place-items-center rounded-xl bg-primary/10 text-sm font-bold text-primary">
+                    <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand-100/70 text-sm font-bold text-text">
                       {provider.icon}
                     </span>
                     {provider.label}
@@ -216,10 +216,10 @@ export default function Unauthenticated() {
                 Need an account?{" "}
                 <button
                   type="button"
-                  className="font-semibold text-primary underline-offset-4 hover:underline"
+                  className="font-semibold text-text underline-offset-4 hover:underline"
                   onClick={() => changeMode("register")}
                 >
-                  Register
+                  Sign up
                 </button>
               </>
             ) : (
@@ -227,7 +227,7 @@ export default function Unauthenticated() {
                 Already have an account?{" "}
                 <button
                   type="button"
-                  className="font-semibold text-primary underline-offset-4 hover:underline"
+                  className="font-semibold text-text underline-offset-4 hover:underline"
                   onClick={() => changeMode("login")}
                 >
                   Sign in
