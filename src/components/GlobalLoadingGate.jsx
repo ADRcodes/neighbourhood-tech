@@ -15,10 +15,10 @@ export default function GlobalLoadingGate() {
   if (!show) return null;
 
   const message = showSavedLoader
-    ? "Syncing your saved events…"
-    : "Warming up the neighbourhood feed…";
+    ? "Refreshing your saved list…"
+    : "Warming up Out & About Events…";
   const subtext = showSavedLoader
-    ? "Pulling your statuses from Supabase."
+    ? "Pulling your saved statuses."
     : "Fetching events, tags, and recommendations.";
 
   return <LoadingScreen show message={message} subtext={subtext} />;

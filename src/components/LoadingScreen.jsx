@@ -1,4 +1,4 @@
-export default function LoadingScreen({ show = false, message = "Loading…", subtext = "" }) {
+export default function LoadingScreen({ show = false, message = "Just a moment…", subtext = "" }) {
   if (!show) return null;
 
   return (
@@ -17,7 +17,7 @@ export default function LoadingScreen({ show = false, message = "Loading…", su
       <div className="space-y-1 text-center">
         <p className="text-base font-semibold text-text">{message}</p>
         <p className="text-sm text-text-muted">
-          {subtext || "Fetching the latest events and recommendations."}
+          {subtext || "Bringing in nearby events and suggestions."}
         </p>
       </div>
     </div>

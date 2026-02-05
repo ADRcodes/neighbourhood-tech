@@ -11,7 +11,6 @@ const LINKS = [
   { to: "/saved", label: "Saved" },
   { to: "/calendar", label: "Calendar" },
   { to: "/about", label: "About" },
-  { to: "/register", label: "Add Event", accent: true },
 ];
 
 const ACCOUNT_LINKS = [
@@ -25,12 +24,14 @@ function Tab({ to, children, accent, icon }) {
       to={to}
       className={({ isActive }) =>
         cx(
-          "px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-200 ease-out",
+          "px-4 py-2 text-sm font-semibold rounded-full border transition-all duration-200 ease-out",
           accent
-            ? "bg-brand-complement text-oncomplement shadow-md shadow-primary/40 hover:opacity-65"
+            ? isActive
+              ? "border-primary/45 bg-primary/12 text-primary shadow-[0_12px_24px_-20px_var(--color-primary)]"
+              : "border-primary/30 bg-primary/6 text-primary hover:bg-primary/10 hover:border-primary/40"
             : isActive
-              ? "bg-primary text-onprimary shadow-md shadow-primary/40"
-              : "text-text-muted hover:text-text/40"
+              ? "border-primary/35 bg-brand-100/60 text-primary shadow-[0_10px_24px_-20px_var(--color-primary)]"
+              : "border-transparent text-text-muted hover:text-text hover:bg-brand-100/45"
         )
       }
       end
@@ -44,6 +45,9 @@ function Tab({ to, children, accent, icon }) {
         >
           {icon ? <span className="text-base leading-none">{icon}</span> : null}
           {children}
+          {!accent && isActive ? (
+            <span className="absolute -bottom-1 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-primary/70" aria-hidden />
+          ) : null}
         </span>
       )}
     </NavLink>
@@ -129,8 +133,8 @@ export default function DesktopNav() {
               NT
             </div>
             <div className="flex flex-col">
-              <span className="text-sm uppercase tracking-[0.25em] text-text-muted">Neighbourhood</span>
-              <span className="-mt-1 text-lg font-semibold group-hover:text-primary transition-colors">Tech</span>
+              <span className="text-sm uppercase tracking-[0.25em] text-text-muted">Out &amp; About</span>
+              <span className="-mt-1 text-lg font-semibold group-hover:text-text transition-colors">Events</span>
             </div>
           </NavLink>
 
@@ -191,8 +195,8 @@ export default function DesktopNav() {
                   aria-controls={accountMenuId}
                   className={cx(
                     "inline-flex items-center gap-1 rounded-full border border-brand-200/70 bg-surface px-3 py-2 text-sm font-semibold shadow-[0_10px_24px_-20px_rgba(16,24,40,0.6)] transition",
-                    "hover:border-primary/60 hover:text-primary",
-                    accountMenuOpen && "border-primary/60 text-primary"
+                    "hover:border-brand-300/80 hover:text-text",
+                    accountMenuOpen && "border-brand-300/80 text-text"
                   )}
                 >
                   <span className="text-[1.5rem] -mt-[6px]" aria-hidden>
@@ -225,7 +229,7 @@ export default function DesktopNav() {
                             "flex items-center gap-2 px-4 py-2 text-sm transition-colors",
                             isActive
                               ? "text-primary font-semibold"
-                              : "text-text-muted hover:text-text hover:bg-primary/5"
+                              : "text-text-muted hover:text-text hover:bg-brand-100/60"
                           )
                         }
                       >
@@ -243,7 +247,7 @@ export default function DesktopNav() {
                             to={item.to}
                             role="menuitem"
                             onClick={() => setAccountMenuOpen(false)}
-                            className="block px-4 py-2 text-sm text-text-muted hover:text-text hover:bg-primary/5 transition-colors"
+                            className="block px-4 py-2 text-sm text-text-muted hover:text-text hover:bg-brand-100/60 transition-colors"
                           >
                             {item.label}
                           </NavLink>
@@ -260,7 +264,7 @@ export default function DesktopNav() {
                             "w-full text-left px-4 py-2 text-sm font-semibold transition-colors",
                             signingOut
                               ? "text-text-muted cursor-wait"
-                              : "text-primary hover:bg-primary/10"
+                              : "text-text hover:bg-brand-100/60"
                           )}
                         >
                           {signingOut ? "Signing out…" : "Sign out"}
@@ -273,7 +277,7 @@ export default function DesktopNav() {
                         to="/auth"
                         role="menuitem"
                         onClick={() => setAccountMenuOpen(false)}
-                        className="block px-4 py-2 text-sm text-text-muted hover:text-text hover:bg-primary/5 transition-colors"
+                        className="block px-4 py-2 text-sm text-text-muted hover:text-text hover:bg-brand-100/60 transition-colors"
                       >
                         Sign in
                       </NavLink>

@@ -135,8 +135,9 @@ function EventCardComponent({
       tabIndex={0}
       onClick={toggle}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && toggle()}
-      className={`relative flex flex-col rounded-squircle shadow-md bg-white cursor-pointer select-none transition-shadow duration-200 hover:shadow-lg ${compact ? "p-2" : "p-3"
+      className={`card relative flex flex-col cursor-pointer select-none hover:shadow-[0_16px_36px_-26px_rgba(16,24,40,0.55)] ${compact ? "p-2" : "p-3"
         }`}
+      style={{ border: "none" }}
     >
       {/* SUMMARY: always clamped; height forced only when collapsed */}
       <div
@@ -164,18 +165,18 @@ function EventCardComponent({
         />
 
         {/* Title: clamp to 2 lines in summary */}
-        <h2 className={`${compact ? "text-base" : "text-xl"} font-bold leading-tight ${compact ? "line-clamp-1" : "line-clamp-2"}`}>
+        <h2 className={`${compact ? "text-base" : "text-xl"} font-bold leading-tight text-text ${expanded ? "" : compact ? "line-clamp-1" : "line-clamp-2"}`}>
           {event.title}
         </h2>
 
-        <div className={`flex justify-between ${compact ? "text-xs" : "text-sm"} gap-2`}>
+        <div className={`mt-auto flex justify-between ${compact ? "text-xs" : "text-sm"} gap-2 card-muted-meta`}>
           {/* Location: clamp to 2 lines in summary */}
           <div className="flex gap-1 items-center min-w-0">
-            <p>📍</p>
+            <span className="icon-muted" aria-hidden>📍</span>
             <p className={`${compact ? "line-clamp-1" : "line-clamp-2"} min-w-0`}>{venueName}</p>
           </div>
           <div className="flex gap-1 items-center">
-            <p>🗓️</p>
+            <span className="icon-muted" aria-hidden>🗓️</span>
             <div className="w-fit">
               <p>{dateStr}</p>
               {timeStr && <p className="w-max">{timeStr}</p>}
@@ -183,14 +184,6 @@ function EventCardComponent({
           </div>
         </div>
 
-        {/* Price row pinned to bottom of summary */}
-        {priceLabel && (
-          <div className="mt-auto flex items-center justify-between">
-            <p className={compact ? "text-xs font-semibold" : "text-base"}>
-              {priceLabel}
-            </p>
-          </div>
-        )}
       </div>
 
       {/* DETAILS: show full title/location here so summary can stay clamped */}
@@ -204,6 +197,12 @@ function EventCardComponent({
           className={`mt-2 flex flex-col gap-2 transition-all duration-500 ${expanded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
             }`}
         >
+          {priceLabel && (
+            <p className={`${compact ? "text-xs" : "text-sm"} font-semibold text-text`}>
+              {priceLabel}
+            </p>
+          )}
+
           {/* Full title & location (unclamped) */}
 
           {/* Tags */}
@@ -212,7 +211,7 @@ function EventCardComponent({
               {visibleTags.map((tag) => (
                 <span
                   key={tag}
-                  className="text-xs bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200"
+                  className="text-xs bg-brand-100/60 text-text-muted px-2 py-0.5 rounded-squircle border border-brand-200/60"
                 >
                   {tag}
                 </span>
@@ -221,12 +220,10 @@ function EventCardComponent({
           )}
 
           {/* Meta & description */}
-          <div className="text-sm text-gray-600 space-y-1">
-            {event.company && <p className="text-gray-500">{event.company}</p>}
-            {venueAddress && <p className="text-gray-500">{venueAddress}</p>}
-            {organizerName && (
-              <p className="text-gray-500">Hosted by {organizerName}</p>
-            )}
+          <div className="text-sm card-muted-meta space-y-1">
+            {event.company && <p>{event.company}</p>}
+            {venueAddress && <p>{venueAddress}</p>}
+            {organizerName && <p>Hosted by {organizerName}</p>}
             {formattedSource && (
               <p className="text-text-muted">Source: <span className="text-text">{formattedSource}</span></p>
             )}
@@ -239,10 +236,10 @@ function EventCardComponent({
               href={event.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-primary text-onprimary py-1.5 px-3 mb-2 rounded-full self-end text-sm font-semibold shadow-[0_10px_20px_-14px_rgba(220,73,102,0.8)] hover:shadow-[0_14px_24px_-12px_rgba(220,73,102,0.95)]"
+              className="bg-primary text-onprimary py-1.5 px-3 mb-2 rounded-squircle self-end text-sm font-semibold shadow-[0_10px_20px_-14px_rgba(220,73,102,0.8)] hover:shadow-[0_14px_24px_-12px_rgba(220,73,102,0.95)]"
               onClick={(e) => e.stopPropagation()}
             >
-              Register
+              View event
             </a>
           )}
         </div>

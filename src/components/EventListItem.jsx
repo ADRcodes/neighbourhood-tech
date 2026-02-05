@@ -30,7 +30,7 @@ const LocationRow = ({ venue, expanded }) => {
   return (
     <p className="text-xs md:text-sm text-text-muted flex-1 min-w-0 leading-snug">
       <span className={`${expanded ? "" : "line-clamp-1"} break-words align-top`} title={venueName}>
-        📍 {venueName}
+        <span className="icon-muted" aria-hidden>📍</span> {venueName}
       </span>
     </p>
   );
@@ -42,7 +42,7 @@ const TagPills = ({ tags }) =>
       {tags.map((tag) => (
         <span
           key={String(tag)}
-          className="h-min text-xs md:text-sm bg-primary/10 text-primary px-2.5 py-0.5 rounded-full border border-primary/20"
+          className="h-min text-xs md:text-sm bg-brand-100/60 text-text-muted px-2.5 py-0.5 rounded-full border border-brand-200/60"
         >
           {tag}
         </span>
@@ -115,7 +115,7 @@ const EventListItem = ({
     ? dateObj.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
     : "";
 
-  const surfaceClass = cardClassName || "bg-surface";
+  const surfaceClass = cardClassName || "card";
   const selectedClasses = selected
     ? "outline outline-2 outline-primary/70 outline-offset-2"
     : "";
@@ -127,7 +127,7 @@ const EventListItem = ({
       aria-expanded={expanded}
       onClick={onToggle}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onToggle()}
-      className={`relative w-full ${surfaceClass} rounded-squircle-lg border border-brand-200/70 shadow-[0_15px_40px_-28px_rgba(16,24,40,0.65)] hover:shadow-[0_20px_45px_-25px_rgba(16,24,40,0.58)] transition-shadow flex flex-col p-3 md:p-4 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 ${selectedClasses} ${isNotInterested ? "opacity-60 grayscale" : ""
+      className={`relative w-full ${surfaceClass} hover:shadow-[0_16px_36px_-26px_rgba(16,24,40,0.55)] flex flex-col p-3 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 ${selectedClasses} ${isNotInterested ? "opacity-60 grayscale" : ""
         }`}
     >
       {isNotInterested && (
@@ -177,8 +177,8 @@ const EventListItem = ({
             <div>
               <PriceTag price={event.price} />
             </div>
-            <div className="text-right text-xs md:text-sm text-text">
-              <span className="block font-semibold text-nowrap text-primary">{dateStr}</span>
+            <div className="text-right text-xs md:text-sm card-muted-meta">
+              <span className="block font-semibold text-nowrap">{dateStr}</span>
               {timeStr && <span className="block text-nowrap">{timeStr}</span>}
             </div>
           </div>
@@ -235,7 +235,7 @@ const EventListItem = ({
                       type="button"
                       className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${active
                         ? "bg-primary text-onprimary border-primary"
-                        : "bg-surface text-text border-brand-200/80 hover:bg-primary/10"
+                        : "bg-surface text-text border-brand-200/80 hover:bg-brand-100/60"
                         }`}
                       disabled={pendingStatus === opt.value}
                       onClick={(e) => {

@@ -33,13 +33,13 @@ export default function HomeMobile({
       <div className="w-full flex flex-col gap-2 items-center overflow-visible pb-8 min-w-0">
         <div className="w-full md:max-w-4xl lg:max-w-6xl px-0 pt-2 min-w-0">
           <h3 className="px-5 text-onprimary drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)] text-[20px] font-bold">
-            Recommended events
+            Picked for you
           </h3>
           {featured.length > 0 && <EventCarousel events={featured} />}
         </div>
 
         <h3 className="px-5 mt-2 w-full text-onprimary drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)] text-[20px] font-bold">
-          Upcoming events
+          Coming up
         </h3>
 
         <div className="w-full px-2 sm:px-4 md:px-0">
@@ -59,7 +59,7 @@ export default function HomeMobile({
         </div>
 
         {loading ? (
-          <div className="py-6 text-sm">Loading…</div>
+          <div className="py-6 text-sm">Loading events…</div>
         ) : events.length ? (
           <EventList
             events={events}
@@ -68,11 +68,11 @@ export default function HomeMobile({
             eventPreferences={eventPreferences}
             onSelectPreference={onSelectPreference}
             onRegister={(ev) => console.log("register", ev.id)}
-            cardClassName="bg-white"
+            cardClassName="card"
           />
         ) : (
           <div className="w-[340px] max-w-[92%] text-center text-sm text-gray-500 py-6">
-            No events match your selection.
+            Nothing matches that yet.
           </div>
         )}
 
@@ -97,7 +97,7 @@ export default function HomeMobile({
               </span>
             </button>
             {showNotInterested && (
-              <div className="mt-4 rounded-3xl border border-brand-200 bg-surface shadow-sm">
+              <div className="mt-4 pb-2 rounded-3xl border border-brand-200 bg-surface shadow-sm">
                 <EventList
                   events={notInterestedEvents}
                   accordion
@@ -105,7 +105,7 @@ export default function HomeMobile({
                   eventPreferences={eventPreferences}
                   onSelectPreference={onSelectPreference}
                   onRegister={(ev) => console.log("register", ev.id)}
-                  cardClassName="bg-white"
+                  cardClassName="card"
                 />
               </div>
             )}

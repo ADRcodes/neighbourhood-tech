@@ -13,7 +13,7 @@ const STATUS_GROUPS = [
 
 const STATUS_DESCRIPTIONS = {
   going: "Saved for later",
-  interested: "Keeping an eye on",
+  interested: "On your radar",
   not_interested: "Passing on these",
 };
 
@@ -140,7 +140,7 @@ const Saved = () => {
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 font-semibold text-onprimary hover:opacity-95"
             onClick={() => navigate("/auth")}
           >
-            Sign in to manage saved events
+            Sign in to save and track events
           </button>
         </div>
       );
@@ -149,7 +149,7 @@ const Saved = () => {
     if (!hasAnyFiltered) {
       return (
         <div className="text-sm text-text-muted py-6">
-          {isFiltering ? "No saved events match your filters." : "No saved events yet."}
+          {isFiltering ? "No saved events match those filters." : "No saved events yet. Try saving one from Home."}
         </div>
       );
     }
@@ -253,15 +253,15 @@ const Saved = () => {
   return (
     <div className="px-4 md:px-6 lg:px-8 py-6 md:-mt-[72px] md:pt-24 space-y-4 text-text mobile-aurora">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-primary">Library</p>
-        <h1 className="text-2xl font-bold text-text">Saved events</h1>
+        <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">Saved</p>
+        <h1 className="text-2xl font-bold text-text">Your saved events</h1>
       </div>
       {loadError && <p className="text-sm text-danger">{loadError}</p>}
       {actionError && <p className="text-sm text-danger">{actionError}</p>}
       <FiltersPanel
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
-        searchPlaceholder="Search saved events"
+        searchPlaceholder="Search your saved events"
         availableTags={tagOptions}
         activeTags={activeTags}
         onToggleTag={toggleTag}
@@ -281,7 +281,7 @@ function SavedStatusColumn({ label, description, entries, onStatusChange, openId
   return (
     <section className="rounded-3xl border border-brand-200 bg-surface shadow-sm p-4 space-y-4">
       <div>
-        <p className="text-xs uppercase tracking-[0.35em] text-primary">{description}</p>
+        <p className="text-xs uppercase tracking-[0.35em] text-text-muted">{description}</p>
         <h3 className="mt-2 text-xl font-semibold text-text flex items-baseline gap-2">
           {label}
           <span className="text-xs font-semibold text-text-muted">({entries.length})</span>
@@ -316,7 +316,7 @@ function SavedEventsList({ entries, onStatusChange, openIds, onToggleOpen }) {
               return onStatusChange(event.id, nextStatus);
             }}
             onRegister={(ev) => console.log("register", ev.id)}
-            cardClassName="bg-white"
+            cardClassName="card"
             mediaSize="md"
             selected={false}
           />

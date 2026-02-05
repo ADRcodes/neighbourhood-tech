@@ -35,7 +35,7 @@ const EventList = ({
 
   const displayItems = useMemo(() => buildDisplayItems(events), [events]);
 
-  if (!displayItems.length) return <div className="p-4 text-sm">No events yet.</div>;
+  if (!displayItems.length) return <div className="p-4 text-sm">No events yet. Check back soon.</div>;
 
   return (
     <div className="px-2 sm:px-4 md:px-0 space-y-3">

@@ -339,15 +339,15 @@ export default function CalendarView() {
     >
       <header className="mb-6 space-y-4">
         <div className="flex flex-col gap-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary">Calendar</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-onprimary/80">Calendar</p>
           <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-bold">
-              {isMobileCalendar ? "Day-by-day Event Calendar" : "Continuous Event Calendar"}
+            <h1 className="text-2xl font-bold text-onprimary">
+              {isMobileCalendar ? "Day-by-day calendar" : "Rolling calendar"}
             </h1>
-            <p className="text-sm text-text-muted">
+            <p className="text-sm text-onprimary/80">
               {isMobileCalendar
-                ? "Tap a day to load its events with quick badges for interest."
-                : "Scroll through upcoming days; visible events stay in sync on the right."}
+                ? "Tap a day to see what’s on."
+                : "Scroll through the days; events in view stay in sync on the right."}
             </p>
           </div>
         </div>
@@ -371,14 +371,14 @@ export default function CalendarView() {
         <section className="rounded-squircle-lg border border-brand-200 bg-surface shadow-sm p-4 lg:p-5">
           <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
             <div>
-              <p className="text-sm font-semibold text-text">Continuous calendar</p>
+              <p className="text-sm font-semibold text-text">Rolling calendar</p>
               <p className="text-xs text-text-muted">
                 {dayFilterIso && selectedDayLabel ? `Showing ${selectedDayLabel}` : formatHeading(visibleRange)}
               </p>
             </div>
             <div className="inline-flex items-center gap-2 text-xs text-text-muted">
-              <span className="h-2 w-2 rounded-full bg-primary" aria-hidden /> Today
-              <span className="h-2 w-2 rounded-full bg-primary/15 border border-brand-200" aria-hidden /> Upcoming
+              <span className="h-2 w-2 rounded-full bg-brand-400" aria-hidden /> Today
+              <span className="h-2 w-2 rounded-full bg-brand-100/70 border border-brand-200" aria-hidden /> Coming up
             </div>
           </div>
 
@@ -388,7 +388,7 @@ export default function CalendarView() {
                 <button
                   type="button"
                   onClick={() => goToMonth(-1)}
-                  className="rounded-full border border-brand-200 bg-white px-3 py-2 text-sm font-semibold text-text hover:border-primary/60 hover:text-primary"
+                  className="rounded-full border border-brand-200 bg-white px-3 py-2 text-sm font-semibold text-text hover:border-brand-300"
                   aria-label="Previous month"
                 >
                   ‹
@@ -398,14 +398,14 @@ export default function CalendarView() {
                   <button
                     type="button"
                     onClick={() => handleDaySelect(todayIso)}
-                    className="rounded-full border border-brand-200 bg-white px-3 py-2 text-xs font-semibold text-text hover:border-primary/60 hover:text-primary"
+                    className="rounded-full border border-brand-200 bg-white px-3 py-2 text-xs font-semibold text-text hover:border-brand-300"
                   >
                     Today
                   </button>
                   <button
                     type="button"
                     onClick={() => goToMonth(1)}
-                    className="rounded-full border border-brand-200 bg-white px-3 py-2 text-sm font-semibold text-text hover:border-primary/60 hover:text-primary"
+                    className="rounded-full border border-brand-200 bg-white px-3 py-2 text-sm font-semibold text-text hover:border-brand-300"
                     aria-label="Next month"
                   >
                     ›
@@ -424,11 +424,11 @@ export default function CalendarView() {
                   const eventsCount = day.meta.count;
                   const isSelected = selectedDayIso === day.iso;
                   const showDots = eventsCount > 0;
-                  const dotColor = isSelected ? "bg-onprimary" : "bg-primary";
+                  const dotColor = isSelected ? "bg-onprimary" : "bg-brand-400";
                   const dotsRow =
                     eventsCount > 5 ? (
                       <span
-                        className={`text-[11px] font-semibold leading-none ${isSelected ? "text-onprimary" : "text-primary"
+                        className={`text-[11px] font-semibold leading-none ${isSelected ? "text-onprimary" : "text-text"
                           }`}
                       >
                         {eventsCount}
@@ -450,9 +450,9 @@ export default function CalendarView() {
                       type="button"
                       onClick={() => handleDaySelect(day.iso)}
                       className={`flex h-16 flex-col items-center justify-center gap-1 rounded-lg text-sm transition ${isSelected
-                        ? "bg-primary text-onprimary shadow-sm"
-                        : "bg-white text-text border border-brand-200 hover:border-primary/60"
-                        } ${!day.isCurrentMonth ? "opacity-60" : ""} ${day.isToday && !isSelected ? "ring-1 ring-primary/60" : ""}`}
+                        ? "bg-brand-400 text-onprimary shadow-sm"
+                        : "bg-white text-text border border-brand-200 hover:border-brand-300"
+                        } ${!day.isCurrentMonth ? "opacity-60" : ""} ${day.isToday && !isSelected ? "ring-1 ring-brand-300/80" : ""}`}
                     >
                       <span className="text-base font-semibold leading-none">{day.label}</span>
                       {showDots ? (
@@ -493,7 +493,7 @@ export default function CalendarView() {
                           <div className="flex items-center justify-between px-1 text-xs font-semibold">
                             <span className="text-text">{day.label}</span>
                             {dayEvents.length > 0 && (
-                              <span className="text-[11px] px-1 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                              <span className="text-[11px] px-1 py-0.5 rounded-full bg-brand-100/70 text-text-muted border border-brand-200">
                                 {dayEvents.length}
                               </span>
                             )}
@@ -505,15 +505,15 @@ export default function CalendarView() {
                                 type="button"
                                 onClick={() => handleDayEventClick(event)}
                                 className={`w-full text-left text-xs rounded-lg px-1 py-0.5 transition line-clamp-2 leading-snug ${selectedEventKey === eventKey(event)
-                                  ? "bg-primary/15 text-primary font-semibold"
-                                  : "bg-white text-text-muted hover:bg-primary/8"
+                                  ? "bg-brand-100/70 text-text font-semibold"
+                                  : "bg-white text-text-muted hover:bg-brand-100/60"
                                   }`}
                               >
                                 {event.title}
                               </button>
                             ))}
                             {dayEvents.length === 0 && (
-                              <span className="text-[11px] text-text-muted/70">No events</span>
+                              <span className="text-[11px] text-text-muted/70">Nothing scheduled</span>
                             )}
                           </div>
                         </div>
@@ -531,20 +531,20 @@ export default function CalendarView() {
             <>
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm font-semibold text-text">Events in view</p>
-                  <p className="text-xs text-text-muted">
+                  <p className="text-sm font-semibold text-onprimary">Events in view</p>
+                  <p className="text-xs text-onprimary/80">
                     {dayFilterIso && selectedDayLabel
                       ? visibleEvents.length
                         ? `${visibleEvents.length} events on ${selectedDayLabel}`
-                        : `No events on ${selectedDayLabel}`
+                        : `Nothing on ${selectedDayLabel} yet`
                       : visibleEvents.length
                         ? `${visibleEvents.length} events`
-                        : "Scroll the calendar to see events"}
+                        : "Scroll the calendar to see what’s on"}
                   </p>
                 </div>
                 <div
                   className={`rounded-full text-xs font-semibold px-2 py-1 border ${dayFilterIso
-                    ? "bg-primary/10 text-primary border-primary/20"
+                    ? "bg-brand-100/70 text-text-muted border-brand-200"
                     : "bg-brand-100 text-text border-brand-200"
                     }`}
                 >
@@ -555,7 +555,7 @@ export default function CalendarView() {
                 {loading ? (
                   <p className="text-xs text-text-muted">Loading events…</p>
                 ) : visibleEvents.length === 0 ? (
-                  <p className="text-xs text-text-muted">No events in this range.</p>
+                  <p className="text-xs text-text-muted">Nothing in this range yet.</p>
                 ) : (
                   visibleEvents.map((event) => {
                     const key = eventKey(event);
@@ -579,7 +579,7 @@ export default function CalendarView() {
                           preference={preference}
                           onSelectPreference={(status) => handlePreference(event?.id ?? event?.eventId, normalizedId, status)}
                           onRegister={(ev) => console.log("register", ev.id)}
-                          cardClassName="bg-white"
+                          cardClassName="card"
                           mediaSize="sm"
                           selected={selectedEventKey === key}
                         />
@@ -598,15 +598,15 @@ export default function CalendarView() {
                     {dayFilterIso && selectedDayLabel
                       ? visibleEvents.length
                         ? `${visibleEvents.length} events on ${selectedDayLabel}`
-                        : `No events on ${selectedDayLabel}`
+                        : `Nothing on ${selectedDayLabel} yet`
                       : visibleEvents.length
                         ? `${visibleEvents.length} events`
-                        : "Scroll the calendar to see events"}
+                        : "Scroll the calendar to see what’s on"}
                   </p>
                 </div>
                 <div
                   className={`rounded-full text-xs font-semibold px-2 py-1 border ${dayFilterIso
-                    ? "bg-primary/10 text-primary border-primary/20"
+                    ? "bg-brand-100/70 text-text-muted border-brand-200"
                     : "bg-brand-100 text-text border-brand-200"
                     }`}
                 >
@@ -617,7 +617,7 @@ export default function CalendarView() {
                 {loading ? (
                   <p className="text-xs text-text-muted">Loading events…</p>
                 ) : visibleEvents.length === 0 ? (
-                  <p className="text-xs text-text-muted">No events in this range.</p>
+                  <p className="text-xs text-text-muted">Nothing in this range yet.</p>
                 ) : (
                   visibleEvents.map((event) => {
                     const key = eventKey(event);
@@ -641,7 +641,7 @@ export default function CalendarView() {
                           preference={preference}
                           onSelectPreference={(status) => handlePreference(event?.id ?? event?.eventId, normalizedId, status)}
                           onRegister={(ev) => console.log("register", ev.id)}
-                          cardClassName="bg-white"
+                          cardClassName="card"
                           mediaSize="sm"
                           selected={selectedEventKey === key}
                         />

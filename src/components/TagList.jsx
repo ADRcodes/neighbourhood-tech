@@ -122,7 +122,7 @@ export default function TagList({
                     onClick={() => onToggle?.(t.key)}
                     aria-pressed={on}
                     className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus/80 ${on
-                        ? "bg-primary text-onprimary border-primary shadow-sm shadow-primary/30"
+                        ? "bg-brand-100/70 text-text border-brand-300/70 shadow-sm"
                         : "bg-white text-text border-brand-200 hover:border-brand-300"
                       }`}
                   >
@@ -138,7 +138,7 @@ export default function TagList({
               type="button"
               onClick={() => setExpanded((prev) => !prev)}
               aria-expanded={expanded}
-              className="text-xs font-semibold text-primary hover:opacity-80 transition"
+              className="text-xs font-semibold text-text-muted hover:text-text transition"
             >
               {expanded ? "Show less" : "Show more"}
             </button>

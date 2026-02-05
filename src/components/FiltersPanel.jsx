@@ -5,7 +5,7 @@ import TagList from "./TagList";
 export default function FiltersPanel({
   searchTerm = "",
   onSearchChange = () => { },
-  searchPlaceholder = "Search events",
+  searchPlaceholder = "Search events nearby",
   title = "Filters",
   initialOpen = false,
   availableSources = [],
@@ -81,7 +81,7 @@ export default function FiltersPanel({
                     event.stopPropagation();
                     handleSummaryToggle(item);
                   }}
-                  className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus/80 bg-primary text-onprimary border-primary shadow-sm shadow-primary/30 cursor-pointer"
+                  className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus/80 bg-brand-100/70 text-text border-brand-200 shadow-sm cursor-pointer"
                 >
                   {item.label}
                 </button>

@@ -53,7 +53,7 @@ export default function Profile() {
             onClick={() => navigate('/saved')}
             className="rounded-ful bg-surface px-3 py-2 text-sm font-semibold border border-brand-200/70"
           >
-            View saved
+            Saved
           </button>
           {hasSupabase && (
             <button
@@ -70,8 +70,8 @@ export default function Profile() {
       {error && <p className="text-sm text-danger">{error}</p>}
 
       <section>
-        <p className="text-xs font-semibold uppercase tracking-wide text-primary">Library</p>
-        <h2 className="text-lg font-semibold text-text mt-1">Saved events</h2>
+        <p className="text-xs font-semibold uppercase tracking-wide text-primary">Saved</p>
+        <h2 className="text-lg font-semibold text-text mt-1">Your saved events</h2>
 
         {!hasSupabase ? (
           <div className="rounded-2xl border border-brand-200 bg-surface p-4 text-sm text-text">
@@ -81,7 +81,7 @@ export default function Profile() {
           <p className="text-sm text-text-muted">Loading saved events…</p>
         ) : !user ? (
           <div className="space-y-3 text-sm text-text">
-            <p>You need an account to view saved events.</p>
+            <p>Sign in to see your saved events.</p>
             <button
               type="button"
               className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 font-semibold text-onprimary hover:opacity-95"
@@ -91,7 +91,7 @@ export default function Profile() {
             </button>
           </div>
         ) : entries.length === 0 ? (
-          <p className="text-sm text-text-muted">No saved events yet.</p>
+          <p className="text-sm text-text-muted">No saved events yet. Save a few to see them here.</p>
         ) : (
           <div className="space-y-4 mt-3">
             {entries.map(({ event, status }) => (
