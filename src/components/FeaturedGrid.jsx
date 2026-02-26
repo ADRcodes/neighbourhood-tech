@@ -3,22 +3,22 @@ import EventCard from "./EventCard";
 
 const PLACEHOLDER_VARIANTS = [
   {
-    word: "CREATE",
+    word: "JOIN",
     background: "color-mix(in oklch, var(--color-primary) 20%, transparent)",
     color: "color-mix(in oklch, var(--color-primary) 85%, black 15%)",
   },
   {
-    word: "BUILD",
+    word: "LOCAL",
     background: "color-mix(in oklch, var(--color-accent) 22%, transparent)",
     color: "color-mix(in oklch, var(--color-accent) 80%, black 20%)",
   },
   {
-    word: "SHARE",
+    word: "TODAY",
     background: "color-mix(in oklch, var(--color-brand-complement) 18%, transparent)",
     color: "color-mix(in oklch, var(--color-brand-complement) 78%, black 22%)",
   },
   {
-    word: "TECH",
+    word: "GO!",
     background: "color-mix(in oklch, var(--color-brand-300) 25%, transparent)",
     color: "color-mix(in oklch, var(--color-brand-600) 85%, black 15%)",
   },
