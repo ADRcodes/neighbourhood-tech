@@ -134,7 +134,7 @@ const Saved = () => {
     if (!user) {
       return (
         <div className="space-y-3 text-sm text-text">
-          <p>You need an account to save events.</p>
+          <p className="text-onprimary/85">You need an account to save events.</p>
           <button
             type="button"
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 font-semibold text-onprimary hover:opacity-95"
@@ -251,28 +251,30 @@ const Saved = () => {
   ]);
 
   return (
-    <div className="px-4 md:px-6 lg:px-8 py-6 md:-mt-[72px] md:pt-24 space-y-4 text-text mobile-aurora">
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">Saved</p>
-        <h1 className="text-2xl font-bold text-text">Your saved events</h1>
+    <div className="px-4 md:px-6 lg:px-8 py-6 md:-mt-[74px] md:pt-24 text-text mobile-aurora">
+      <div className="mx-auto w-full max-w-7xl space-y-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-onprimary/80">Saved</p>
+          <h1 className="text-2xl font-bold text-onprimary">Your saved events</h1>
+        </div>
+        {loadError && <p className="text-sm text-danger">{loadError}</p>}
+        {actionError && <p className="text-sm text-danger">{actionError}</p>}
+        <FiltersPanel
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search your saved events"
+          availableTags={tagOptions}
+          activeTags={activeTags}
+          onToggleTag={toggleTag}
+          availableSources={sourceOptions}
+          activeSources={activeSources}
+          onToggleSource={toggleSource}
+          availableLocations={locationOptions}
+          activeLocations={activeLocations}
+          onToggleLocation={toggleLocation}
+        />
+        {content}
       </div>
-      {loadError && <p className="text-sm text-danger">{loadError}</p>}
-      {actionError && <p className="text-sm text-danger">{actionError}</p>}
-      <FiltersPanel
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        searchPlaceholder="Search your saved events"
-        availableTags={tagOptions}
-        activeTags={activeTags}
-        onToggleTag={toggleTag}
-        availableSources={sourceOptions}
-        activeSources={activeSources}
-        onToggleSource={toggleSource}
-        availableLocations={locationOptions}
-        activeLocations={activeLocations}
-        onToggleLocation={toggleLocation}
-      />
-      {content}
     </div>
   );
 };
